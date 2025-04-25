@@ -9,7 +9,9 @@ from threading import Thread
 from colorama import Fore, Back, Style
 #from serial.tools.list_ports import comports
 
-#from protocol import * # make html 사용시 적용
+# from protocol import * # make html 사용시 적용
+# from receiver import * # make html 사용시 적용
+
 from .protocol import *
 from .receiver import *
 
@@ -28,6 +30,54 @@ def add(a: int, b: int) -> int:
     Examples:
         >>> add(2, 3)
         5
+
+
+    How to Use:
+        >>> zumi.display_text_set(12,5)
+
+
+
+    Args:
+        param1 (int): The first parameter used for ...
+        param2 (str): The second parameter used for ...
+
+    Returns:
+        bool: True if successful, False otherwise.
+
+    Raises:
+        TypeError: If `param1` is not an integer.
+        ValueError: If `param2` is an empty string.
+
+    Notes:
+        This is an additional note or a set of notes that provide extra
+        information about the function, but are not part of the main description.
+
+    Examples:
+        >>> example_function(5, "hello")
+        True
+        >>> example_function(10, "")
+        ValueError: param2 should not be an empty string.
+        ``code sample``
+
+    .. note:: 용을 ''조심''하십시오.
+
+    +-----+---+---+----+
+    | mul | 2 | 3 | 4  |
+    +=====+===+===+====+
+    | 2   | 4 | 6 | 8  |
+    +-----+---+---+----+
+    | 3   | 6 | 9 | 12 |
+    +-----+---+---+----+
+
+    ===== ===== =======
+    A     B     A and B
+    ===== ===== =======
+    False False False
+    False True  False
+    True  False False
+    True  True  True
+    ===== ===== =======
+
     """
     return a + b
 
@@ -80,6 +130,9 @@ class ZumiAI:
         self.senBR = 0
         self.senBC = 0
 
+        self.detectFace = 0
+        self.detectCat = 0
+        self.detectFace = 0
 
 
     def _printLog(self, message):
@@ -114,8 +167,6 @@ class ZumiAI:
         if self._flagShowReceiveData:
             print("")
 
-
-
     def _handler(self, dataArray):
 
 
@@ -130,6 +181,15 @@ class ZumiAI:
         self.senBL = dataArray[7]
         self.senBC = dataArray[6]
         self.senBR = dataArray[5]
+
+        self.detectFace = dataArray[8]
+        self.detectFace = dataArray[8]
+        self.detectFace = dataArray[8]
+
+
+
+        print(self.detectFace)
+
 
         # print(str(self.senFL)+" "+
         #       str(self.senFR)+" "+
@@ -152,7 +212,6 @@ class ZumiAI:
 
         #return header.dataType
 
-
     def _receiving(self):
         while self._flagThreadRun:
 
@@ -171,6 +230,7 @@ class ZumiAI:
 
     def check(self):
 
+        #
         while not self._bufferQueue.empty():
             dataArray = self._bufferQueue.get_nowait()
             self._bufferQueue.task_done()
@@ -347,12 +407,17 @@ class ZumiAI:
         이 값은 따로 none 처리하기 전까지 계속 유지됩니다.
         """
         self._current_request |= request
+        return self.sendCommand(CommandType.None_)
+
+
+
 
     def clear_request(self, request: RequestType):
         """
         전역적으로 설정된 request 값에서 특정 request 값을 제거합니다.
         """
         self._current_request &= ~request.value
+        return self.sendCommand(CommandType.None_)
 
 
     def build_request_section(self, request: int) -> bytearray:
@@ -776,13 +841,13 @@ class ZumiAI:
         led 패턴을 변경
 
         Args:
-            pattern  : LED_effectType.LED_NORMAL  : 켜있는 상태
-                       LED_effectType.LED_BLINK   : 깜박이기
-                       LED_effectType.LED_FLICKER : 두번 깜박이기
-                       LED_effectType.LED_DIMMING : 점점 밝아졌다가 어두워지기
-                       LED_effectType.LED_SUNRIZE : 점점 어두워지기
-                       LED_effectType.LED_SUNSET  : 점점 밝아지기
-                       LED_effectType.LED_RAINBOW : 무지개색상으로 변하기
+            pattern  : - LED_effectType.LED_NORMAL  : 켜있는 상태
+                       - LED_effectType.LED_BLINK   : 깜박이기
+                       - LED_effectType.LED_FLICKER : 두번 깜박이기
+                       - LED_effectType.LED_DIMMING : 점점 밝아졌다가 어두워지기
+                       - LED_effectType.LED_SUNRIZE : 점점 어두워지기
+                       - LED_effectType.LED_SUNSET  : 점점 밝아지기
+                       - LED_effectType.LED_RAINBOW : 무지개색상으로 변하기
             time     : 시간 (초)
 
         Returns:
@@ -812,9 +877,9 @@ class ZumiAI:
         센서에 감지 될때까지 직진 (감지 기준 값 이하가 될 때까지)
 
          Args:
-            speed : 속도 (1, 2, 3)
-            senL  : 왼쪽 센서 감지 기준 값
-            senR  : 오른쪽 센서 감지 기준 값
+            - speed : 속도 (1, 2, 3)
+            - senL  : 왼쪽 센서 감지 기준 값
+            - senR  : 오른쪽 센서 감지 기준 값
 
         Returns:
             없음
@@ -1067,6 +1132,7 @@ class ZumiAI:
     def reverse_infinite(self, speed=1):
         """
         계속 후진합니다.
+
         Args:
             speed : 속도 (1, 2, 3)
 
@@ -1105,11 +1171,11 @@ class ZumiAI:
         전체 센서 값을 가져옵니다.
 
         Args:
-            IR IR 센서 값 : 전방 왼쪽
-                           전방 오른쪽
-                           하단 왼쪽
-                           하단 중앙
-                           하단 오른쪽
+            IR sensor value :   - 전방 왼쪽
+                                - 전방 오른쪽
+                                - 하단 왼쪽
+                                - 하단 중앙
+                                - 오른쪽
 
         Returns:
             없음
@@ -1129,38 +1195,14 @@ class ZumiAI:
         return ir_data
 
 
-    def get_IR_sensor_front(self):
-        """
-        전방 센서 값을 가져옵니다.
-
-        Args:
-        Args:
-            IR 센서 값 : 전방 왼쪽
-                        전방 오른쪽
-
-        Returns:
-            없음
-
-        Examples:
-            >>> ir = zumi.get_IR_sensor_front()
-                print(ir)
-        """
-
-        ir_data = []
-        ir_data.append(self.senFL)
-        ir_data.append(self.senFR)
-
-        return ir_data
-
     def get_IR_sensor_bottom(self):
         """
         하단 센서 값을 가져옵니다.
 
         Args:
-            IR 센서 값 : 하단 왼쪽
-                        하단 중앙
-                        하단 오른쪽
-
+            IR sensor value :   - 하단 왼쪽
+                                - 하단 중앙
+                                - 오른쪽
         Returns:
             없음
 
@@ -1177,14 +1219,34 @@ class ZumiAI:
         return ir_data
 
 
+    def get_IR_sensor_front(self):
+        """
+        전방 센서 값을 가져옵니다.
+
+        Args:
+             IR sensor value :  - 전방 왼쪽
+                                - 전방 오른쪽
+
+        Returns:
+            없음
+
+        Examples:
+            >>> ir = zumi.get_IR_sensor_front()
+                print(ir)
+        """
+
+        ir_data = []
+        ir_data.append(self.senFL)
+        ir_data.append(self.senFR)
+
+        return ir_data
+
     def set_detect_color(self, set = 0):
         """
         색상 감지 기능을 설정합니다.
 
         Args:
-            set : 0 : 끄기
-                  1 : 켜기
-
+            set : (0 끄기, 1 켜기)
 
         Returns:
             없음
@@ -1204,8 +1266,7 @@ class ZumiAI:
         얼굴 감지 기능을 설정합니다.
 
         Args:
-            set : 0 : 끄기
-                  1 : 켜기
+            set : (0 끄기, 1 켜기)
 
         Returns:
             없음
@@ -1225,8 +1286,7 @@ class ZumiAI:
         마커 감지 기능을 설정합니다.
 
         Args:
-            set : 1 : 켜기
-                  0 : 끄기
+            set : (0 끄기, 1 켜기)
 
         Returns:
             없음
@@ -1245,8 +1305,7 @@ class ZumiAI:
         화면을 전환합니다.
 
         Args:
-            set : 1 : 카메라
-                  2 : 표정
+            set : (1 카메라, 1 표정)
 
         Returns:
             없음
@@ -1265,8 +1324,7 @@ class ZumiAI:
         표정을 바꿉니다.
 
         Args:
-            set : 1 : 카메라
-                  2 : 표정
+            set : 표정 리스트
 
         Returns:
             없음
@@ -1281,10 +1339,21 @@ class ZumiAI:
         return self.sendCommand(CommandType.COMMAND_EMOTION_CHANGE, set)
 
 
-
-
-
     def sendText(self, CommandType, text, newline = 0):
+        """
+        문자를 출력합니다.
+
+        Args:
+            CommandType : CommandType
+            text    : 문자열
+            newline : 줄바꿈 선택 (0: 사용안함, 1: 사용)
+
+        Returns:
+            없음
+
+        Examples:
+            >>> zumi.sendText(CommandType.COMMAND_TEXT_INPUT.value,"Hello, world!")
+        """
 
         encoded_bytes = text.encode('utf-8')
         if(len(encoded_bytes) > 27):
@@ -1376,6 +1445,7 @@ class ZumiAI:
 
         Examples:
             >>> zumi.display_text_set(12,5)
+
         """
 
         self.sendCommand(CommandType.COMMAND_TEXT_SET, color ,size)

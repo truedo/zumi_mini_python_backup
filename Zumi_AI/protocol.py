@@ -121,7 +121,7 @@ class CommandType(Enum):
 
 class CommandType_SIZE(Enum):
 
-    None_                           = 1      # 없음
+    None_                           = 0      # 없음
 
     COMMAND_GOGO                            = 1
     COMMAND_LEFT                            = 1
@@ -196,6 +196,13 @@ class CommandType_SIZE(Enum):
     #     EndOfType               = 0xFF
 
 
+
+# enum을 사용하여 관련 있는 상수를 묶음
+class PersonDataIndex(Enum):
+    DATA_SEN_FL = 04
+    AGE = 1
+    CITY = 2
+    EMAIL = 3
 
 # pair = bytearray([0x24, 0x52, 0xCD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF])
 # move = bytearray([0x24, 0x52, 0x01, 0x48, 0x45, 0x4C, 0x4C, 0x4F, 0x21, 0xFF, 0xFF])

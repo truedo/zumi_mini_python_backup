@@ -204,7 +204,7 @@ def main():
                        help='서버 주소 (예: ws://IP/ws)')
     parser.add_argument('--no-yolo', action='store_true',
                        help='YOLO 기능 비활성화')
-    parser.add_argument('--model', type=str, default='yolov5m',
+    parser.add_argument('--model', type=str, default='yolov5s',
                        help='YOLO 모델 선택 (yolov5n, yolov5s, yolov5m 등)')
     parser.add_argument('--confidence', type=float, default=0.25,
                        help='신뢰도 임계값 (0.0-1.0)')

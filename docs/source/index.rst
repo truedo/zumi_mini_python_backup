@@ -12,6 +12,7 @@ zumiAI의 파이썬 문서입니다.
 
    zumi_AI
    protocol
+   receiver
    module
 
 Indices and tables

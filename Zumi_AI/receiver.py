@@ -1,6 +1,8 @@
 import time
+#from protocol import * # make html 사용시 적용
 from .protocol import *
 
+#0x24, 0x52, 0x01, 0x18, 0x00, 0xBE, 0xC2, 0x02, 0x1B, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x00, 0xD0, 0x00, 0x00, 0x00,
 
 # 데이터 수신 상태
 class StateLoading(Enum):
@@ -10,8 +12,6 @@ class StateLoading(Enum):
     Loaded          = 0x02      # 수신 완료 후 명령어 보관소에 대기중
     Failure         = 0x03      # 수신 실패
 
-
-
 # 데이터 섹션 구분
 class Section(Enum):
 
@@ -20,11 +20,7 @@ class Section(Enum):
     Data            = 0x02      # 데이터
     End             = 0x03      # 데이터 확인
 
-
-
 class Receiver:
-
-
     def __init__(self):
 
         self.state                  = StateLoading.Ready
@@ -45,18 +41,15 @@ class Receiver:
         self.message                = None
 
 
-
     def call(self, data):
 
         now = time.perf_counter() * 1000
 
         self.message = None
 
-
         # First Step
         if self.state == StateLoading.Failure:
             self.state = StateLoading.Ready
-
 
         # Second Step
         if self.state == StateLoading.Ready:
@@ -215,7 +208,6 @@ class Receiver:
             self.index += 1
 
         return self.state
-
 
 
     def checked(self):

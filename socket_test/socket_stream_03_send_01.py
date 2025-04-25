@@ -238,7 +238,9 @@ class WebSocketCameraClient:
 
 def main():
     parser = argparse.ArgumentParser(description='개선된 ESP32-S3 카메라 클라이언트')
-    parser.add_argument('--url', type=str, default='ws://192.168.0.59/ws',
+    parser.add_argument('--url', type=str, default='ws://192.168.0.63/ws',
+    #parser.add_argument('--url', type=str, default='ws://106.249.166.181/ws',
+    #parser.add_argument('--url', type=str, default='ws://zumimini.iptime.org/ws',  
                         help='서버 웹소켓 주소 (예: ws://IP_ADDRESS/ws)')
     args = parser.parse_args()
 
