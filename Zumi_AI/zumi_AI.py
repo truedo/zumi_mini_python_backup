@@ -124,15 +124,22 @@ class ZumiAI:
         self._flagCheckBackground = flagCheckBackground
         self._flagShowReceiveData = flagShowReceiveData
 
+
+        self.headerLen = 2
+
         self.senFL = 0
         self.senFR = 0
         self.senBL = 0
         self.senBR = 0
         self.senBC = 0
 
-        self.detectFace = 0
-        self.detectCat = 0
-        self.detectFace = 0
+        self.detectFace = [0, 0, 0]
+        self.detectColor = [0, 0, 0]
+        self.detectMarker = [0, 0, 0]
+        self.detectCat = [0, 0, 0]
+
+        self.btn = 0
+        self.battery = 0
 
 
     def _printLog(self, message):
@@ -173,23 +180,49 @@ class ZumiAI:
 
         # for i in range(0, 24):
         #     print("0x%02X" % dataArray[i])
+        # self.senFL = dataArray[4]
+        # self.senFR = dataArray[3]
+        # self.senBL = dataArray[7]
+        # self.senBC = dataArray[6]
+        # self.senBR = dataArray[5]
+
+        # self.detectFace = dataArray[8]
+
 
         # if(dataArray[0] == 1)
+        self.senFR = dataArray[PacketDataIndex.DATA_SEN_FR.value - self.headerLen]
+        self.senFL = dataArray[PacketDataIndex.DATA_SEN_FL.value - self.headerLen]
+        self.senBR = dataArray[PacketDataIndex.DATA_SEN_BR.value - self.headerLen]
+        self.senBC = dataArray[PacketDataIndex.DATA_SEN_BC.value - self.headerLen]
+        self.senBL = dataArray[PacketDataIndex.DATA_SEN_BL.value - self.headerLen]
 
-        self.senFL = dataArray[4]
-        self.senFR = dataArray[3]
-        self.senBL = dataArray[7]
-        self.senBC = dataArray[6]
-        self.senBR = dataArray[5]
+        self.detectFace[0] = dataArray[PacketDataIndex.DATA_DETECT_FACE.value - self.headerLen]
+        self.detectFace[1] = dataArray[PacketDataIndex.DATA_DETECT_FACE_X.value - self.headerLen]
+        self.detectFace[2] = dataArray[PacketDataIndex.DATA_DETECT_FACE_Y.value - self.headerLen]
 
-        self.detectFace = dataArray[8]
-        self.detectFace = dataArray[8]
-        self.detectFace = dataArray[8]
+        self.detectColor[0] = dataArray[PacketDataIndex.DATA_DETECT_COLOR.value - self.headerLen]
+        self.detectColor[1] = dataArray[PacketDataIndex.DATA_DETECT_COLOR_X.value - self.headerLen]
+        self.detectColor[2] = dataArray[PacketDataIndex.DATA_DETECT_COLOR_Y.value - self.headerLen]
+
+        self.detectMarker[0] = dataArray[PacketDataIndex.DATA_DETECT_MARKER.value - self.headerLen]
+        self.detectMarker[1] = dataArray[PacketDataIndex.DATA_DETECT_MARKER_X.value - self.headerLen]
+        self.detectMarker[2] = dataArray[PacketDataIndex.DATA_DETECT_MARKER_Y.value - self.headerLen]
+
+        self.detectCat[0] = dataArray[PacketDataIndex.DATA_DETECT_CAT.value - self.headerLen]
+        self.detectCat[1] = dataArray[PacketDataIndex.DATA_DETECT_CAT_X.value - self.headerLen]
+        self.detectCat[2] = dataArray[PacketDataIndex.DATA_DETECT_CAT_Y.value - self.headerLen]
+
+        self.btn = dataArray[PacketDataIndex.DATA_BTN_INPUT.value - self.headerLen]
+        self.battery = dataArray[PacketDataIndex.DATA_BATTERY.value - self.headerLen]
 
 
+        #print(self.detectFace)
+        #print(self.detectColor)
+        #print(self.detectMarker)
+        #print(self.detectCat)
 
-        print(self.detectFace)
-
+        #print(self.btn)
+        #print(self.battery)
 
         # print(str(self.senFL)+" "+
         #       str(self.senFR)+" "+
@@ -408,8 +441,6 @@ class ZumiAI:
         """
         self._current_request |= request
         return self.sendCommand(CommandType.None_)
-
-
 
 
     def clear_request(self, request: RequestType):
@@ -1171,14 +1202,14 @@ class ZumiAI:
         전체 센서 값을 가져옵니다.
 
         Args:
+            없음
+
+        Returns:
             IR sensor value :   - 전방 왼쪽
                                 - 전방 오른쪽
                                 - 하단 왼쪽
                                 - 하단 중앙
                                 - 오른쪽
-
-        Returns:
-            없음
 
         Examples:
             >>> ir = zumi.get_IR_sensor_all()
@@ -1200,11 +1231,12 @@ class ZumiAI:
         하단 센서 값을 가져옵니다.
 
         Args:
+            없음
+
+        Returns
             IR sensor value :   - 하단 왼쪽
                                 - 하단 중앙
                                 - 오른쪽
-        Returns:
-            없음
 
         Examples:
             >>> ir = zumi.get_IR_sensor_bottom()
@@ -1224,11 +1256,11 @@ class ZumiAI:
         전방 센서 값을 가져옵니다.
 
         Args:
-             IR sensor value :  - 전방 왼쪽
-                                - 전방 오른쪽
+            없음
 
         Returns:
-            없음
+             IR sensor value :  - 전방 왼쪽
+                                - 전방 오른쪽
 
         Examples:
             >>> ir = zumi.get_IR_sensor_front()
@@ -1260,7 +1292,6 @@ class ZumiAI:
         else:
             self.clear_request(RequestType.REQUEST_ENTRY_COLOR_DETECT)
 
-
     def set_detect_face(self, set = 0):
         """
         얼굴 감지 기능을 설정합니다.
@@ -1280,6 +1311,24 @@ class ZumiAI:
         else:
             self.clear_request(RequestType.REQUEST_ENTRY_FACE_DETECT)
 
+    def set_detect_cat(self, set = 0):
+        """
+        고양이 감지 기능을 설정합니다.
+
+        Args:
+            set : (0 끄기, 1 켜기)
+
+        Returns:
+            없음
+
+        Examples:
+            >>> zumi.set_detect_cat(1)
+        """
+
+        if(set == 1) :
+            self.set_request(RequestType.REQUEST_ENTRY_CAT_DETECT)
+        else:
+            self.clear_request(RequestType.REQUEST_ENTRY_CAT_DETECT)
 
     def set_detect_marker(self, set = 0):
         """
@@ -1449,6 +1498,80 @@ class ZumiAI:
         """
 
         self.sendCommand(CommandType.COMMAND_TEXT_SET, color ,size)
+
+
+    def get_detect_face(self):
+        """
+        얼굴 감지 값을 가져옵니다.
+
+        Args:
+            없음
+
+        Returns:
+            detect face value : - (0 미감지, 1 감지)
+                                - 감지된 얼굴의 x축 값
+                                - 감지된 얼굴의 y축 값
+
+        Examples:
+            >>> detect_face = zumi.get_detect_face()
+                print(detect_face)
+        """
+
+        return self.detectFace
+
+    def get_detect_color(self):
+        """
+        색상 감지 값을 가져옵니다.
+
+        Args:
+            없음
+
+        Returns:
+            detect color value : - 감지된 색상 값(0~7), 미감지(254)
+                                 - 감지된 색상의 x축 값
+                                 - 감지된 색상의 y축 값
+
+        Examples:
+            >>> detect_color = zumi.get_detect_color()
+                print(detect_color)
+        """
+        return self.detectColor
+
+    def get_detect_marker(self):
+        """
+        마커 감지 값을 가져옵니다.
+
+        Args:
+            없음
+
+        Returns:
+            detect marker value : - 감지된 마커 값, 미감지(254)
+                                  - 감지된 마커의 x축 값
+                                  - 감지된 마커의 y축 값
+
+        Examples:
+            >>> detect_marker = zumi.get_detect_marker()
+                print(detect_marker)
+        """
+        return self.detectMarker
+
+    def get_detect_cat(self):
+        """
+        고양이 감지 값을 가져옵니다.
+
+        Args:
+            없음
+
+        Returns:
+            detect cat value : - (0 미감지, 1 감지)
+                               - 감지된 고양이의 x축 값
+                               - 감지된 고양이의 y축 값
+
+        Examples:
+            >>> detect_cat = zumi.get_detect_cat()
+                print(detect_cat)
+        """
+        return self.detectCat
 
 
 

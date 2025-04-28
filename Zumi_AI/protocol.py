@@ -25,7 +25,8 @@ class RequestType(IntEnum):
     REQUEST_ENTRY_COLOR_DETECT = 0x02
     REQUEST_ENTRY_APRIL_DETECT = 0x04
     REQUEST_ENTRY_EULER        = 0x08
-    REQUEST_ENTRY_USERDEFINED  = 0x10
+    #REQUEST_ENTRY_USERDEFINED  = 0x10
+    REQUEST_ENTRY_CAT_DETECT   = 0x10
 
 class LED_effectType(Enum):
 
@@ -198,11 +199,66 @@ class CommandType_SIZE(Enum):
 
 
 # enum을 사용하여 관련 있는 상수를 묶음
-class PersonDataIndex(Enum):
-    DATA_SEN_FL = 04
-    AGE = 1
-    CITY = 2
-    EMAIL = 3
+class PacketDataIndex(Enum):
+
+
+
+#define ESPNOW_PACKET_COM      2 //_rPacket
+#define ESPNOW_PACKET_INFO     2
+#define ESPNOW_PACKET_PSIZE    3
+#define ESPNOW_PACKET_REQ      3 //_rPacket
+#define ESPNOW_PACKET_PSTAT    4
+
+#define ESPNOW_PACKET_IR       5
+
+#define ESPNOW_PACKET_FD      10
+#define ESPNOW_PACKET_CD      13
+#define ESPNOW_PACKET_AD      16
+
+#define ESPNOW_PACKET_EULER   19
+
+#define ESPNOW_PACKET_MD      22
+#define ESPNOW_PACKET_USER    23
+#define ESPNOW_PACKET_LENGTH  26
+
+
+    DATA_SEN_FR = 5
+    DATA_SEN_FL = 6
+    DATA_SEN_BR = 7
+    DATA_SEN_BC = 8
+    DATA_SEN_BL = 9
+
+
+    DATA_DETECT_FACE = 10
+    DATA_DETECT_FACE_X = 11
+    DATA_DETECT_FACE_Y = 12
+
+    DATA_DETECT_COLOR = 13
+    DATA_DETECT_COLOR_X = 14
+    DATA_DETECT_COLOR_Y = 15
+
+    DATA_DETECT_MARKER = 16
+    DATA_DETECT_MARKER_X = 17
+    DATA_DETECT_MARKER_Y = 18
+
+    DATA_BTN_INPUT = 19
+    DATA_BATTERY = 20
+
+    #20?
+    #21?
+
+#define ESPNOW_PACKET_EULER   19
+
+
+    DATA_DETECT_CAT= 23
+    DATA_DETECT_CAT_X = 24
+    DATA_DETECT_CAT_Y = 25
+
+
+
+
+
+
 
 # pair = bytearray([0x24, 0x52, 0xCD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF])
 # move = bytearray([0x24, 0x52, 0x01, 0x48, 0x45, 0x4C, 0x4C, 0x4F, 0x21, 0xFF, 0xFF])
