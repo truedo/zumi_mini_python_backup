@@ -154,47 +154,22 @@ class DebugOutput:
 
 
 
-
-
-
-
-class ZumiAI:
-    def __init__(self, flagCheckBackground=True, flagShowErrorMessage=True, flagShowLogMessage=False,
-                 flagShowTransferData=True, flagShowReceiveData=False):
-
-        debugger = DebugOutput(
-            show_log=flagShowLogMessage,          # 일반 로그 켜기
-            show_error=flagShowErrorMessage,        # 에러 로그 켜기
-            show_transfer=flagShowTransferData,     # 송신 데이터 로그 켜기
-            show_receive=flagShowReceiveData       # 수신 데이터 로그 켜기
-            )
-
-        # 로거 인스턴스를 저장 (Dependency Injection)
-        self._debugger = debugger if debugger is not None else DebugOutput() # 인자가 없으면 기본 DebugOutput 생성
-
+class SerialConnectionHandler(): # BaseConnectionHandler 상속
+    def __init__(self,flagCheckBackground, debugger=None):
+        #self._portname = portname
+        # self._baudrate = baudrate
+        # self._timeout = timeout
         self._serialport = None
         self._bufferQueue = Queue(4096)
         self._bufferHandler = bytearray()
+
+
         self._flagConnected = False  # Lets you know if you're connected to a device when you connect automatically
 
-        self._thread = None
-        self._flagThreadRun = False
-
-
-        self._flagShowErrorMessage = flagShowErrorMessage
-        self._flagShowLogMessage = flagShowLogMessage
-        self._flagShowTransferData = flagShowTransferData
-
-        self.timeStartProgram = time.time()  # Program Start Time Recording
-
-        self._current_request = RequestType.None_
-
-
+        self._debugger = debugger # DebugOutput 인스턴스
 
         self._receiver = Receiver()
         self._flagCheckBackground = flagCheckBackground
-        self._flagShowReceiveData = flagShowReceiveData
-
 
         self.headerLen = 2
 
@@ -212,37 +187,7 @@ class ZumiAI:
         self.btn = 0
         self.battery = 0
 
-
-    # def _debugger._printLog(self, message):
-    #     # Log output
-    #     if self._flagShowLogMessage and message is not None:
-    #         print(Fore.GREEN + "[{0:10.03f}] {1}".format((time.time() - self.timeStartProgram),
-    #                                                      message) + Style.RESET_ALL)
-    # def _debugger._printError(self, message):
-    #     # Error message output
-    #     if self._flagShowErrorMessage and message is not None:
-    #         print(
-    #             Fore.RED + "[{0:10.03f}] {1}".format((time.time() - self.timeStartProgram), message) + Style.RESET_ALL)
-    # def _debugger._printTransferData(self, dataArray):
-    #     # Send data output
-    #     if self._flagShowTransferData and (dataArray is not None) and (len(dataArray) > 0):
-    #         print(Back.YELLOW + Fore.BLACK + convertByteArrayToString(dataArray) + Style.RESET_ALL)
-    # def _debugger._printReceiveData(self, dataArray):
-    #     # Receive data output
-    #     if self._flagShowReceiveData and (dataArray is not None) and (len(dataArray) > 0):
-    #         print(Back.CYAN + Fore.BLACK + convertByteArrayToString(dataArray) + Style.RESET_ALL, end='')
-    # def _debugger._printReceiveDataEnd(self):
-    #     # Incoming data output (skipped)
-    #     if self._flagShowReceiveData:
-    #         print("")
-
-
-
-
-
     def _handler(self, dataArray):
-
-
 
         # for i in range(0, 24):
         #     print("0x%02X" % dataArray[i])
@@ -295,7 +240,6 @@ class ZumiAI:
         #       str(self.senBL)+" "+
         #       str(self.senBR)+" "+
         #       str(self.senBC))
-
 
         # # Save incoming data
         # self._runHandler(header, dataArray)
@@ -374,12 +318,11 @@ class ZumiAI:
         else:
             return self._flagConnected
 
-    def open(self, portname=None):
-
+    def connect(self, portname):
         try:
-            print("Serial connect")
-            ser = serial.Serial()  # open first serial port
-            ser.close()
+           print("Serial connect")
+           ser = serial.Serial()  # open first serial port
+           ser.close()
         except:
             print("Serial library not installed")
             self.close()
@@ -415,42 +358,11 @@ class ZumiAI:
             exit()
             return False
 
-        # # TODO: Fix this bare except
-        # except:
-        #     self._debugger._printError("Could not connect to device.")
-        #     print("Could not find CoDrone EDU controller.")
-        #     self.close()
-        #     exit()
-        #     return False
-        # # check about 10 times
-        # for i in range(10):
-        #     state = self.get_state_data()
-        #     state_flight = state[2]
-        #     if state_flight is ModeFlight.Ready:
-        #         break
-        #     else:
-        #         time.sleep(0.1)
-
-        # if state_flight is ModeFlight.Ready:
-        #     print("Connected to CoDrone EDU")
-        #     battery = state[6]
-        #     print("Battery =", battery, "%")
-        #     # set the speed to medium level
-        #     self.speed_change(speed_level=2)
-        #     for i in range(10):
-        #         # disable the previous YPRT commands
-        #         self.sendControl(0, 0, 0, 0)
-        #         time.sleep(0.1)
-        # else:
-        #     print("Could not connect to CoDrone EDU.")
-        #     print("Check that the controller and drone are on and paired.")
-        #     # print("Exiting program")
-        #     # self.close()
-        #     # exit()
-
-        # return True
-
     def close(self):
+        # if self._serial_port and self._serial_port.isOpen():
+        #     self._serial_port.close()
+        #     self._serial_port = None
+
         # log output
         if self.isOpen():
             self._debugger._printLog("Closing serial port.")
@@ -475,22 +387,87 @@ class ZumiAI:
             self._serialport.close()
             time.sleep(0.2)
 
-    # def makeTransferDataArray(self, data):
-    #     if (data is None):
-    #         return None
-    #     ##if not isinstance(header, Header):
-    #     #    return None
-    #     if isinstance(data, ISerializable):
-    #         data = data.toArray()
-    #     # = CRC16.calc(header.toArray(), 0)
-    #     #crc16 = CRC16.calc(data, crc16)
-    #    # crc16 = 0x0000
-    #     dataArray = bytearray()
-    #     dataArray.extend((0x24, 0x52))
-    #    # dataArray.extend(header.toArray())
-    #     dataArray.extend(data)
-    #    # dataArray.extend(pack('H', crc16))
-    #     return dataArray
+    def send(self, data):
+        if not self.isOpen():
+            return
+        self._serialport.write(data)
+
+        # if not self._serial_port or not self._serial_port.isOpen():
+        #     raise ConnectionError("Serial port not open.")
+        # try:
+        #     # 데이터 인코딩 필요 시
+        #     self._serial_port.write(data.encode('utf-8'))
+        # except serial.SerialException as e:
+        #      raise ConnectionError(f"Serial write error: {e}") from e
+        # except Exception as e:
+        #      raise ConnectionError(f"Error sending serial data: {e}") from e
+
+
+    def get_ir_all_readings(self):
+        """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
+        #with self._data_lock:
+        return (self.senFL, self.senFR, self.senBL, self.senBC, self.senBR) # Return a tuple copy
+
+    def get_ir_front_readings(self):
+        """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
+        #with self._data_lock:
+        return (self.senFL, self.senFR)
+
+    def get_ir_bottom_readings(self):
+        """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
+        #with self._data_lock:
+        return (self.senBL, self.senBC, self.senBR)
+
+
+    def get_detect_face_data(self):
+        return self.detectFace
+
+    def get_detect_color_data(self):
+        return self.detectColor
+
+    def get_detect_marker_data(self):
+        return self.detectMarker
+
+    def get_detect_cat_data(self):
+        return self.detectCat
+
+    def get_btn_data(self):
+        return self.btn
+
+    def get_battery_data(self):
+        return self.battery
+
+
+class ZumiAI:
+    def __init__(self, flagCheckBackground=True, flagShowErrorMessage=True, flagShowLogMessage=False,
+                 flagShowTransferData=True, flagShowReceiveData=False):
+
+        #self.timeStartProgram = time.time()  # Program Start Time Recording
+
+        debugger = DebugOutput(
+            show_log=flagShowLogMessage,          # 일반 로그
+            show_error=flagShowErrorMessage,      # 에러 로그
+            show_transfer=flagShowTransferData,   # 송신 데이터 로그
+            show_receive=flagShowReceiveData      # 수신 데이터 로그
+            )
+
+        # 로거 인스턴스를 저장 (Dependency Injection)
+        self._debugger = debugger if debugger is not None else DebugOutput() # 인자가 없으면 기본 DebugOutput 생성
+
+        self._flagCheckBackground = flagCheckBackground
+
+        # 인식 상태 저장
+        self._current_request = RequestType.None_
+
+
+    def open(self, portname=None):
+
+        self._connection_handler = SerialConnectionHandler(self._flagCheckBackground, debugger=self._debugger)
+        self._connection_handler.connect(portname)
+
+    def close(self):
+        self._connection_handler.close()
+
 
     def buildHeader(self) -> bytearray:
         """
@@ -534,7 +511,6 @@ class ZumiAI:
 
         header = self.buildHeader()
 
-
         request_section = self.build_request_section(self._current_request)
 
         # 최종 데이터 배열 구성: 헤더 + command byte + request byte + 나머지 파라미터
@@ -544,18 +520,16 @@ class ZumiAI:
 
 
     def transfer(self, data):
-        if not self.isOpen():
-            return
-
+        #if not self.isOpen():
+        #    return
         dataArray = self.makeTransferDataArray(data)
 
-        self._serialport.write(dataArray)
+        self._connection_handler.send(dataArray)
 
         # send data output
         self._debugger._printTransferData(dataArray)
 
         return dataArray
-
 
     def update_size(self,commandType):
         """
@@ -1282,14 +1256,7 @@ class ZumiAI:
                 print(ir)
         """
 
-        ir_data = []
-        ir_data.append(self.senFL)
-        ir_data.append(self.senFR)
-        ir_data.append(self.senBL)
-        ir_data.append(self.senBC)
-        ir_data.append(self.senBR)
-
-        return ir_data
+        return self._connection_handler.get_ir_all_readings()
 
 
     def get_IR_sensor_bottom(self):
@@ -1309,12 +1276,7 @@ class ZumiAI:
                 print(ir)
         """
 
-        ir_data = []
-        ir_data.append(self.senBL)
-        ir_data.append(self.senBC)
-        ir_data.append(self.senBR)
-
-        return ir_data
+        return self._connection_handler.get_ir_bottom_readings()
 
 
     def get_IR_sensor_front(self):
@@ -1333,11 +1295,7 @@ class ZumiAI:
                 print(ir)
         """
 
-        ir_data = []
-        ir_data.append(self.senFL)
-        ir_data.append(self.senFR)
-
-        return ir_data
+        return self._connection_handler.get_ir_front_readings()
 
     def set_detect_color(self, set = 0):
         """
@@ -1583,7 +1541,7 @@ class ZumiAI:
                 print(detect_face)
         """
 
-        return self.detectFace
+        return self._connection_handler.get_detect_face_data()
 
     def get_detect_color(self):
         """
@@ -1601,7 +1559,7 @@ class ZumiAI:
             >>> detect_color = zumi.get_detect_color()
                 print(detect_color)
         """
-        return self.detectColor
+        return self._connection_handler.get_detect_color_data()
 
     def get_detect_marker(self):
         """
@@ -1619,7 +1577,7 @@ class ZumiAI:
             >>> detect_marker = zumi.get_detect_marker()
                 print(detect_marker)
         """
-        return self.detectMarker
+        return self._connection_handler.get_detect_marker_data()
 
     def get_detect_cat(self):
         """
@@ -1637,7 +1595,39 @@ class ZumiAI:
             >>> detect_cat = zumi.get_detect_cat()
                 print(detect_cat)
         """
-        return self.detectCat
+        return self._connection_handler.get_detect_cat_data()
+
+    def get_button(self):
+        """
+        버튼 값을 가져옵니다.
+
+        Args:
+            없음
+
+        Returns:
+            button value : - (0 미감지, 1 감지)
+
+        Examples:
+            >>> btn = zumi.get_button()
+                print(detect_btn)
+        """
+        return self._connection_handler.get_btn_data()
+
+    def get_battery(self):
+        """
+        배터리 잔량 값을 가져옵니다.
+
+        Args:
+            없음
+
+        Returns:
+            battery percent value : 0~100
+
+        Examples:
+            >>> battery = zumi.get_battery()
+                print(detect_battery)
+        """
+        return self._connection_handler.get_battery_data()
 
 
 

@@ -29,7 +29,7 @@ print("Bottom R",ir[2])
 
 try:
     while True:
-        ir = zumi.get_IR_sensor_all()
+        ir = zumi.get_IR_sensor_bottom()
         
         
         #if(ir[1] < 181):
