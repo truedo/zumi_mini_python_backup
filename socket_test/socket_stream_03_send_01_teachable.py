@@ -9,6 +9,10 @@ import time
 import threading
 import queue
 
+from tensorflow.keras.models import load_model
+from PIL import Image, ImageOps, ImageDraw, ImageFont
+import numpy as np
+
 class WebSocketCameraClient:
     def __init__(self, url):
         self.url = url
@@ -33,6 +37,9 @@ class WebSocketCameraClient:
 
         self.l_dir = 0        
         self.r_dir = 0
+        self.model = load_model('keras_model.h5')
+        with open('labels.txt', 'r') as f:
+            self.labels = [line.strip() for line in f.readlines()]
 
         
     def send_custom_packet(self):
@@ -125,7 +132,30 @@ class WebSocketCameraClient:
             try:
                 # 1초 동안 프레임 대기
                 frame = self.frame_queue.get(timeout=1.0)
+                frame = cv2.flip(frame, 1)  # 1은 좌우 반전, 0은 상하 반전, -1은 둘 다
                 cv2.imshow("ESP32-S3 스트림", frame)
+
+
+                # 이미지 불러오기
+                #img = Image.fromarray(frame).resize((224, 224))
+                #img_array = np.array(img) / 255.0
+                #img_array = np.expand_dims(img_array, axis=0)
+
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # RGB 변환
+                resized_frame = cv2.resize(frame_rgb, (224, 224))   # OpenCV로 리사이즈
+                img_array = resized_frame / 255.0
+                img_array = np.expand_dims(img_array, axis=0)
+
+                # 예측
+                predictions = self.model.predict(img_array, verbose=0)
+                #print(predictions)
+
+                # --- 예측 결과 가져오기 ---
+                predicted_index = np.argmax(predictions[0])  # 가장 확률 높은 클래스 번호
+                predicted_label = self.labels[predicted_index]    # labels.txt에서 꺼내오기
+                print(f"예측 결과: {predicted_label}")
+
+                
 
                 # FPS 표시
                 elapsed = time.time() - self.start_time
@@ -139,7 +169,7 @@ class WebSocketCameraClient:
                     break
                 
                 elif key == ord('c'):
-                    cv2.imwrite(f"dataset_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
+                    cv2.imwrite(f"dataset2_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
                     print("이미지 저장 완료")
                 
                 
@@ -242,6 +272,8 @@ class WebSocketCameraClient:
         cv2.destroyAllWindows()
 
 def main():
+    
+
     parser = argparse.ArgumentParser(description='개선된 ESP32-S3 카메라 클라이언트')
     parser.add_argument('--url', type=str, default='ws://192.168.0.63/ws',
     #parser.add_argument('--url', type=str, default='ws://106.249.166.181/ws',

@@ -27,9 +27,19 @@ class RobotAI:
         while True:
             ret, frame = self.cap.read()
             cv2.imwrite("tmp.jpg", frame)
-            label, img = self.model.classify_and_show("tmp.jpg")
+            label, img = self.model.classify_and_show("dataset_20250428_165712.jpg")
             callback(label)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         self.cap.release()
         cv2.destroyAllWindows()
+        
+image_path = "dataset_20250428_165712.jpg"
+
+def main():
+    model = TeachableMachine(model_path="keras_model.h5",labels_file_path="labels.txt")
+    label, img = model.classify_and_show(image_path)
+    print(label)
+    
+if __name__ == "__main__":
+    main()
