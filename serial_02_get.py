@@ -2,7 +2,7 @@
 #from Zumi_AI.protocol import *
 from Zumi_AI.zumi_AI import *
 zumi = ZumiAI()
-zumi.open(portname="COM84")
+zumi.open(portname="COM637")
 
 zumi.forward_infinite(1)
 
@@ -48,7 +48,11 @@ try:
         time.sleep(0.1)
         
 except KeyboardInterrupt:
+    zumi.close()
     print("Done")
+finally:
+    zumi.close() # 연결 및 스트리밍 스레드 종료
+    print("Program finished.")
 
 
 

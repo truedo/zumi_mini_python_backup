@@ -97,9 +97,80 @@ def convertByteArrayToString(dataArray):
     return string
 
 
+class DebugOutput:
+    def __init__(self, show_log=True, show_error=True, show_transfer=False, show_receive=False):
+        # 프로그램 시작 시간 저장 (인스턴스 생성 시점)
+        self._time_start_program = time.time()
+
+        # 출력 제어 플래그
+        self._flag_show_log_message = show_log
+        self._flag_show_error_message = show_error
+        self._flag_show_transfer_data = show_transfer
+        self._flag_show_receive_data = show_receive
+
+        # 수신 데이터 출력이 부분적으로 이루어질 수 있으므로,
+        # 마지막에 줄바꿈이 필요할 경우를 대비한 상태 플래그 (선택 사항)
+        self._receiving_line_in_progress = False
+
+
+    def _printLog(self, message):
+        # 일반 로그 출력
+        if self._flag_show_log_message and message is not None:
+            elapsed_time = time.time() - self._time_start_program
+            print(Fore.GREEN + "[{0:10.03f}] {1}".format(elapsed_time, message) + Style.RESET_ALL)
+            self._ensure_newline_after_receive() # 수신 데이터 출력 중이었으면 줄바꿈
+
+    def _printError(self, message):
+        # 에러 메시지 출력
+        if self._flag_show_error_message and message is not None:
+            elapsed_time = time.time() - self._time_start_program
+            print(Fore.RED + "[{0:10.03f}] {1}".format(elapsed_time, message) + Style.RESET_ALL)
+            self._ensure_newline_after_receive() # 수신 데이터 출력 중이었으면 줄바꿈
+
+    def _printTransferData(self, data_array):
+        # 송신 데이터 출력
+        if self._flag_show_transfer_data and (data_array is not None) and (len(data_array) > 0):
+            print(Back.YELLOW + Fore.BLACK + convertByteArrayToString(data_array) + Style.RESET_ALL)
+            self._ensure_newline_after_receive() # 수신 데이터 출력 중이었으면 줄바꿈
+
+
+    def _printReceiveData(self, data_array):
+        # 수신 데이터 출력 (줄바꿈 없이 이어붙임)
+        if self._flag_show_receive_data and (data_array is not None) and (len(data_array) > 0):
+            print(Back.CYAN + Fore.BLACK + convertByteArrayToString(data_array) + Style.RESET_ALL, end='')
+            self._receiving_line_in_progress = True # 수신 라인이 진행 중임을 표시
+
+    def _printReceiveDataEnd(self):
+        # 수신 데이터 출력 라인 종료
+        if self._flag_show_receive_data and self._receiving_line_in_progress:
+            print("") # 줄바꿈 출력
+            self._receiving_line_in_progress = False # 수신 라인 종료 표시
+
+    def _ensure_newline_after_receive(self):
+        # 다른 메시지 출력 전에 수신 라인이 끝나지 않았으면 강제 줄바꿈
+        if self._receiving_line_in_progress:
+            print("")
+            self._receiving_line_in_progress = False
+
+
+
+
+
+
+
 class ZumiAI:
     def __init__(self, flagCheckBackground=True, flagShowErrorMessage=True, flagShowLogMessage=False,
                  flagShowTransferData=True, flagShowReceiveData=False):
+
+        debugger = DebugOutput(
+            show_log=flagShowLogMessage,          # 일반 로그 켜기
+            show_error=flagShowErrorMessage,        # 에러 로그 켜기
+            show_transfer=flagShowTransferData,     # 송신 데이터 로그 켜기
+            show_receive=flagShowReceiveData       # 수신 데이터 로그 켜기
+            )
+
+        # 로거 인스턴스를 저장 (Dependency Injection)
+        self._debugger = debugger if debugger is not None else DebugOutput() # 인자가 없으면 기본 DebugOutput 생성
 
         self._serialport = None
         self._bufferQueue = Queue(4096)
@@ -142,37 +213,32 @@ class ZumiAI:
         self.battery = 0
 
 
-    def _printLog(self, message):
+    # def _debugger._printLog(self, message):
+    #     # Log output
+    #     if self._flagShowLogMessage and message is not None:
+    #         print(Fore.GREEN + "[{0:10.03f}] {1}".format((time.time() - self.timeStartProgram),
+    #                                                      message) + Style.RESET_ALL)
+    # def _debugger._printError(self, message):
+    #     # Error message output
+    #     if self._flagShowErrorMessage and message is not None:
+    #         print(
+    #             Fore.RED + "[{0:10.03f}] {1}".format((time.time() - self.timeStartProgram), message) + Style.RESET_ALL)
+    # def _debugger._printTransferData(self, dataArray):
+    #     # Send data output
+    #     if self._flagShowTransferData and (dataArray is not None) and (len(dataArray) > 0):
+    #         print(Back.YELLOW + Fore.BLACK + convertByteArrayToString(dataArray) + Style.RESET_ALL)
+    # def _debugger._printReceiveData(self, dataArray):
+    #     # Receive data output
+    #     if self._flagShowReceiveData and (dataArray is not None) and (len(dataArray) > 0):
+    #         print(Back.CYAN + Fore.BLACK + convertByteArrayToString(dataArray) + Style.RESET_ALL, end='')
+    # def _debugger._printReceiveDataEnd(self):
+    #     # Incoming data output (skipped)
+    #     if self._flagShowReceiveData:
+    #         print("")
 
-        # Log output
-        if self._flagShowLogMessage and message is not None:
-            print(Fore.GREEN + "[{0:10.03f}] {1}".format((time.time() - self.timeStartProgram),
-                                                         message) + Style.RESET_ALL)
 
-    def _printError(self, message):
 
-        # Error message output
-        if self._flagShowErrorMessage and message is not None:
-            print(
-                Fore.RED + "[{0:10.03f}] {1}".format((time.time() - self.timeStartProgram), message) + Style.RESET_ALL)
 
-    def _printTransferData(self, dataArray):
-
-        # Send data output
-        if self._flagShowTransferData and (dataArray is not None) and (len(dataArray) > 0):
-            print(Back.YELLOW + Fore.BLACK + convertByteArrayToString(dataArray) + Style.RESET_ALL)
-
-    def _printReceiveData(self, dataArray):
-
-        # Receive data output
-        if self._flagShowReceiveData and (dataArray is not None) and (len(dataArray) > 0):
-            print(Back.CYAN + Fore.BLACK + convertByteArrayToString(dataArray) + Style.RESET_ALL, end='')
-
-    def _printReceiveDataEnd(self):
-
-        # Incoming data output (skipped)
-        if self._flagShowReceiveData:
-            print("")
 
     def _handler(self, dataArray):
 
@@ -270,7 +336,7 @@ class ZumiAI:
 
             if (dataArray is not None) and (len(dataArray) > 0):
                 # receive data output
-                self._printReceiveData(dataArray)
+                self._debugger._printReceiveData(dataArray)
                 self._bufferHandler.extend(dataArray)
 
         while len(self._bufferHandler) > 0:
@@ -279,16 +345,16 @@ class ZumiAI:
             # error output
             if stateLoading == StateLoading.Failure:
                 # Incoming data output (skipped)
-                self._printReceiveDataEnd()
+                self._debugger._printReceiveDataEnd()
                 # Error message output
-                self._printError(self._receiver.message)
+                self._debugger._printError(self._receiver.message)
 
             # log output
             if stateLoading == StateLoading.Loaded:
                 # Incoming data output (skipped)
-                self._printReceiveDataEnd()
+                self._debugger._printReceiveDataEnd()
                 # Log output
-                self._printLog(self._receiver.message)
+                self._debugger._printLog(self._receiver.message)
 
             if self._receiver.state == StateLoading.Loaded:
 
@@ -340,10 +406,10 @@ class ZumiAI:
             self._flagThreadRun = True
             self._thread = Thread(target=self._receiving, args=(), daemon=True)
             self._thread.start()
-            self._printLog("Connected.({0})".format(portname))
+            self._debugger._printLog("Connected.({0})".format(portname))
 
         else:
-            self._printError("Could not connect to device.")
+            self._debugger._printError("Could not connect to device.")
             print("Serial port could not open. Check the microUSB cable and port. ")
             self.close()
             exit()
@@ -351,7 +417,7 @@ class ZumiAI:
 
         # # TODO: Fix this bare except
         # except:
-        #     self._printError("Could not connect to device.")
+        #     self._debugger._printError("Could not connect to device.")
         #     print("Could not find CoDrone EDU controller.")
         #     self.close()
         #     exit()
@@ -387,23 +453,23 @@ class ZumiAI:
     def close(self):
         # log output
         if self.isOpen():
-            self._printLog("Closing serial port.")
+            self._debugger._printLog("Closing serial port.")
         else:
-            self._printLog("not connected.")
+            self._debugger._printLog("not connected.")
 
 
-        self._printLog("Thread Flag False.")
+        self._debugger._printLog("Thread Flag False.")
 
         if self._flagThreadRun:
             self._flagThreadRun = False
             time.sleep(0.1)
 
-        self._printLog("Thread Join.")
+        self._debugger._printLog("Thread Join.")
 
         if self._thread is not None:
             self._thread.join(timeout=1)
 
-        self._printLog("Port Close.")
+        self._debugger._printLog("Port Close.")
 
         if self.isOpen():
             self._serialport.close()
@@ -486,7 +552,7 @@ class ZumiAI:
         self._serialport.write(dataArray)
 
         # send data output
-        self._printTransferData(dataArray)
+        self._debugger._printTransferData(dataArray)
 
         return dataArray
 

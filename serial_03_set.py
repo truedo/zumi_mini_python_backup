@@ -2,7 +2,7 @@
 #from Zumi_AI.protocol import *
 from Zumi_AI.zumi_AI import *
 zumi = ZumiAI()
-zumi.open(portname="COM84")
+zumi.open(portname="COM286")
 
 zumi.set_detect_color(1)
 
