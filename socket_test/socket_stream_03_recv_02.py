@@ -16,25 +16,26 @@ class WebSocketCameraClient:
         self.ws_thread = None
         self.connected = False
         self.frame_queue = queue.Queue(maxsize=2)
+        self.sensor_queue = queue.Queue(maxsize=20)
         self.running = False
         self.reconnect_interval = 3
         self.lock = threading.Lock()
         self.frame_count = 0
         self.start_time = time.time()
         self.last_frame_time = time.time()
-
+        
         self.send_lock = threading.Lock()  # __init__에 추가
 
         self.led_color = 0
-
+        
         self.l_spd = 0
         self.r_spd = 0
 
 
-        self.l_dir = 0
+        self.l_dir = 0        
         self.r_dir = 0
 
-
+        
     def send_custom_packet(self):
         """커스텀 패킷 전송 메서드"""
         packet = bytes([0x24, 0x52, self.l_spd, self.r_spd, self.l_dir, self.r_dir, self.led_color])
@@ -45,7 +46,7 @@ class WebSocketCameraClient:
                     print("패킷 전송 성공:", packet.hex(' '))
                 except Exception as e:
                     print("패킷 전송 실패:", e)
-
+                    
 
 
     def connect(self):
@@ -86,19 +87,26 @@ class WebSocketCameraClient:
         self.frame_count = 0
         self.last_frame_time = time.time()
         ws.send("stream")
+        ws.send("sensor")
 
     def on_message(self, ws, message):
         """메시지 처리"""
         try:
-            nparr = np.frombuffer(message, np.uint8)
-            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            if img is not None:
-                try:
-                    self.frame_queue.put_nowait(img)
-                    self.frame_count += 1
-                    self.last_frame_time = time.time()  # 프레임 수신 시 시간 업데이트
-                except queue.Full:
-                    pass  # 프레임 드랍
+
+            print(len(message))
+            if len(message) == 7:             
+                
+                print("sensor")
+            else:
+                nparr = np.frombuffer(message, np.uint8)
+                img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                if img is not None:
+                    try:
+                        self.frame_queue.put_nowait(img)
+                        self.frame_count += 1
+                        self.last_frame_time = time.time()  # 프레임 수신 시 시간 업데이트
+                    except queue.Full:
+                        pass  # 프레임 드랍
         except Exception as e:
             print(f"이미지 처리 오류: {e}")
 
@@ -134,49 +142,49 @@ class WebSocketCameraClient:
 
                 # 종료 처리: 'q' 키 입력시 종료
                 key = cv2.waitKey(1) & 0xFF
-
+                
                 if key == ord('q'):
                     break
-
+                
                 elif key == ord('c'):
                     cv2.imwrite(f"dataset_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
                     print("이미지 저장 완료")
-
-
-                elif key == ord('0'):  #
-                    self.led_color = 0
+                
+                
+                elif key == ord('0'):  # 
+                    self.led_color = 0                    
                     self.send_custom_packet()
-
-                elif key == ord('1'):  #
+                    
+                elif key == ord('1'):  # 
                     self.led_color = 1
                     self.send_custom_packet()
 
-
-                elif key == ord('2'):  #
+                    
+                elif key == ord('2'):  # 
                     self.led_color = 2
                     self.send_custom_packet()
 
-
-                elif key == ord('3'):  #
+                    
+                elif key == ord('3'):  # 
                     self.led_color = 3
                     self.send_custom_packet()
 
 
-                elif key == ord('4'):  #
+                elif key == ord('4'):  # 
                     led_color = 4
                     self.send_custom_packet()
 
 
-                elif key == ord('5'):  #
+                elif key == ord('5'):  # 
                     self.led_color = 5
                     self.send_custom_packet()
 
 
-                elif key == ord('6'):  #
+                elif key == ord('6'):  # 
                     self.led_color = 6
                     self.send_custom_packet()
 
-                elif key == ord('7'):  #
+                elif key == ord('7'):  # 
                     self.led_color = 7
                     self.send_custom_packet()
 
@@ -184,37 +192,37 @@ class WebSocketCameraClient:
                 elif key == ord('e'):  # right
                     self.l_spd = 0
                     self.r_spd = 0
-                    self.l_dir = 0
-                    self.r_dir = 0
+                    self.l_dir = 0        
+                    self.r_dir = 0       
                     self.send_custom_packet()
-
+                    
                 elif key == ord('w'):  # forward
                     #self.led_color = 7
                     self.l_spd = 20
                     self.r_spd = 20
-                    self.l_dir = 2
-                    self.r_dir = 1
+                    self.l_dir = 2        
+                    self.r_dir = 1                   
                     self.send_custom_packet()
 
                 elif key == ord('s'):  # reverse
                     self.l_spd = 20
                     self.r_spd = 20
-                    self.l_dir = 1
-                    self.r_dir = 2
+                    self.l_dir = 1        
+                    self.r_dir = 2       
                     self.send_custom_packet()
 
                 elif key == ord('a'):  # left
                     self.l_spd = 10
                     self.r_spd = 10
-                    self.l_dir = 1
-                    self.r_dir = 1
+                    self.l_dir = 1        
+                    self.r_dir = 1    
                     self.send_custom_packet()
 
                 elif key == ord('d'):  # right
                     self.l_spd = 10
                     self.r_spd = 10
-                    self.l_dir = 2
-                    self.r_dir = 2
+                    self.l_dir = 2        
+                    self.r_dir = 2   
                     self.send_custom_packet()
 
 
@@ -245,7 +253,7 @@ def main():
     parser = argparse.ArgumentParser(description='개선된 ESP32-S3 카메라 클라이언트')
     parser.add_argument('--url', type=str, default='ws://192.168.0.63/ws',
     #parser.add_argument('--url', type=str, default='ws://106.249.166.181/ws',
-    #parser.add_argument('--url', type=str, default='ws://zumimini.iptime.org/ws',
+    #parser.add_argument('--url', type=str, default='ws://zumimini.iptime.org/ws',  
                         help='서버 웹소켓 주소 (예: ws://IP_ADDRESS/ws)')
     args = parser.parse_args()
 
