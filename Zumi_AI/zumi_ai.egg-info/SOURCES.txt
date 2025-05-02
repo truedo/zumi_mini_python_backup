@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+zumi_AI/__init__.py
+zumi_AI/protocol.py
+zumi_AI/receiver.py
+zumi_AI/zumi_AI.py
+zumi_ai.egg-info/PKG-INFO
+zumi_ai.egg-info/SOURCES.txt
+zumi_ai.egg-info/dependency_links.txt
+zumi_ai.egg-info/top_level.txt

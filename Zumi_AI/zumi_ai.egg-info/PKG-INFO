@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: zumi-ai
+Version: 0.1.4
+Summary: Zumi AI for library.
+Author-email: dr <drlee@robolink.co.kr>
+Project-URL: Homepage, https://github.com/truedo/zumi_mini_python_backup
+Project-URL: Bug Tracker, https://github.com/truedo/zumi_mini_python_backup/issues
+Keywords: ai,zumi,robotics
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# Zumi AI Library
+
+A Python library for controlling Zumi robots and implementing AI features.
+
+## Installation
+
+```bash
+pip install zumi-ai

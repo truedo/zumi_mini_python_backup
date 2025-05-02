@@ -1,8 +1,8 @@
 #import Zumi_AI.zumi_AI
 #from Zumi_AI.protocol import *
-from Zumi_AI.zumi_AI import *
+from zumi_AI.zumi_AI import *
 zumi = ZumiAI()
-zumi.open(portname="COM84")
+zumi.open(portname="COM637")
 
 #zumi.sendCommand2(CommandType.COMMAND_GO_UNTIL_DIST)
 #zumi.send_until_dist(1,20,0)

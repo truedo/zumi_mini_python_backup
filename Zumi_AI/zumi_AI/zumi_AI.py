@@ -9,77 +9,11 @@ from threading import Thread
 from colorama import Fore, Back, Style
 #from serial.tools.list_ports import comports
 
-# from protocol import * # make html 사용시 적용
-# from receiver import * # make html 사용시 적용
+#from protocol import * # make html 사용시 적용
+#from receiver import * # make html 사용시 적용
 
 from .protocol import *
 from .receiver import *
-
-def add(a: int, b: int) -> int:
-    """
-    테스트 함수
-    두 개의 정수를 더합니다.
-
-    Args:
-        a (int): 첫 번째 정수.
-        b (int): 두 번째 정수.
-
-    Returns:
-        int: a와 b의 합.
-
-    Examples:
-        >>> add(2, 3)
-        5
-
-
-    How to Use:
-        >>> zumi.display_text_set(12,5)
-
-
-
-    Args:
-        param1 (int): The first parameter used for ...
-        param2 (str): The second parameter used for ...
-
-    Returns:
-        bool: True if successful, False otherwise.
-
-    Raises:
-        TypeError: If `param1` is not an integer.
-        ValueError: If `param2` is an empty string.
-
-    Notes:
-        This is an additional note or a set of notes that provide extra
-        information about the function, but are not part of the main description.
-
-    Examples:
-        >>> example_function(5, "hello")
-        True
-        >>> example_function(10, "")
-        ValueError: param2 should not be an empty string.
-        ``code sample``
-
-    .. note:: 용을 ''조심''하십시오.
-
-    +-----+---+---+----+
-    | mul | 2 | 3 | 4  |
-    +=====+===+===+====+
-    | 2   | 4 | 6 | 8  |
-    +-----+---+---+----+
-    | 3   | 6 | 9 | 12 |
-    +-----+---+---+----+
-
-    ===== ===== =======
-    A     B     A and B
-    ===== ===== =======
-    False False False
-    False True  False
-    True  False False
-    True  True  True
-    ===== ===== =======
-
-    """
-    return a + b
 
 def convertByteArrayToString(dataArray):
     """
@@ -166,251 +100,6 @@ try:
 except ImportError:
     WEBSOCKET_LIB_IS_AVAILABLE = False
     print("Warning: 웹소켓을 위한 라이브러리가 없습니다.")
-
-
-
-
-
-class WebSocketConnectionHandler:
-    def __init__(self, ip_address, path="/ws", timeout=10, debugger=None, **kwargs):
-        # ... (이전 __init__ 내용 동일) ...
-        self._uri = f"ws://{ip_address}{path}" # WSS 시 wss:// 사용
-        self._connect_timeout = timeout
-        self._debugger = debugger # DebugOutput 인스턴스
-
-        self._ws_app = None
-        self._ws_thread = None
-        self._connected_event = threading.Event()
-        self._stop_event = threading.Event() # ZumiAI.close()에서 스레드에 전달할 신호
-
-        self._response_queue = queue.Queue()
-        self._frame_queue = queue.Queue(maxsize=2) # 테스트 코드와 동일
-
-        self._send_lock = threading.Lock()
-        self._ws_options = kwargs
-        # WebSocketApp run_forever()의 ping 옵션 등을 여기서 설정할 수 있습니다.
-
-
-    def connect(self):
-
-        if self._debugger: self._debugger.log(f"Attempting WebSocket connect to {self._uri}...")
-        self._connected_event.clear()
-        self._stop_event.clear() # 새로운 연결 시 stop_event 초기화
-
-        try:
-            self._ws_app = websocket.WebSocketApp(
-                self._uri,
-                on_open=self._on_open,
-                on_message=self._on_message,
-                on_error=self._on_error,
-                on_close=self._on_close,
-                **self._ws_options # 추가 옵션 전달
-            )
-
-            # run_forever를 별도의 스레드에서 실행
-            # daemon=True 제거 또는 daemon=False 명시
-            self._ws_thread = threading.Thread(target=lambda: self._ws_app.run_forever(
-                ping_interval=5, # Keep-alive ping 간격 (초)
-                ping_timeout=3,  # ping 응답 대기 시간 (초)
-                sslopt={"cert_reqs": ssl.CERT_NONE} if self._uri.startswith("wss://") else None # WSS 설정
-                # dispatcher=... # 고급 설정
-            ))
-            # self._ws_thread.daemon = False # 기본값이 False이므로 생략 가능
-            self._ws_thread.start()
-
-            # 연결 성공 이벤트가 설정될 때까지 대기
-            if not self._connected_event.wait(timeout=self._connect_timeout):
-                 self.close() # 타임아웃 발생 시 정리
-                 raise ConnectionError(f"WebSocket connection attempt to {self._uri} timed out after {self._connect_timeout} seconds.")
-
-            # on_open에서 connected_event.set() 되었음을 확인
-            if not self.connected:
-                 self.close()
-                 raise ConnectionError(f"WebSocket connection to {self._uri} failed after timeout (Connected event not set by on_open).")
-
-            if self._debugger: self._debugger.log(f"Successfully connected via WebSocket to {self._uri}.")
-
-        except ConnectionRefusedError:
-             if self._debugger: self._debugger.error(f"WebSocket connection refused by server at {self._uri}.")
-             self.close()
-             raise ConnectionError(f"Connection refused by WebSocket server at {self._uri}.")
-        except websocket._exceptions.WebSocketTimeoutException:
-             if self._debugger: self._debugger.error(f"WebSocket connection attempt timed out: {self._uri}.")
-             self.close()
-             raise ConnectionError(f"WebSocket connection attempt timed out after {self._connect_timeout} seconds.")
-        except websocket._exceptions.WebSocketException as e:
-             if self._debugger: self._debugger.error(f"WebSocket connection error: {e}")
-             self.close()
-             raise ConnectionError(f"WebSocket connection error: {e}") from e
-        except Exception as e:
-             if self._debugger: self._debugger.error(f"Unexpected error during WebSocket connect: {e}")
-             self.close()
-             raise ConnectionError(f"Unexpected error during WebSocket connect: {e}") from e
-
-
-    # 콜백 메서드들
-    def _on_open(self, ws):
-        if self._debugger: self._debugger.log("WebSocket connected!")
-        self._connected_event.set() # 연결 성공 이벤트 설정
-
-    def _on_message(self, ws, message):
-        # print(f"Received message type: {type(message)}")
-        try:
-            if isinstance(message, bytes):
-                # 바이너리 메시지는 영상 데이터로 간주 (테스트 코드 방식)
-                # ... (영상 데이터 처리 로직 - 디코딩 및 frame_queue.put_nowait) ...
-                try:
-                    nparr = np.frombuffer(message, np.uint8)
-                    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                    if img is not None:
-                        try:
-                            self._frame_queue.put_nowait(img)
-                            # if self._debugger: self._debugger.log("Frame put into queue.")
-                        except queue.Full:
-                             # if self._debugger: self._debugger.log("Frame queue full, dropping frame.")
-                             pass # 프레임 드랍
-                    else:
-                         if self._debugger: self._debugger.log("Warning: Failed to decode received binary data as image.")
-                except Exception as e:
-                    if self._debugger: self._debugger.error(f"Error processing binary message (image): {e}")
-
-
-            elif isinstance(message, str):
-                # 텍스트 메시지는 명령 응답 등으로 간주 (수정된 방식)
-                if self._debugger: self._debugger.log(f"Received text message: {message.strip()}")
-                try:
-                     # 응답 큐에 넣습니다.
-                     self._response_queue.put_nowait(message.strip())
-                except queue.Full:
-                     if self._debugger: self._debugger.log("Response queue full, dropping text message.")
-
-
-            else:
-                if self._debugger: self._debugger.log(f"Received unknown message type: {type(message)}")
-
-        except Exception as e:
-            if self._debugger: self._debugger.error(f"Error processing received message: {e}")
-
-
-    def _on_error(self, ws, error):
-        # 에러 발생 시 on_close가 호출될 가능성이 높지만, 여기서도 오류 보고
-        if self._debugger: self._debugger.error(f"WebSocket error: {error}")
-        # on_close에서 연결 끊김 상태를 처리합니다.
-
-
-    def _on_close(self, ws, close_status_code, close_msg):
-        if self._debugger: self._debugger.log(f"WebSocket connection closed. Status: {close_status_code}, Message: {close_msg}")
-        # 연결 끊김 상태 업데이트
-        self._connected_event.clear() # 연결 끊김 상태를 나타냄
-        if self._debugger: self._debugger.log("WebSocket connection state updated to disconnected.")
-        # run_forever() 스레드는 이 콜백이 실행된 후 종료됩니다.
-
-
-    # 연결 상태 확인 메서드
-    @property
-    def connected(self):
-        # WebSocketApp의 underlying socket 연결 상태를 확인하는 것이 가장 정확합니다.
-        return self._ws_app is not None and self._ws_app.sock is not None and self._ws_app.sock.connected
-
-
-    # --- 데이터 송신 메서드 ---
-    def send(self, data, opcode=websocket.ABNF.OPCODE_TEXT):
-        if not self.connected:
-            raise ConnectionError("WebSocket not connected. Cannot send data.")
-
-        with self._send_lock:
-            try:
-                # websocket-client는 send 시 연결 상태를 다시 한번 확인합니다.
-                if self._ws_app and self._ws_app.sock and self._ws_app.sock.connected:
-                    # print(f"WebSocketHandler sending {len(data)} bytes with opcode {opcode}") # 상세 로그
-                    self._ws_app.send(data, opcode=opcode)
-                    # print("Send successful.")
-                else:
-                    raise ConnectionError("WebSocket underlying socket not connected.")
-            except websocket._exceptions.WebSocketException as e:
-                if self._debugger: self._debugger.error(f"WebSocket send error: {e}")
-                self._connected_event.clear() # 상태 업데이트
-                raise ConnectionError(f"WebSocket send failed: {e}") from e
-            except Exception as e:
-                if self._debugger: self._debugger.error(f"Error during WebSocket send: {e}")
-                self._connected_event.clear()
-                raise ConnectionError(f"Error during WebSocket send: {e}") from e
-
-
-    # --- 데이터 수신 메서드 (명령 응답용) ---
-    def receive(self, timeout=5):
-        if not self.connected:
-            raise ConnectionError("WebSocket not connected. Cannot receive response.")
-        try:
-            # 응답 큐에서 메시지를 가져옵니다. 메시지가 없으면 timeout 대기합니다.
-            response = self._response_queue.get(timeout=timeout)
-            # print(f"WebSocketHandler Received Response from queue: {response}") # 로그는 on_message에서 찍음
-            return response
-        except queue.Empty:
-            if self._debugger: self._debugger.log(f"WebSocket receive timeout ({timeout}s): No response received from queue.")
-            raise TimeoutError(f"Timeout ({timeout}s) waiting for response from WebSocket.")
-        except Exception as e:
-             if self._debugger: self._debugger.error(f"Error retrieving response from queue: {e}")
-             raise
-
-
-    # --- 영상 스트리밍 관련 메서드 ---
-    def get_latest_frame(self):
-         if not self.connected:
-             return None
-         try:
-             # 큐에서 최신 항목을 모두 비우고 마지막 항목을 가져옵니다.
-             frame = None
-             while True:
-                 frame = self._frame_queue.get_nowait()
-         except queue.Empty:
-              pass
-         return frame
-
-
-    def close(self):
-        """WebSocket 연결 및 관련 스레드를 종료합니다."""
-        if self._debugger: self._debugger.log("WebSocketHandler Close called.")
-
-        # 1. 스레드 종료 신호 (WebSocketApp 방식에서는 close() 호출이 주된 방법)
-        # self._stop_event.set() # WebSocketApp 방식에서는 필수 아닐 수 있음, 안전 위해 남겨둠
-
-        # 2. WebSocketApp의 close 메서드를 호출합니다.
-        # 이는 run_forever 루프를 종료시키고 on_close 콜백을 발생시킵니다.
-        if self._ws_app:
-            if self._debugger: self._debugger.log("Closing WebSocketApp connection...")
-            try:
-                # clean_close=True, timeout=5 등 옵션 고려 가능
-                self._ws_app.close(status=1000) # 1000: 정상 종료 코드
-                # print("WebSocketApp close method called.")
-            except Exception as e:
-                if self._debugger: self._debugger.error(f"Error calling WebSocketApp close: {e}")
-            self._ws_app = None # 참조 제거
-        else:
-             if self._debugger: self._debugger.log("WebSocketApp was not initialized.")
-             self._ws_app = None
-
-
-        # 3. WebSocketApp의 run_forever 스레드가 종료될 때까지 대기 (timeout 설정 필수)
-        if self._ws_thread and self._ws_thread.is_alive():
-             if self._debugger: self._debugger.log("Joining WebSocketApp thread...")
-             # join 전에 close() 호출되어 스레드가 종료될 것으로 예상
-             self._ws_thread.join(timeout=5) # 적절한 타임아웃 설정
-             if self._ws_thread.is_alive():
-                 if self._debugger: self._debugger.error("Warning: WebSocketApp thread did not terminate gracefully within timeout.")
-             else:
-                 if self._debugger: self._debugger.log("WebSocketApp thread joined successfully.")
-             self._ws_thread = None # 스레드 참조 제거
-        else:
-            if self._debugger: self._debugger.log("WebSocketApp thread was not running or already finished.")
-            self._ws_thread = None
-
-        # 큐 비우기 (남은 메시지 처리 또는 폐기)
-        while not self._response_queue.empty(): self._response_queue.get_nowait()
-        while not self._frame_queue.empty(): self._frame_queue.get_nowait()
-
-        self._connected_event.clear() # 상태 플래그도 확실히 내림
-        if self._debugger: self._debugger.log("WebSocketHandler Close finished.")
 
 
 class SerialConnectionHandler(): # BaseConnectionHandler 상속
@@ -720,11 +409,36 @@ class ZumiAI:
 
 
     def open(self, portname=None):
+        """
+        주미 미니를 연결합니다.
 
+        Args:
+            portname : 연결된 포트이름(COM1~)
+
+        Returns:
+            없음
+
+        Examples:
+            >>> from zumi_AI.zumi_AI import *
+                zumi = ZumiAI()
+                zumi.open(portname="COM84") # 사용 중인 포트명을 입력
+        """
         self._connection_handler = SerialConnectionHandler(self._flagCheckBackground, debugger=self._debugger)
         self._connection_handler.connect(portname)
 
     def close(self):
+        """
+        주미 미니를 연결을 종료합니다.
+
+        Args:
+            없음
+
+        Returns:
+            없음
+
+        Examples:
+            >>> zumi.close()
+        """
         self._connection_handler.close()
 
 
@@ -809,17 +523,17 @@ class ZumiAI:
 
     def sendCommand_test(self):
         """
-        명령을 전송합니다.
+        테스트 명령을 전송합니다.
 
         Args:
-            commandType
+            없음
 
         Returns:
-            int: a와 b의 합.
+            없음
 
         Examples:
-            >>> add(2, 3)
-            5
+            없음
+
         """
         # self.set_request(RequestType.REQUEST_ENTRY_COLOR_DETECT)
 
@@ -937,7 +651,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> sendForward_until_dist(1, 20, 0)
+            >>> zumi.sendForward_until_dist(1, 20, 0)
         """
 
         if(speed < 1) :speed = 1
@@ -964,7 +678,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> forward_dist(1, 20)
+            >>> zumi.forward_dist(1, 20)
         """
         return self.send_move_dist(speed, dist, 0)
 
@@ -980,7 +694,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> forward_dist(1, 20)
+            >>> zumi.forward_dist(1, 20)
         """
         return self.send_move_dist(speed, dist, 1)
 
@@ -998,7 +712,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> send_turn_angle(1, 20, 0)
+            >>> zumi.send_turn_angle(1, 20, 0)
         """
 
         if(speed < 1) :speed = 1
@@ -1034,7 +748,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> left_turn_angle(1, 90)
+            >>> zumi.left_turn_angle(1, 90)
         """
         return self.send_turn(speed, deg, 0)
 
@@ -1050,7 +764,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> right_turn_angle(1, 90)
+            >>> zumi.right_turn_angle(1, 90)
         """
         return self.send_turn(speed, deg, 1)
 
@@ -1075,7 +789,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> forward_dist_quick(20)
+            zumi.forward_dist_quick(20)
         """
 
         if(dist < 0) :dist = 0
@@ -1094,7 +808,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> reverse_dist_quick(20)
+            >>> zumi.reverse_dist_quick(20)
         """
 
         if(dist < 0) :dist = 0
@@ -1115,7 +829,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> left_turn_quick(90)
+            >>> zumi.left_turn_quick(90)
         """
         if(deg > 360) :deg = 360
 
@@ -1136,7 +850,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> right_turn_quick(90)
+            >>> zumi.right_turn_quick(90)
         """
 
         if(deg > 360) :deg = 360
@@ -1160,7 +874,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> led_control(10,10,10)
+            >>> zumi.led_control(10,10,10)
         """
         return self.sendCommand(CommandType.COMMAND_LED, r, g, b)
 
@@ -1184,7 +898,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> led_pattern(LED_effectType.LED_BLINK, 1)
+            >>> zumi.led_pattern(LED_effectType.LED_BLINK, 1)
         """
 
         time_high = 0
@@ -1470,7 +1184,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> reverse_infinite(1, 20)
+            >>> zumi.reverse_infinite(1, 20)
         """
 
         return self.move_infinite(speed,dir)

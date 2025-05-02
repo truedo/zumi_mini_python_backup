@@ -194,8 +194,114 @@ class WebSocketCameraClient:
                 self._add_overlay(frame, sensors)
                 
                 cv2.imshow("ESP32 Stream", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                
+                key = cv2.waitKey(1) & 0xFF
+
+                if key == ord('q'):
                     break
+
+                elif key == ord('0'):  #
+                    self.led_color = 0
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('1'):  #
+                    self.led_color = 1
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('2'):  #
+                    self.led_color = 2
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('3'):  #
+                    self.led_color = 3
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('4'):  #
+                    led_color = 4
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('5'):  #
+                    self.led_color = 5
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('6'):  #
+                    self.led_color = 6
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('7'):  #
+                    self.led_color = 7
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+                   
+
+
+                elif key == ord('e'):  # stop
+                    self.l_spd = 0
+                    self.r_spd = 0
+                    self.l_dir = 0
+                    self.r_dir = 0
+                    self.send_custom_packet()
+
+                elif key == ord('w'):  # forward
+                    #self.led_color = 7
+                    self.l_spd = 20
+                    self.r_spd = 20
+                    self.l_dir = 2
+                    self.r_dir = 1
+                    self.send_custom_packet()
+
+                elif key == ord('s'):  # reverse
+                    self.l_spd = 20
+                    self.r_spd = 20
+                    self.l_dir = 1
+                    self.r_dir = 2
+                    self.send_custom_packet()
+
+                elif key == ord('a'):  # left
+                    self.l_spd = 10
+                    self.r_spd = 10
+                    self.l_dir = 1
+                    self.r_dir = 1
+                    self.send_custom_packet()
+
+                elif key == ord('d'):  # right
+                    self.l_spd = 10
+                    self.r_spd = 10
+                    self.l_dir = 2
+                    self.r_dir = 2
+                    self.send_custom_packet()
+                
                     
             except queue.Empty:
                 if time.time() - self.last_frame_time > 5:
@@ -244,7 +350,7 @@ class WebSocketCameraClient:
 
 def main():
     parser = argparse.ArgumentParser(description='개선된 ESP32-S3 카메라 클라이언트')
-    parser.add_argument('--url', type=str, default='ws://192.168.0.63/ws',
+    parser.add_argument('--url', type=str, default='ws://192.168.0.59/ws',
     #parser.add_argument('--url', type=str, default='ws://106.249.166.181/ws',
     #parser.add_argument('--url', type=str, default='ws://zumimini.iptime.org/ws',  
                         help='서버 웹소켓 주소 (예: ws://IP_ADDRESS/ws)')
