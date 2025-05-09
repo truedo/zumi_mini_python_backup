@@ -321,23 +321,32 @@ class WebSocketCameraClient:
     
 
     def _add_overlay(self, frame, sensors):
-        """화면에 정보 오버레이"""
-        # 센서 정보
-        if True:
+        """마지막 센서 값 유지 기능 추가"""
+        # 클래스 변수로 마지막 센서 값 저장
+        if not hasattr(self, '_last_sensors'):
+            self._last_sensors = {}
+        
+        # 새 센서 값이 있으면 업데이트, 없으면 마지막 값 사용
+        if sensors:
+            self._last_sensors = sensors.copy()
+        else:
+            sensors = self._last_sensors.copy()
+        
+        # 센서 값 표시
+        if sensors:
             y = 30
-            for k, v in sensors.items():                
-                text = f"{k}: {v}"
-                print(text)
+            for key, value in sensors.items():
+                text = f"{key}: {value}"
                 cv2.putText(frame, text, (10, y), 
-                           cv2.FONT_ITALIC, 0.5, (0, 0, 255), 2)
+                           cv2.FONT_ITALIC, 0.5, (0, 255, 255), 2)
                 y += 20
         
-        # FPS 계산
+        # FPS 표시 (기존 코드 유지)
         elapsed = time.time() - self.start_time
         fps = self.frame_count / elapsed if elapsed > 0 else 0
         cv2.putText(frame, f"FPS: {fps:.1f}", (10, frame.shape[0]-20),
-                   cv2.FONT_ITALIC, 0.5, (255, 255, 255), 2)
-        
+                   cv2.FONT_ITALIC, 0.5, (255, 255, 0), 2)
+
     def stop(self):
         """리소스 정리"""
         print("stop")

@@ -146,7 +146,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">Zumi_AI.zumi_AI</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">zumi_AI.zumi_AI</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="go">    zumi = ZumiAI()</span>
 <span class="go">    zumi.open(portname=&quot;COM84&quot;) # 사용 중인 포트명을 입력</span>
 </pre></div>
@@ -188,7 +188,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">sendForward_until_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">send_move_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -230,7 +230,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">forward_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">reverse_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -252,7 +252,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">send_turn_angle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">send_turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -273,7 +273,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">left_turn_angle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">left_turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -294,7 +294,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">right_turn_angle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">right_turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -395,19 +395,19 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zumi_AI.ZumiAI.led_pattern">
-<span class="sig-name descname"><span class="pre">led_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LED_effectType.LED_BLINK</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.led_pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">led_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.led_pattern" title="Link to this definition"></a></dt>
 <dd><p>led 패턴을 변경</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pattern</strong> – <ul>
-<li><p>LED_effectType.LED_NORMAL  : 켜있는 상태</p></li>
-<li><p>LED_effectType.LED_BLINK   : 깜박이기</p></li>
-<li><p>LED_effectType.LED_FLICKER : 두번 깜박이기</p></li>
-<li><p>LED_effectType.LED_DIMMING : 점점 밝아졌다가 어두워지기</p></li>
-<li><p>LED_effectType.LED_SUNRIZE : 점점 어두워지기</p></li>
-<li><p>LED_effectType.LED_SUNSET  : 점점 밝아지기</p></li>
-<li><p>LED_effectType.LED_RAINBOW : 무지개색상으로 변하기</p></li>
+<li><p>0 : 켜있는 상태</p></li>
+<li><p>1 : 깜박이기</p></li>
+<li><p>2 : 두번 깜박이기</p></li>
+<li><p>3 : 점점 밝아졌다가 어두워지기</p></li>
+<li><p>4 : 점점 어두워지기</p></li>
+<li><p>5 : 점점 밝아지기</p></li>
+<li><p>6 : 무지개색상으로 변하기</p></li>
 </ul>
 </p></li>
 <li><p><strong>time</strong> – 시간 (초)</p></li>
@@ -418,7 +418,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">led_pattern</span><span class="p">(</span><span class="n">LED_effectType</span><span class="o">.</span><span class="n">LED_BLINK</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">led_pattern</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -591,7 +591,7 @@
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>speed</strong> – 속도 (1, 2, 3)</p></li>
-<li><p><strong>dir</strong> – 방향 (0:후진 , 1:전진)</p></li>
+<li><p><strong>dir</strong> – 방향 (0:전진, 1:후진)</p></li>
 </ul>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
@@ -599,7 +599,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">move_infinite</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -617,7 +617,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">forward_infinite</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -635,7 +635,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">reverse_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">reverse_infinite</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -668,21 +668,13 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>전방 왼쪽</dt><dd><ul>
-<li><p>전방 오른쪽</p></li>
-<li><p>하단 왼쪽</p></li>
-<li><p>하단 중앙</p></li>
-<li><p>오른쪽</p></li>
-</ul>
-</dd>
-</dl>
-</li>
+<li><p>전방 왼쪽 센서 값</p></li>
+<li><p>전방 오른쪽 센서 값</p></li>
+<li><p>하단 왼쪽 센서 값</p></li>
+<li><p>하단 중앙 센서 값</p></li>
+<li><p>오른쪽 센서 값</p></li>
 </ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>IR sensor value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -700,15 +692,13 @@
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>없음</strong></p>
 </dd>
-</dl>
-<dl class="simple">
-<dt>Returns</dt><dd><dl class="simple">
-<dt>IR sensor value<span class="classifier">- 하단 왼쪽</span></dt><dd><ul class="simple">
-<li><p>하단 중앙</p></li>
-<li><p>오른쪽</p></li>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>하단 왼쪽 센서 값</p></li>
+<li><p>하단 중앙 센서 값</p></li>
+<li><p>하단 오른쪽 센서 값</p></li>
 </ul>
-</dd>
-</dl>
+</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -728,18 +718,10 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>전방 왼쪽</dt><dd><ul>
-<li><p>전방 오른쪽</p></li>
-</ul>
-</dd>
-</dl>
-</li>
+<li><p>전방 왼쪽 센서 값</p></li>
+<li><p>전방 오른쪽 센서 값</p></li>
 </ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>IR sensor value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -827,14 +809,14 @@
 <dd><p>화면을 전환합니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>set</strong> – (1 카메라, 1 표정)</p>
+<dd class="field-odd"><p><strong>set</strong> – (1 카메라, 2 표정)</p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p>없음</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">set_screen</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">change_screen</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -970,19 +952,11 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>(0 미감지, 1 감지)</dt><dd><ul>
+<li><p>(0 미감지, 1 감지)</p></li>
 <li><p>감지된 얼굴의 x축 값</p></li>
 <li><p>감지된 얼굴의 y축 값</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-</ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>detect face value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -1002,19 +976,11 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>감지된 색상 값(0~7), 미감지(254)</dt><dd><ul>
+<li><p>감지된 색상 값(0~7), 미감지(254)</p></li>
 <li><p>감지된 색상의 x축 값</p></li>
 <li><p>감지된 색상의 y축 값</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-</ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>detect color value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -1034,19 +1000,11 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>감지된 마커 값, 미감지(254)</dt><dd><ul>
+<li><p>감지된 마커 값, 미감지(254)</p></li>
 <li><p>감지된 마커의 x축 값</p></li>
 <li><p>감지된 마커의 y축 값</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-</ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>detect marker value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -1066,19 +1024,11 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
-<dt>(0 미감지, 1 감지)</dt><dd><ul>
+<li><p>(0 미감지, 1 감지)</p></li>
 <li><p>감지된 고양이의 x축 값</p></li>
 <li><p>감지된 고양이의 y축 값</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-</ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>detect cat value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -1098,12 +1048,13 @@
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p>(0 미감지, 1 감지)</p></li>
+<li><p>0 누른 버튼 없음</p></li>
+<li><p>1 빨강 버튼 눌림</p></li>
+<li><p>2 파란 버튼 눌림</p></li>
+<li><p>4 초록 버튼 눌림</p></li>
+<li><p>8 노란 버튼 눌림</p></li>
 </ul>
 </p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>button value</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -1122,10 +1073,7 @@
 <dd class="field-odd"><p><strong>없음</strong></p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
-<dd class="field-even"><p>0~100</p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>battery percent value</p>
+<dd class="field-even"><p>배터리 퍼센트(0~100)</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>

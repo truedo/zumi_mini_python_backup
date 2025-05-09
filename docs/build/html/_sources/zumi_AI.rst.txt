@@ -5,4 +5,4 @@ zumi\AI
    :members:
    :undoc-members:
    :show-inheritance:
-   :exclude-members: add, convertByteArrayToString, check, buildHeader
+   :exclude-members: add, convertByteArrayToString, buildHeader

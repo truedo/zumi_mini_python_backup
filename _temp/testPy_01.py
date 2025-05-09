@@ -1,7 +1,12 @@
 from zumi_AI.zumi_AI import *
 zumi = ZumiAI()
-zumi.open(portname="COM637")
+zumi.open(portname="COM764")
 
+
+
+zumi.forward_dist()
+time.sleep(3)
+zumi.reverse_dist()
 
 
 zumi.led_control(10, 0, 0)

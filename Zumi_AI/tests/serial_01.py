@@ -1,15 +1,15 @@
-#import Zumi_AI.zumi_AI
-#from Zumi_AI.protocol import *
-from zumi_AI.zumi_AI import *
+import Zumi_AI.zumi_AI
+from Zumi_AI.protocol import *
+#from zumi_AI.zumi_AI import *
 zumi = ZumiAI()
-zumi.open(portname="COM637")
+zumi.open(portname="COM84")
 
 #zumi.sendCommand2(CommandType.COMMAND_GO_UNTIL_DIST)
 #zumi.send_until_dist(1,20,0)
 
-#umi.forward_dist()
+#zumi.forward_dist()
 #time.sleep(3)
-#zumi.reverse_dist()
+zumi.reverse_dist()
 
 #zumi.send_turn(3,720,1)
 #time.sleep(5)

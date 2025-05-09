@@ -9,8 +9,8 @@ from threading import Thread
 from colorama import Fore, Back, Style
 #from serial.tools.list_ports import comports
 
-#from protocol import * # make html 사용시 적용
-#from receiver import * # make html 사용시 적용
+# from protocol import * # make html 사용시 적용
+# from receiver import * # make html 사용시 적용
 
 from .protocol import *
 from .receiver import *
@@ -651,7 +651,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.sendForward_until_dist(1, 20, 0)
+            >>> zumi.send_move_dist(1, 20, 0)
         """
 
         if(speed < 1) :speed = 1
@@ -694,7 +694,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.forward_dist(1, 20)
+            >>> zumi.reverse_dist(1, 20)
         """
         return self.send_move_dist(speed, dist, 1)
 
@@ -712,7 +712,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.send_turn_angle(1, 20, 0)
+            >>> zumi.send_turn(1, 20, 0)
         """
 
         if(speed < 1) :speed = 1
@@ -748,7 +748,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.left_turn_angle(1, 90)
+            >>> zumi.left_turn(1, 90)
         """
         return self.send_turn(speed, deg, 0)
 
@@ -764,7 +764,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.right_turn_angle(1, 90)
+            >>> zumi.right_turn(1, 90)
         """
         return self.send_turn(speed, deg, 1)
 
@@ -880,26 +880,44 @@ class ZumiAI:
 
 
 
-    def led_pattern(self, pattern=LED_effectType.LED_BLINK, time=1):
+    #def led_pattern(self, pattern=LED_effectType.LED_BLINK, time=1):
+    def led_pattern(self, pattern=1, time=1):
+
         """
         led 패턴을 변경
 
         Args:
-            pattern  : - LED_effectType.LED_NORMAL  : 켜있는 상태
-                       - LED_effectType.LED_BLINK   : 깜박이기
-                       - LED_effectType.LED_FLICKER : 두번 깜박이기
-                       - LED_effectType.LED_DIMMING : 점점 밝아졌다가 어두워지기
-                       - LED_effectType.LED_SUNRIZE : 점점 어두워지기
-                       - LED_effectType.LED_SUNSET  : 점점 밝아지기
-                       - LED_effectType.LED_RAINBOW : 무지개색상으로 변하기
+            pattern  : - 0 : 켜있는 상태
+                       - 1 : 깜박이기
+                       - 2 : 두번 깜박이기
+                       - 3 : 점점 밝아졌다가 어두워지기
+                       - 4 : 점점 어두워지기
+                       - 5 : 점점 밝아지기
+                       - 6 : 무지개색상으로 변하기
             time     : 시간 (초)
 
         Returns:
             없음
 
         Examples:
-            >>> zumi.led_pattern(LED_effectType.LED_BLINK, 1)
+            >>> zumi.led_pattern(1, 1)
         """
+        if not isinstance(pattern, LED_effectType):
+            if pattern == 1:
+                pattern=LED_effectType.LED_BLINK
+            elif pattern == 2:
+                pattern=LED_effectType.LED_FLICKER
+            elif pattern == 3:
+                pattern=LED_effectType.LED_DIMMING
+            elif pattern == 4:
+                pattern=LED_effectType.LED_SUNRIZE
+            elif pattern == 5:
+                pattern=LED_effectType.LED_SUNSET
+            elif pattern == 6:
+                pattern=LED_effectType.LED_RAINBOW
+            else:
+                pattern=LED_effectType.LED_NORMAL
+
 
         time_high = 0
         time_low = 0
@@ -915,7 +933,7 @@ class ZumiAI:
 
 
 
-    def go_sensor(self, speed = 1, senL = 700, senR = 700):
+    def go_sensor(self, speed = 1, senL = 150, senR = 150):
         """
         !양쪽이 감지되어야 멈춘다.
         센서에 감지 될때까지 직진 (감지 기준 값 이하가 될 때까지)
@@ -929,20 +947,20 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.go_sensor(3,700,700)
+            >>> zumi.go_sensor(3,150,150)
         """
 
         if(speed < 1) :speed = 1
         if(speed > 3) :speed = 3
 
         if(senL < 0) :senL = 0
-        if(senL > 1024) :senL = 1024
+        if(senL > 255) :senL = 255
 
         if(senR < 0) :senR = 0
-        if(senR > 1024) :senR = 1024
+        if(senR > 255) :senR = 255
 
-        senL = int(senL/4)
-        senR = int(senR/4)
+        #senL = int(senL/4)
+        #senR = int(senR/4)
 
         return self.sendCommand(CommandType.COMMAND_GOSENSOR, speed, senL, senR)
 
@@ -1063,25 +1081,23 @@ class ZumiAI:
         if(speed > 3) : speed = 3
 
         if(senBL < 0) :senBL = 0
-        if(senBL > 1024) :senBL = 1024
+        if(senBL > 255) :senBL = 255
 
         if(senBR < 0) :senBR = 0
-        if(senBR > 1024) :senBR = 1024
+        if(senBR > 255) :senBR = 255
 
         if(senBC < 0) :senBC = 0
-        if(senBC > 1024) :senBC = 1024
+        if(senBC > 255) :senBC = 255
 
-        senBL = int(senBL/4)
-        senBR = int(senBR/4)
-        senBC = int(senBC/4)
+        #senBL = int(senBL/4)
+        #senBR = int(senBR/4)
+        #senBC = int(senBC/4)
 
         time = int(time * 10)
         if(time < 0):time = 0
         if(time > 250):time = 250
 
         return self.sendCommand(CommandType.COMMAND_LINE_TRACING, speed, senBL, senBR, senBC, time)
-
-
 
 
     def linefollower_distance(self, speed = 1, dist = 10):
@@ -1117,6 +1133,7 @@ class ZumiAI:
 
         return self.sendCommand(CommandType.COMMAND_LINE_TRACE_DIST, speed, dist)
 
+
     def stop(self):
         """
         움직임을 멈춥니다.
@@ -1140,21 +1157,24 @@ class ZumiAI:
 
         Args:
             speed : 속도 (1, 2, 3)
-            dir   : 방향 (0:후진 , 1:전진)
+            dir   : 방향 (0:전진, 1:후진)
 
         Returns:
             없음
 
         Examples:
-            >>> forward_infinite(1, 20)
+            >>> zumi.move_infinite(1,0)
         """
 
         if(speed < 0) : speed = 0
         if(speed > 3) : speed = 3
 
-        dir = 0
+        if(dir < 0) : dir = 0
+        if(dir > 1) : dir = 1
 
-        return self.sendCommand(CommandType.COMMAND_GO_INFINITE,speed,dir)
+        temp = 0
+
+        return self.sendCommand(CommandType.COMMAND_GO_INFINITE,speed,temp,dir)
 
     def forward_infinite(self, speed=1):
         """
@@ -1167,11 +1187,12 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> forward_infinite(1, 20)
+            >>> zumi.forward_infinite(1)
         """
 
-        return self.move_infinite(speed,dir)
+        dir = 0
 
+        return self.move_infinite(speed,dir)
 
     def reverse_infinite(self, speed=1):
         """
@@ -1184,8 +1205,10 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.reverse_infinite(1, 20)
+            >>> zumi.reverse_infinite(1)
         """
+
+        dir = 1
 
         return self.move_infinite(speed,dir)
 
@@ -1218,11 +1241,11 @@ class ZumiAI:
             없음
 
         Returns:
-            IR sensor value :   - 전방 왼쪽
-                                - 전방 오른쪽
-                                - 하단 왼쪽
-                                - 하단 중앙
-                                - 오른쪽
+            - 전방 왼쪽 센서 값
+            - 전방 오른쪽 센서 값
+            - 하단 왼쪽 센서 값
+            - 하단 중앙 센서 값
+            - 오른쪽 센서 값
 
         Examples:
             >>> ir = zumi.get_IR_sensor_all()
@@ -1231,7 +1254,6 @@ class ZumiAI:
 
         return self._connection_handler.get_ir_all_readings()
 
-
     def get_IR_sensor_bottom(self):
         """
         하단 센서 값을 가져옵니다.
@@ -1239,10 +1261,10 @@ class ZumiAI:
         Args:
             없음
 
-        Returns
-            IR sensor value :   - 하단 왼쪽
-                                - 하단 중앙
-                                - 오른쪽
+        Returns:
+            - 하단 왼쪽 센서 값
+            - 하단 중앙 센서 값
+            - 하단 오른쪽 센서 값
 
         Examples:
             >>> ir = zumi.get_IR_sensor_bottom()
@@ -1250,7 +1272,6 @@ class ZumiAI:
         """
 
         return self._connection_handler.get_ir_bottom_readings()
-
 
     def get_IR_sensor_front(self):
         """
@@ -1260,8 +1281,8 @@ class ZumiAI:
             없음
 
         Returns:
-             IR sensor value :  - 전방 왼쪽
-                                - 전방 오른쪽
+            - 전방 왼쪽 센서 값
+            - 전방 오른쪽 센서 값
 
         Examples:
             >>> ir = zumi.get_IR_sensor_front()
@@ -1351,13 +1372,13 @@ class ZumiAI:
         화면을 전환합니다.
 
         Args:
-            set : (1 카메라, 1 표정)
+            set : (1 카메라, 2 표정)
 
         Returns:
             없음
 
         Examples:
-            >>> zumi.set_screen(2)
+            >>> zumi.change_screen(2)
         """
 
         if(set < 0) : set = 0
@@ -1505,9 +1526,9 @@ class ZumiAI:
             없음
 
         Returns:
-            detect face value : - (0 미감지, 1 감지)
-                                - 감지된 얼굴의 x축 값
-                                - 감지된 얼굴의 y축 값
+            - (0 미감지, 1 감지)
+            - 감지된 얼굴의 x축 값
+            - 감지된 얼굴의 y축 값
 
         Examples:
             >>> detect_face = zumi.get_detect_face()
@@ -1524,9 +1545,9 @@ class ZumiAI:
             없음
 
         Returns:
-            detect color value : - 감지된 색상 값(0~7), 미감지(254)
-                                 - 감지된 색상의 x축 값
-                                 - 감지된 색상의 y축 값
+            - 감지된 색상 값(0~7), 미감지(254)
+            - 감지된 색상의 x축 값
+            - 감지된 색상의 y축 값
 
         Examples:
             >>> detect_color = zumi.get_detect_color()
@@ -1542,9 +1563,9 @@ class ZumiAI:
             없음
 
         Returns:
-            detect marker value : - 감지된 마커 값, 미감지(254)
-                                  - 감지된 마커의 x축 값
-                                  - 감지된 마커의 y축 값
+            - 감지된 마커 값, 미감지(254)
+            - 감지된 마커의 x축 값
+            - 감지된 마커의 y축 값
 
         Examples:
             >>> detect_marker = zumi.get_detect_marker()
@@ -1560,9 +1581,9 @@ class ZumiAI:
             없음
 
         Returns:
-            detect cat value : - (0 미감지, 1 감지)
-                               - 감지된 고양이의 x축 값
-                               - 감지된 고양이의 y축 값
+            - (0 미감지, 1 감지)
+            - 감지된 고양이의 x축 값
+            - 감지된 고양이의 y축 값
 
         Examples:
             >>> detect_cat = zumi.get_detect_cat()
@@ -1578,12 +1599,17 @@ class ZumiAI:
             없음
 
         Returns:
-            button value : - (0 미감지, 1 감지)
+            - 0 누른 버튼 없음
+            - 1 빨강 버튼 눌림
+            - 2 파란 버튼 눌림
+            - 4 초록 버튼 눌림
+            - 8 노란 버튼 눌림
 
         Examples:
-            >>> btn = zumi.get_button()
+            >>> detect_btn = zumi.get_button()
                 print(detect_btn)
         """
+
         return self._connection_handler.get_btn_data()
 
     def get_battery(self):
@@ -1594,7 +1620,7 @@ class ZumiAI:
             없음
 
         Returns:
-            battery percent value : 0~100
+           배터리 퍼센트(0~100)
 
         Examples:
             >>> battery = zumi.get_battery()

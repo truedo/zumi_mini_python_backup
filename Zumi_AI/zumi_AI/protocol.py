@@ -145,7 +145,7 @@ class CommandType_SIZE(Enum):
     COMMAND_GO_UNTIL_DIST                   = 26
     COMMAND_FREE_TURN                       = 27
     COMMAND_LINE_TRACE_DIST                 = 28
-    COMMAND_GO_INFINITE                     = 2
+    COMMAND_GO_INFINITE                     = 3
     COMMAND_TRACE_INFINITE                  = 30
 
     COMMAND_LED_CONTROL                     = 31
