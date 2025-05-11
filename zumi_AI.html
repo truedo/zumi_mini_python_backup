@@ -50,18 +50,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">zumiAI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#zumi_AI.ZumiAI"><code class="docutils literal notranslate"><span class="pre">ZumiAI</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.isOpen"><code class="docutils literal notranslate"><span class="pre">ZumiAI.isOpen()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.isConnected"><code class="docutils literal notranslate"><span class="pre">ZumiAI.isConnected()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.open"><code class="docutils literal notranslate"><span class="pre">ZumiAI.open()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.close"><code class="docutils literal notranslate"><span class="pre">ZumiAI.close()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.set_request"><code class="docutils literal notranslate"><span class="pre">ZumiAI.set_request()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.clear_request"><code class="docutils literal notranslate"><span class="pre">ZumiAI.clear_request()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.build_request_section"><code class="docutils literal notranslate"><span class="pre">ZumiAI.build_request_section()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.makeTransferDataArray"><code class="docutils literal notranslate"><span class="pre">ZumiAI.makeTransferDataArray()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.transfer"><code class="docutils literal notranslate"><span class="pre">ZumiAI.transfer()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.update_size"><code class="docutils literal notranslate"><span class="pre">ZumiAI.update_size()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.sendCommand_test"><code class="docutils literal notranslate"><span class="pre">ZumiAI.sendCommand_test()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.sendCommand"><code class="docutils literal notranslate"><span class="pre">ZumiAI.sendCommand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.send_move_dist"><code class="docutils literal notranslate"><span class="pre">ZumiAI.send_move_dist()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.forward_dist"><code class="docutils literal notranslate"><span class="pre">ZumiAI.forward_dist()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.reverse_dist"><code class="docutils literal notranslate"><span class="pre">ZumiAI.reverse_dist()</span></code></a></li>
@@ -90,6 +80,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_IR_sensor_front"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_IR_sensor_front()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.set_detect_color"><code class="docutils literal notranslate"><span class="pre">ZumiAI.set_detect_color()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.set_detect_face"><code class="docutils literal notranslate"><span class="pre">ZumiAI.set_detect_face()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.set_detect_cat"><code class="docutils literal notranslate"><span class="pre">ZumiAI.set_detect_cat()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.set_detect_marker"><code class="docutils literal notranslate"><span class="pre">ZumiAI.set_detect_marker()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.change_screen"><code class="docutils literal notranslate"><span class="pre">ZumiAI.change_screen()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.change_emotion"><code class="docutils literal notranslate"><span class="pre">ZumiAI.change_emotion()</span></code></a></li>
@@ -98,13 +89,18 @@
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.display_text_add"><code class="docutils literal notranslate"><span class="pre">ZumiAI.display_text_add()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.display_text_clear"><code class="docutils literal notranslate"><span class="pre">ZumiAI.display_text_clear()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.display_text_set"><code class="docutils literal notranslate"><span class="pre">ZumiAI.display_text_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_detect_face"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_detect_face()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_detect_color"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_detect_color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_detect_marker"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_detect_marker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_detect_cat"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_detect_cat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_button"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_button()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_battery"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_battery()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="protocol.html">protocol</a></li>
 <li class="toctree-l1"><a class="reference internal" href="receiver.html">receiver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module.html">my_module module</a></li>
 </ul>
 
         </div>
@@ -138,93 +134,41 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zumi_AI.</span></span><span class="sig-name descname"><span class="pre">ZumiAI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flagCheckBackground</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flagShowErrorMessage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flagShowLogMessage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flagShowTransferData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flagShowReceiveData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI" title="Link to this definition"></a></dt>
 <dd><p>기반 클래스: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.isOpen">
-<span class="sig-name descname"><span class="pre">isOpen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.isOpen" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.isConnected">
-<span class="sig-name descname"><span class="pre">isConnected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.isConnected" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="zumi_AI.ZumiAI.open">
 <span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">portname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.open" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.close" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.set_request">
-<span class="sig-name descname"><span class="pre">set_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="protocol.html#protocol.RequestType" title="protocol.RequestType"><span class="pre">RequestType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.set_request" title="Link to this definition"></a></dt>
-<dd><p>전역적으로 사용할 request 값을 설정합니다.
-이 값은 따로 none 처리하기 전까지 계속 유지됩니다.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.clear_request">
-<span class="sig-name descname"><span class="pre">clear_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="protocol.html#protocol.RequestType" title="protocol.RequestType"><span class="pre">RequestType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.clear_request" title="Link to this definition"></a></dt>
-<dd><p>전역적으로 설정된 request 값에서 특정 request 값을 제거합니다.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.build_request_section">
-<span class="sig-name descname"><span class="pre">build_request_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytearray</span></span></span><a class="headerlink" href="#zumi_AI.ZumiAI.build_request_section" title="Link to this definition"></a></dt>
-<dd><p>리퀘스트 값을 구성합니다.
-(이 예제에서는 커맨드 섹션과 별도로 리퀘스트를 구성하고 최종 데이터에 삽입합니다.)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.makeTransferDataArray">
-<span class="sig-name descname"><span class="pre">makeTransferDataArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.makeTransferDataArray" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.transfer">
-<span class="sig-name descname"><span class="pre">transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.transfer" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.update_size">
-<span class="sig-name descname"><span class="pre">update_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commandType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.update_size" title="Link to this definition"></a></dt>
-<dd><p>commandType에 해당하는 CommandType_SIZE 값을 찾아서 size를 설정합니다.
-만약 commandType이 CommandType_SIZE에 없다면 기본값(예: 8)을 사용합니다.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.sendCommand_test">
-<span class="sig-name descname"><span class="pre">sendCommand_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.sendCommand_test" title="Link to this definition"></a></dt>
-<dd><p>명령을 전송합니다.</p>
+<dd><p>주미 미니를 연결합니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>commandType</strong></p>
+<dd class="field-odd"><p><strong>portname</strong> – 연결된 포트이름(COM1~)</p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
-<dd class="field-even"><p>a와 b의 합.</p>
-</dd>
-<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
+<dd class="field-even"><p>없음</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="go">5</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">zumi_AI.zumi_AI</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="go">    zumi = ZumiAI()</span>
+<span class="go">    zumi.open(portname=&quot;COM84&quot;) # 사용 중인 포트명을 입력</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.sendCommand">
-<span class="sig-name descname"><span class="pre">sendCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.sendCommand" title="Link to this definition"></a></dt>
-<dd><p>명령을 전송합니다.</p>
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.close" title="Link to this definition"></a></dt>
+<dd><p>주미 미니를 연결을 종료합니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>인자</strong> (<em>가변</em>) – args</p>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p>없음</p>
 </dd>
 </dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -244,7 +188,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sendForward_until_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">send_move_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -265,7 +209,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">forward_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -286,7 +230,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">reverse_dist</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -308,7 +252,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">send_turn_angle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">send_turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -329,7 +273,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">left_turn_angle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">left_turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -350,7 +294,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">right_turn_angle</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">right_turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -368,9 +312,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_dist_quick</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>zumi.forward_dist_quick(20)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -386,7 +328,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reverse_dist_quick</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">reverse_dist_quick</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -405,7 +347,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">left_turn_quick</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">left_turn_quick</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -424,7 +366,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">right_turn_quick</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">right_turn_quick</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -446,26 +388,26 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">led_control</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">led_control</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zumi_AI.ZumiAI.led_pattern">
-<span class="sig-name descname"><span class="pre">led_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">LED_effectType.LED_BLINK</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.led_pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">led_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.led_pattern" title="Link to this definition"></a></dt>
 <dd><p>led 패턴을 변경</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pattern</strong> – <ul>
-<li><p>LED_effectType.LED_NORMAL  : 켜있는 상태</p></li>
-<li><p>LED_effectType.LED_BLINK   : 깜박이기</p></li>
-<li><p>LED_effectType.LED_FLICKER : 두번 깜박이기</p></li>
-<li><p>LED_effectType.LED_DIMMING : 점점 밝아졌다가 어두워지기</p></li>
-<li><p>LED_effectType.LED_SUNRIZE : 점점 어두워지기</p></li>
-<li><p>LED_effectType.LED_SUNSET  : 점점 밝아지기</p></li>
-<li><p>LED_effectType.LED_RAINBOW : 무지개색상으로 변하기</p></li>
+<li><p>0 : 켜있는 상태</p></li>
+<li><p>1 : 깜박이기</p></li>
+<li><p>2 : 두번 깜박이기</p></li>
+<li><p>3 : 점점 밝아졌다가 어두워지기</p></li>
+<li><p>4 : 점점 어두워지기</p></li>
+<li><p>5 : 점점 밝아지기</p></li>
+<li><p>6 : 무지개색상으로 변하기</p></li>
 </ul>
 </p></li>
 <li><p><strong>time</strong> – 시간 (초)</p></li>
@@ -476,7 +418,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">led_pattern</span><span class="p">(</span><span class="n">LED_effectType</span><span class="o">.</span><span class="n">LED_BLINK</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">led_pattern</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -649,7 +591,7 @@
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>speed</strong> – 속도 (1, 2, 3)</p></li>
-<li><p><strong>dir</strong> – 방향 (0:후진 , 1:전진)</p></li>
+<li><p><strong>dir</strong> – 방향 (0:전진, 1:후진)</p></li>
 </ul>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
@@ -657,7 +599,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">move_infinite</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -675,7 +617,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forward_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">forward_infinite</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -693,7 +635,7 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reverse_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">reverse_infinite</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -722,17 +664,17 @@
 <dd><p>전체 센서 값을 가져옵니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> (<em>IR sensor</em>) – <ul class="simple">
-<li><p>전방 왼쪽</p></li>
-<li><p>전방 오른쪽</p></li>
-<li><p>하단 왼쪽</p></li>
-<li><p>하단 중앙</p></li>
-<li><p>오른쪽</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><strong>없음</strong></p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
-<dd class="field-even"><p>없음</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>전방 왼쪽 센서 값</p></li>
+<li><p>전방 오른쪽 센서 값</p></li>
+<li><p>하단 왼쪽 센서 값</p></li>
+<li><p>하단 중앙 센서 값</p></li>
+<li><p>오른쪽 센서 값</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -748,15 +690,15 @@
 <dd><p>하단 센서 값을 가져옵니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> (<em>IR sensor</em>) – <ul class="simple">
-<li><p>하단 왼쪽</p></li>
-<li><p>하단 중앙</p></li>
-<li><p>오른쪽</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><strong>없음</strong></p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
-<dd class="field-even"><p>없음</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>하단 왼쪽 센서 값</p></li>
+<li><p>하단 중앙 센서 값</p></li>
+<li><p>하단 오른쪽 센서 값</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -772,14 +714,14 @@
 <dd><p>전방 센서 값을 가져옵니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> (<em>IR sensor</em>) – <ul class="simple">
-<li><p>전방 왼쪽</p></li>
-<li><p>전방 오른쪽</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><strong>없음</strong></p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
-<dd class="field-even"><p>없음</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>전방 왼쪽 센서 값</p></li>
+<li><p>전방 오른쪽 센서 값</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
@@ -826,6 +768,24 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.set_detect_cat">
+<span class="sig-name descname"><span class="pre">set_detect_cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.set_detect_cat" title="Link to this definition"></a></dt>
+<dd><p>고양이 감지 기능을 설정합니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>set</strong> – (0 끄기, 1 켜기)</p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p>없음</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">set_detect_cat</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="zumi_AI.ZumiAI.set_detect_marker">
 <span class="sig-name descname"><span class="pre">set_detect_marker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.set_detect_marker" title="Link to this definition"></a></dt>
 <dd><p>마커 감지 기능을 설정합니다.</p>
@@ -849,14 +809,14 @@
 <dd><p>화면을 전환합니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>set</strong> – (1 카메라, 1 표정)</p>
+<dd class="field-odd"><p><strong>set</strong> – (1 카메라, 2 표정)</p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
 <dd class="field-even"><p>없음</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">set_screen</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">change_screen</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -978,6 +938,147 @@
 </dl>
 <p class="rubric">예제</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">display_text_set</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_detect_face">
+<span class="sig-name descname"><span class="pre">get_detect_face</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.get_detect_face" title="Link to this definition"></a></dt>
+<dd><p>얼굴 감지 값을 가져옵니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>(0 미감지, 1 감지)</p></li>
+<li><p>감지된 얼굴의 x축 값</p></li>
+<li><p>감지된 얼굴의 y축 값</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detect_face</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_detect_face</span><span class="p">()</span>
+<span class="go">    print(detect_face)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_detect_color">
+<span class="sig-name descname"><span class="pre">get_detect_color</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.get_detect_color" title="Link to this definition"></a></dt>
+<dd><p>색상 감지 값을 가져옵니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>감지된 색상 값(0~7), 미감지(254)</p></li>
+<li><p>감지된 색상의 x축 값</p></li>
+<li><p>감지된 색상의 y축 값</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detect_color</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_detect_color</span><span class="p">()</span>
+<span class="go">    print(detect_color)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_detect_marker">
+<span class="sig-name descname"><span class="pre">get_detect_marker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.get_detect_marker" title="Link to this definition"></a></dt>
+<dd><p>마커 감지 값을 가져옵니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>감지된 마커 값, 미감지(254)</p></li>
+<li><p>감지된 마커의 x축 값</p></li>
+<li><p>감지된 마커의 y축 값</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detect_marker</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_detect_marker</span><span class="p">()</span>
+<span class="go">    print(detect_marker)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_detect_cat">
+<span class="sig-name descname"><span class="pre">get_detect_cat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.get_detect_cat" title="Link to this definition"></a></dt>
+<dd><p>고양이 감지 값을 가져옵니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>(0 미감지, 1 감지)</p></li>
+<li><p>감지된 고양이의 x축 값</p></li>
+<li><p>감지된 고양이의 y축 값</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detect_cat</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_detect_cat</span><span class="p">()</span>
+<span class="go">    print(detect_cat)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_button">
+<span class="sig-name descname"><span class="pre">get_button</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.get_button" title="Link to this definition"></a></dt>
+<dd><p>버튼 값을 가져옵니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0 누른 버튼 없음</p></li>
+<li><p>1 빨강 버튼 눌림</p></li>
+<li><p>2 파란 버튼 눌림</p></li>
+<li><p>4 초록 버튼 눌림</p></li>
+<li><p>8 노란 버튼 눌림</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">btn</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_button</span><span class="p">()</span>
+<span class="go">    print(detect_btn)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_battery">
+<span class="sig-name descname"><span class="pre">get_battery</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.get_battery" title="Link to this definition"></a></dt>
+<dd><p>배터리 잔량 값을 가져옵니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>없음</strong></p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p>배터리 퍼센트(0~100)</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">battery</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_battery</span><span class="p">()</span>
+<span class="go">    print(detect_battery)</span>
 </pre></div>
 </div>
 </dd></dl>
