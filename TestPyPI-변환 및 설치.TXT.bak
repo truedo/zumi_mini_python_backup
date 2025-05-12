@@ -1,12 +1,21 @@
 doc
-make HTML
+make html
 
-tsetPy
-D:\GitHub\Truedo\zumi_mini_python_backup\Zumi_AI>
-*python -m build 이전에 dist 파일 제거 필요
+PyPI에
+D:\GitHub\Truedo\zumi_mini_python_backup\Zumi_AI
 
+- toml 버전 수정 후
+- 이전에 dist 파일 제거 필요
 python -m build
+
+- PyPI에 업로드:
+twine upload dist/*
+
+
+pip install zumi-ai
+pip install zumi-ai --upgrade
 
 pip install --index-url https://test.pypi.org/simple/ --no-deps zumi-ai
 
 pip install --index-url https://test.pypi.org/simple/ --force-reinstall zumi-ai
+
