@@ -6,7 +6,7 @@ zumi.open(portname="COM84")
 #time.sleep(3)
 #zumi.reverse_dist()
 
-
+zumi.forward_dist()
 
 #zumi.send_turn(3,720,1)
 #time.sleep(5)
@@ -16,8 +16,8 @@ zumi.open(portname="COM84")
 
 
 
-zumi.move_infinite(20,1)
+#zumi.move_infinite(20,1)
 
-time.sleep(1)
+time.sleep(2)
 
 zumi.stop()

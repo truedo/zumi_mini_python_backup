@@ -113,7 +113,8 @@ class CommandType(Enum):
     COMMAND_EMOTION_CHANGE                  = 241
     COMMAND_PLAY_SOUND                      = 242
 
-
+    COMMAND_MOTOR_CALIBRATION_READ          = 245
+    COMMAND_MOTOR_CALIBRATION_START         = 247
     #     EndOfType               = 0xFF
 
 
@@ -186,7 +187,7 @@ class CommandType_SIZE(Enum):
     COMMAND_COLOR_TRACKING3                 = 212
 
     COMMAND_TEXT_INPUT                      = 1
-    COMMAND_TEXT_SET                        = 2
+    COMMAND_TEXT_SET                        = 5
     COMMAND_TEXT_ADD                        = 1
 
 
@@ -194,6 +195,10 @@ class CommandType_SIZE(Enum):
     COMMAND_SCREEN_TOGGLE                   = 1
     COMMAND_EMOTION_CHANGE                  = 1
     COMMAND_PLAY_SOUND                      = 1
+
+    COMMAND_MOTOR_CALIBRATION_START         = 0
+    COMMAND_MOTOR_CALIBRATION_READ          = 0
+
     #     EndOfType               = 0xFF
 
 
@@ -220,6 +225,13 @@ class PacketDataIndex(Enum):
 #define ESPNOW_PACKET_MD      22
 #define ESPNOW_PACKET_USER    23
 #define ESPNOW_PACKET_LENGTH  26
+
+    DATA_COM   = 2
+    DATA_INFO  = 2
+    #DATA_PSIZE = 3
+    DATA_REQ   = 3
+    DATA_PSTAT = 4
+
 
 
     DATA_SEN_FR = 5

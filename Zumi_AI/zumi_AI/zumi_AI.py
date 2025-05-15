@@ -7,13 +7,14 @@ from time import sleep
 import threading
 from threading import Thread
 from colorama import Fore, Back, Style
-#from serial.tools.list_ports import comports
-
+from serial.tools.list_ports import comports
+from pynput import keyboard
 # from protocol import * # make html 사용시 적용
 # from receiver import * # make html 사용시 적용
 
 from .protocol import *
 from .receiver import *
+
 
 def convertByteArrayToString(dataArray):
     """
@@ -31,16 +32,161 @@ def convertByteArrayToString(dataArray):
     return string
 
 
+
+
+# _external_key_callbacks = {}
+# # 키보드 리스너 객체 및 스레드
+# _external_listener = None
+# _external_listener_thread = None
+
+# def _parse_key_string(key_str):
+#     """
+#     문자열 키 이름을 pynput 키 객체로 변환합니다.
+#     (클래스 내부의 _parse_interrupt_key와 유사)
+#     """
+#     special_keys = {
+#         'space': keyboard.Key.space,
+#         'esc': keyboard.Key.esc,
+#         'enter': keyboard.Key.enter,
+#         'shift': keyboard.Key.shift,
+#         'ctrl': keyboard.Key.ctrl,
+#         'alt': keyboard.Key.alt,
+#         'up': keyboard.Key.up,
+#         'down': keyboard.Key.down,
+#         'left': keyboard.Key.left,
+#         'right': keyboard.Key.right,
+#         # 필요에 따라 다른 특수 키 추가
+#     }
+
+#     key_str_lower = key_str.lower()
+
+#     if key_str_lower in special_keys:
+#         return special_keys[key_str_lower]
+
+#     # 문자 키 처리
+#     if len(key_str) == 1:
+#          # pynput 1.0.0 이상
+#          try:
+#              return keyboard.KeyCode(char=key_str)
+#          except Exception:
+#               print(f"경고: 문자 '{key_str}'에 대한 KeyCode 생성 실패.")
+#               return None
+
+#     # 변환 실패
+#     return None
+
+# def _external_on_press(key):
+#     """
+#     단일 외부 리스너에 연결될 콜백 함수.
+#     눌린 키에 해당하는 등록된 콜백이 있는지 확인하고 실행합니다.
+#     """
+#     # 눌린 키가 등록된 키보드 콜백 딕셔너리에 있는지 확인
+#     if key in _external_key_callbacks:
+#         # 등록된 함수가 있다면 호출
+#         callback_func = _external_key_callbacks[key]
+#         try:
+#             # 콜백 함수에 눌린 키 정보를 전달할 수도 있습니다.
+#             # callback_func(key)
+#             callback_func() # 여기서는 간단히 인자 없이 호출하도록 함. 필요시 변경.
+#             # print(f"-> 외부 콜백 실행: {key}") # 디버깅용
+#         except Exception as e:
+#             print(f"외부 콜백 실행 중 오류 발생 ({key}): {e}")
+#         # 참고: 여기서 return False를 반환하면 이 리스너 자체는 중지되지만,
+#         # 보통 외부 유틸리티 리스너는 여러 키에 반응하고 계속 실행되는 경우가 많으므로
+#         # 특정 키에 대한 콜백 실행이 리스너를 멈추게 하지는 않습니다.
+#         # 만약 특정 키(예: 'end' 키)가 눌리면 모든 외부 리스닝을 멈추고 싶다면
+#         # 해당 키에 연결된 콜백에서 external_key_interrupt_stop()을 호출하도록 구현합니다.
+
+
+# def key_press_set(key_str, callback_func):
+#     """
+#     특정 키가 눌렸을 때 실행될 함수를 등록합니다.
+#     key_str: 등록할 키 이름 문자열 (예: "a", "esc", "space")
+#     callback_func: 해당 키가 눌렸을 때 호출될 함수
+#     """
+#     if not callable(callback_func):
+#         print(f"오류: '{key_str}'에 연결하려는 객체가 호출 가능한 함수가 아닙니다.")
+#         return
+
+#     key_obj = _parse_key_string(key_str)
+
+#     if key_obj is None:
+#         print(f"경고: 알 수 없는 키 이름 '{key_str}'입니다. 등록되지 않았습니다.")
+#         return
+
+#     # 키와 함수 매핑 등록/업데이트
+#     _external_key_callbacks[key_obj] = callback_func
+#     # print(f"'{key_str}' ({key_obj})에 콜백 함수 등록됨.") # 디버깅용
+
+
+# def key_press_start():
+#     """
+#     등록된 키보드 인터럽트 리스너를 시작합니다.
+#     프로그램 시작 시 한 번만 호출하면 됩니다.
+#     """
+#     global _external_listener, _external_listener_thread
+
+#     if _external_listener_thread is not None and _external_listener_thread.is_alive():
+#         print("키보드 인터럽트 리스너가 이미 실행 중입니다.")
+#         return
+
+#     if not _external_key_callbacks:
+#         print("경고: 등록된 키보드 인터럽트 콜백 함수가 없습니다. 리스너를 시작하지 않습니다.")
+#         return
+
+#     # 단일 키보드 리스너 생성 및 설정
+#     _external_listener = keyboard.Listener(on_press=_external_on_press, on_release=None)
+
+#     # 리스너를 실행할 별도의 스레드 생성 및 시작
+#     # 데몬 스레드로 설정하여 메인 스레드 종료 시 자동으로 종료되도록 함 (간편한 유틸리티 목적)
+#     # 만약 확실한 정리가 필요하다면 daemon=False로 하고 external_key_interrupt_stop() 시 join() 호출
+#     _external_listener_thread = threading.Thread(target=_external_listener.start, daemon=True)
+#     _external_listener_thread.start()
+
+#     print("외부 키보드 인터럽트 리스너 시작됨.")
+#     # 등록된 키 목록 출력 (선택 사항)
+#     # print("감지 대기 중인 키:", [_get_key_repr(k) for k in _external_key_callbacks.keys()])
+
+
+# def key_press_stop():
+#     """
+#     실행 중인 외부 키보드 인터럽트 리스너를 중지합니다.
+#     프로그램 종료 시 명시적으로 호출할 수 있습니다.
+#     """
+#     global _external_listener, _external_listener_thread
+
+#     if _external_listener is not None and _external_listener.running:
+#         print("외부 키보드 인터럽트 리스너 중지 요청.")
+#         _external_listener.stop()
+#         # 데몬 스레드라면 join()은 필수는 아니지만, 기다리고 싶다면 호출
+#         if _external_listener_thread is not None and _external_listener_thread.is_alive():
+#              _external_listener_thread.join()
+#              print("외부 키보드 인터럽트 리스너 스레드 종료됨.")
+#     else:
+#         print("실행 중인 외부 키보드 인터럽트 리스너가 없습니다.")
+
+
+
+# pynput 키 객체를 읽기 쉬운 문자열로 변환 (출력용 헬퍼 함수)
+# _parse_key_string과 유사하지만 반대 역할
+# def _get_key_repr(key):
+#     if hasattr(key, 'char') and key.char is not None:
+#         return f"'{key.char}'"
+#     elif hasattr(key, 'name'):
+#          return key.name
+#     else:
+#          return str(key)
+
 class DebugOutput:
     def __init__(self, show_log=True, show_error=True, show_transfer=False, show_receive=False):
         # 프로그램 시작 시간 저장 (인스턴스 생성 시점)
         self._time_start_program = time.time()
 
         # 출력 제어 플래그
-        self._flag_show_log_message = show_log
-        self._flag_show_error_message = show_error
-        self._flag_show_transfer_data = show_transfer
-        self._flag_show_receive_data = show_receive
+        self._usePos_show_log_message = show_log
+        self._usePos_show_error_message = show_error
+        self._usePos_show_transfer_data = show_transfer
+        self._usePos_show_receive_data = show_receive
 
         # 수신 데이터 출력이 부분적으로 이루어질 수 있으므로,
         # 마지막에 줄바꿈이 필요할 경우를 대비한 상태 플래그 (선택 사항)
@@ -49,34 +195,34 @@ class DebugOutput:
 
     def _printLog(self, message):
         # 일반 로그 출력
-        if self._flag_show_log_message and message is not None:
+        if self._usePos_show_log_message and message is not None:
             elapsed_time = time.time() - self._time_start_program
             print(Fore.GREEN + "[{0:10.03f}] {1}".format(elapsed_time, message) + Style.RESET_ALL)
             self._ensure_newline_after_receive() # 수신 데이터 출력 중이었으면 줄바꿈
 
     def _printError(self, message):
         # 에러 메시지 출력
-        if self._flag_show_error_message and message is not None:
+        if self._usePos_show_error_message and message is not None:
             elapsed_time = time.time() - self._time_start_program
             print(Fore.RED + "[{0:10.03f}] {1}".format(elapsed_time, message) + Style.RESET_ALL)
             self._ensure_newline_after_receive() # 수신 데이터 출력 중이었으면 줄바꿈
 
     def _printTransferData(self, data_array):
         # 송신 데이터 출력
-        if self._flag_show_transfer_data and (data_array is not None) and (len(data_array) > 0):
+        if self._usePos_show_transfer_data and (data_array is not None) and (len(data_array) > 0):
             print(Back.YELLOW + Fore.BLACK + convertByteArrayToString(data_array) + Style.RESET_ALL)
             self._ensure_newline_after_receive() # 수신 데이터 출력 중이었으면 줄바꿈
 
 
     def _printReceiveData(self, data_array):
         # 수신 데이터 출력 (줄바꿈 없이 이어붙임)
-        if self._flag_show_receive_data and (data_array is not None) and (len(data_array) > 0):
+        if self._usePos_show_receive_data and (data_array is not None) and (len(data_array) > 0):
             print(Back.CYAN + Fore.BLACK + convertByteArrayToString(data_array) + Style.RESET_ALL, end='')
             self._receiving_line_in_progress = True # 수신 라인이 진행 중임을 표시
 
     def _printReceiveDataEnd(self):
         # 수신 데이터 출력 라인 종료
-        if self._flag_show_receive_data and self._receiving_line_in_progress:
+        if self._usePos_show_receive_data and self._receiving_line_in_progress:
             print("") # 줄바꿈 출력
             self._receiving_line_in_progress = False # 수신 라인 종료 표시
 
@@ -103,7 +249,7 @@ except ImportError:
 
 
 class SerialConnectionHandler(): # BaseConnectionHandler 상속
-    def __init__(self,flagCheckBackground, debugger=None):
+    def __init__(self,usePosCheckBackground, debugger=None):
         #self._portname = portname
         # self._baudrate = baudrate
         # self._timeout = timeout
@@ -112,14 +258,21 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self._bufferHandler = bytearray()
 
 
-        self._flagConnected = False  # Lets you know if you're connected to a device when you connect automatically
+        self._usePosConnected = False  # Lets you know if you're connected to a device when you connect automatically
 
         self._debugger = debugger # DebugOutput 인스턴스
 
         self._receiver = Receiver()
-        self._flagCheckBackground = flagCheckBackground
+        self._usePosCheckBackground = usePosCheckBackground
 
         self.headerLen = 2
+
+
+        self.reqCOM = 0
+        self.reqINFO = 0
+        self.reqREQ = 0
+        self.reqPSTAT = 0
+
 
         self.senFL = 0
         self.senFR = 0
@@ -147,6 +300,10 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
         # self.detectFace = dataArray[8]
 
+        self.reqCOM = dataArray[PacketDataIndex.DATA_COM.value - self.headerLen]
+        self.reqINFO = dataArray[PacketDataIndex.DATA_INFO.value - self.headerLen]
+        self.reqREQ = dataArray[PacketDataIndex.DATA_REQ.value - self.headerLen]
+        self.reqPSTAT = dataArray[PacketDataIndex.DATA_PSTAT.value - self.headerLen]
 
         # if(dataArray[0] == 1)
         self.senFR = dataArray[PacketDataIndex.DATA_SEN_FR.value - self.headerLen]
@@ -204,12 +361,12 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         #return header.dataType
 
     def _receiving(self):
-        while self._flagThreadRun:
+        while self._usePosThreadRun:
 
             self._bufferQueue.put(self._serialport.read())
 
             # Automatic update of data when incoming data background check is enabled
-            if self._flagCheckBackground:
+            if self._usePosCheckBackground:
                 # while self.check() != DataType.None_:
                 #     pass
 
@@ -264,9 +421,11 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         if not self.isOpen():
             return False
         else:
-            return self._flagConnected
+            return self._usePosConnected
 
-    def connect(self, portname):
+    def connect(self, portname = None):
+        zumi_dongle_pid = 6790
+
         try:
            print("Serial connect")
            ser = serial.Serial()  # open first serial port
@@ -277,34 +436,46 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
            # exit()
             return False
 
-        # if portname is None:
-        #     nodes = comports()
-        #     size = len(nodes)
+        if portname is None:
+            nodes = comports()
+            size = len(nodes)
+            for item in nodes:
+                #print(item.device, item.vid)
+                if item.vid == zumi_dongle_pid:
+                    portname = item.device
+                    print("Found zumiAI Dongle.", portname)
+                    break
+        try:
+            print("Connecting to ZumiAI.")
+            self._serialport = serial.Serial(
+                port=portname,
+                baudrate=115200)
 
-        #     for item in nodes:
-        #         if item.vid == cde_controller_vid:
-        #             portname = item.device
-        #             print("Found CoDrone EDU controller. ", portname)
-        #             break
-        # try:
+            if self.isOpen():
+                self._usePosThreadRun = True
+                self._thread = Thread(target=self._receiving, args=(), daemon=True)
+                self._thread.start()
+                self._debugger._printLog("Connected.({0})".format(portname))
 
-        print("Connecting to ZumiAI.")
-        self._serialport = serial.Serial(
-            port=portname,
-            baudrate=115200)
+            else:
+                self._debugger._printError("Could not connect to device.")
+                print("Serial port could not open. Check the dognle and port.")
+                self.close()
+                exit()
+                return False
 
-        if self.isOpen():
-            self._flagThreadRun = True
-            self._thread = Thread(target=self._receiving, args=(), daemon=True)
-            self._thread.start()
-            self._debugger._printLog("Connected.({0})".format(portname))
-
-        else:
+        # Could not find device
+        except:
             self._debugger._printError("Could not connect to device.")
-            print("Serial port could not open. Check the microUSB cable and port. ")
+            print("Could not find ZumiAI dongle.")
             self.close()
             exit()
             return False
+
+        # 정지 신호 보내기
+        #for i in range(10):
+            #self.stop()
+            #time.sleep(0.1)
 
     def close(self):
         # if self._serial_port and self._serial_port.isOpen():
@@ -318,10 +489,10 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
             self._debugger._printLog("not connected.")
 
 
-        self._debugger._printLog("Thread Flag False.")
+        self._debugger._printLog("Thread usePos False.")
 
-        if self._flagThreadRun:
-            self._flagThreadRun = False
+        if self._usePosThreadRun:
+            self._usePosThreadRun = False
             time.sleep(0.1)
 
         self._debugger._printLog("Thread Join.")
@@ -350,6 +521,9 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         # except Exception as e:
         #      raise ConnectionError(f"Error sending serial data: {e}") from e
 
+    def get_req_datas(self):
+        return (self.reqCOM, self.reqINFO, self.reqREQ, self.reqPSTAT) # Return a tuple copy
+
 
     def get_ir_all_readings(self):
         """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
@@ -365,7 +539,6 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
         #with self._data_lock:
         return (self.senBL, self.senBC, self.senBR)
-
 
     def get_detect_face_data(self):
         return self.detectFace
@@ -387,28 +560,220 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
 
 class ZumiAI:
-    def __init__(self, flagCheckBackground=True, flagShowErrorMessage=True, flagShowLogMessage=False,
-                 flagShowTransferData=True, flagShowReceiveData=False):
+    def __init__(self, usePosInterruptKey=True, usePosCheckBackground=True, usePosShowErrorMessage=True, usePosShowLogMessage=False,
+                 usePosShowTransferData=True, usePosShowReceiveData=False):
 
         #self.timeStartProgram = time.time()  # Program Start Time Recording
 
         debugger = DebugOutput(
-            show_log=flagShowLogMessage,          # 일반 로그
-            show_error=flagShowErrorMessage,      # 에러 로그
-            show_transfer=flagShowTransferData,   # 송신 데이터 로그
-            show_receive=flagShowReceiveData      # 수신 데이터 로그
+            show_log=usePosShowLogMessage,          # 일반 로그
+            show_error=usePosShowErrorMessage,      # 에러 로그
+            show_transfer=usePosShowTransferData,   # 송신 데이터 로그
+            show_receive=usePosShowReceiveData      # 수신 데이터 로그
             )
 
         # 로거 인스턴스를 저장 (Dependency Injection)
         self._debugger = debugger if debugger is not None else DebugOutput() # 인자가 없으면 기본 DebugOutput 생성
 
-        self._flagCheckBackground = flagCheckBackground
+        self._usePosCheckBackground = usePosCheckBackground
 
         # 인식 상태 저장
         self._current_request = RequestType.None_
 
+        if usePosInterruptKey == True:
+            """
+            필요한 속성들을 초기화하고 키보드 리스너를 설정합니다.
+            """
+            # 작업 중지를 위한 이벤트 객체
+            self._stop_event = threading.Event()
+            # 인터럽트 명령 실행 트리거 플래그
+            self._command_triggered = False
 
-    def open(self, portname=None):
+            # 키보드 리스너 설정
+            # on_press 콜백으로 클래스 내부 메서드를 지정합니다.
+            # on_release는 사용하지 않으므로 None
+            self._listener = keyboard.Listener(on_press=self._on_press, on_release=None)
+
+            # 리스너를 실행할 별도의 스레드 생성
+            # daemon=False로 설정하여 메인 스레드 종료 시 명시적으로 join 대기
+            self._listener_thread = threading.Thread(target=self._listener.start, daemon=False)
+
+            self._listener_thread.start()
+
+        # 외부 등록 명령 사용
+        self._external_key_callbacks = {}
+        # 키보드 리스너 객체 및 스레드
+        self._external_listener = None
+        self._external_listener_thread = None
+
+
+    def _parse_key_string(self, key_str):
+        """
+        문자열 키 이름을 pynput 키 객체로 변환합니다.
+        (클래스 내부의 _parse_interrupt_key와 유사)
+        """
+        special_keys = {
+            'space': keyboard.Key.space,
+            'esc': keyboard.Key.esc,
+            'enter': keyboard.Key.enter,
+            'shift': keyboard.Key.shift,
+            'ctrl': keyboard.Key.ctrl,
+            'alt': keyboard.Key.alt,
+            'up': keyboard.Key.up,
+            'down': keyboard.Key.down,
+            'left': keyboard.Key.left,
+            'right': keyboard.Key.right,
+            # 필요에 따라 다른 특수 키 추가
+        }
+
+        key_str_lower = key_str.lower()
+
+        if key_str_lower in special_keys:
+            return special_keys[key_str_lower]
+
+        # 문자 키 처리
+        if len(key_str) == 1:
+            # pynput 1.0.0 이상
+            try:
+                return keyboard.KeyCode(char=key_str)
+            except Exception:
+                print(f"경고: 문자 '{key_str}'에 대한 KeyCode 생성 실패.")
+                return None
+
+        # 변환 실패
+        return None
+
+    def _external_on_press(self, key):
+        """
+        단일 외부 리스너에 연결될 콜백 함수.
+        눌린 키에 해당하는 등록된 콜백이 있는지 확인하고 실행합니다.
+        """
+        # 눌린 키가 등록된 키보드 콜백 딕셔너리에 있는지 확인
+        if key in self._external_key_callbacks:
+            # 등록된 함수가 있다면 호출
+            callback_func = self._external_key_callbacks[key]
+            try:
+                # 콜백 함수에 눌린 키 정보를 전달할 수도 있습니다.
+                # callback_func(key)
+                callback_func() # 여기서는 간단히 인자 없이 호출하도록 함. 필요시 변경.
+                # print(f"-> 외부 콜백 실행: {key}") # 디버깅용
+            except Exception as e:
+                print(f"외부 콜백 실행 중 오류 발생 ({key}): {e}")
+            # 참고: 여기서 return False를 반환하면 이 리스너 자체는 중지되지만,
+            # 보통 외부 유틸리티 리스너는 여러 키에 반응하고 계속 실행되는 경우가 많으므로
+            # 특정 키에 대한 콜백 실행이 리스너를 멈추게 하지는 않습니다.
+            # 만약 특정 키(예: 'end' 키)가 눌리면 모든 외부 리스닝을 멈추고 싶다면
+            # 해당 키에 연결된 콜백에서 external_key_interrupt_stop()을 호출하도록 구현합니다.
+
+
+    def key_press_set(self, key_str, callback_func):
+        """
+        특정 키가 눌렸을 때 실행될 함수를 등록합니다.
+        key_str: 등록할 키 이름 문자열 (예: "a", "esc", "space")
+        callback_func: 해당 키가 눌렸을 때 호출될 함수
+        """
+        if not callable(callback_func):
+            print(f"오류: '{key_str}'에 연결하려는 객체가 호출 가능한 함수가 아닙니다.")
+            return
+
+        key_obj = self._parse_key_string(key_str)
+
+        if key_obj is None:
+            print(f"경고: 알 수 없는 키 이름 '{key_str}'입니다. 등록되지 않았습니다.")
+            return
+
+        # 키와 함수 매핑 등록/업데이트
+        self._external_key_callbacks[key_obj] = callback_func
+        # print(f"'{key_str}' ({key_obj})에 콜백 함수 등록됨.") # 디버깅용
+
+    def key_press_start(self):
+        """
+        등록된 키보드 인터럽트 리스너를 시작합니다.
+        프로그램 시작 시 한 번만 호출하면 됩니다.
+        """
+
+        if self._external_listener_thread is not None and self._external_listener_thread.is_alive():
+            print("키보드 인터럽트 리스너가 이미 실행 중입니다.")
+            return
+
+        if not self._external_key_callbacks:
+            print("경고: 등록된 키보드 인터럽트 콜백 함수가 없습니다. 리스너를 시작하지 않습니다.")
+            return
+
+        # 단일 키보드 리스너 생성 및 설정
+        self._external_listener = keyboard.Listener(on_press=self._external_on_press, on_release=None)
+
+        # 리스너를 실행할 별도의 스레드 생성 및 시작
+        # 데몬 스레드로 설정하여 메인 스레드 종료 시 자동으로 종료되도록 함 (간편한 유틸리티 목적)
+        # 만약 확실한 정리가 필요하다면 daemon=False로 하고 external_key_interrupt_stop() 시 join() 호출
+        self._external_listener_thread = threading.Thread(target=self._external_listener.start, daemon=True)
+        self._external_listener_thread.start()
+
+        print("외부 키보드 인터럽트 리스너 시작됨.")
+        # 등록된 키 목록 출력 (선택 사항)
+        # print("감지 대기 중인 키:", [_get_key_repr(k) for k in _external_key_callbacks.keys()])
+
+    def key_press_stop(self):
+        """
+        실행 중인 외부 키보드 인터럽트 리스너를 중지합니다.
+        프로그램 종료 시 명시적으로 호출할 수 있습니다.
+        """
+        if self._external_listener is not None and self._external_listener.running:
+            print("외부 키보드 인터럽트 리스너 중지 요청.")
+            self._external_listener.stop()
+            # 데몬 스레드라면 join()은 필수는 아니지만, 기다리고 싶다면 호출
+            if self._external_listener_thread is not None and self._external_listener_thread.is_alive():
+                    self._external_listener_thread.join()
+                    print("외부 키보드 인터럽트 리스너 스레드 종료됨.")
+        else:
+            print("실행 중인 외부 키보드 인터럽트 리스너가 없습니다.")
+
+    # pynput 키 객체를 읽기 쉬운 문자열로 변환 (출력용 헬퍼 함수)
+    # _parse_key_string과 유사하지만 반대 역할
+    # def _get_key_repr(key):
+    #     if hasattr(key, 'char') and key.char is not None:
+    #         return f"'{key.char}'"
+    #     elif hasattr(key, 'name'):
+    #          return key.name
+    #     else:
+    #          return str(key)
+
+
+
+
+
+    def _on_press(self, key):
+        """
+        키가 눌렸을 때 키보드 리스너 스레드에서 호출되는 콜백 메서드.
+        스페이스바 감지 시 중지 명령 실행 신호를 보냅니다.
+        """
+        try:
+            if key == keyboard.Key.space:
+
+                # 외부 설정 인터럽트도 종료
+                self.key_press_stop()
+
+
+                print(f"\n--- EMERGENCY STOP! ---\n")
+                #self._stop_event.set() # 메인 루프 중지 신호
+                #self._command_triggered = True # 특정 명령 실행 신호
+
+                for i in range(3):
+                    self.stop()
+                    time.sleep(0.5)
+
+                self.disconnect()
+                # 스페이스바가 눌리면 리스너 자체를 즉시 중지합니다.
+                # 리스너 스레드가 on_press에서 return False를 받은 것처럼 동작하게 함.
+
+                return False # 리스너 중지
+
+        except AttributeError:
+            # 특수 키가 아닌 경우
+            pass
+
+
+    def connect(self, portname=None):
         """
         주미 미니를 연결합니다.
 
@@ -421,12 +786,12 @@ class ZumiAI:
         Examples:
             >>> from zumi_AI.zumi_AI import *
                 zumi = ZumiAI()
-                zumi.open(portname="COM84") # 사용 중인 포트명을 입력
+                zumi.connect(portname="COM84") # 사용 중인 포트명을 입력
         """
-        self._connection_handler = SerialConnectionHandler(self._flagCheckBackground, debugger=self._debugger)
+        self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
         self._connection_handler.connect(portname)
 
-    def close(self):
+    def disconnect(self):
         """
         주미 미니를 연결을 종료합니다.
 
@@ -437,7 +802,7 @@ class ZumiAI:
             없음
 
         Examples:
-            >>> zumi.close()
+            >>> zumi.disconnect()
         """
         self._connection_handler.close()
 
@@ -1504,18 +1869,85 @@ class ZumiAI:
         문자의 색상과 크기를 설정합니다.
 
         Args:
-            색상 : 0~20 (0의 경우 현재 상태 유지)
+            색상 : 0~22 (0의 경우 현재 상태 유지)
             크기 : 0~5 (0의 경우 현재 상태 유지)
 
         Returns:
             없음
 
         Examples:
-            >>> zumi.display_text_set(12,5)
+            >>> zumi.display_text_set(1,5)
 
         """
+        usePos = 0
 
-        self.sendCommand(CommandType.COMMAND_TEXT_SET, color ,size)
+        self.sendCommand(CommandType.COMMAND_TEXT_SET, color ,size, usePos, 0, 0)
+
+    # x,y 좌표를 절대 좌표로 변경해야 함 음수를 양수로 변환하고, 다시 음수로 변환
+    def display_text_pos(self, pos_x = 0, pos_y = 0):
+            """
+            문자의 위치를 지정합니다.
+
+            Args:
+                pos_x (int, optional): 텍스트의 가로 위치를 설정합니다.
+                                   기본값은 0입니다.
+                                   - 값이 양수이면 기준점에서 오른쪽으로 이동합니다. (예: pos_x=10은 오른쪽으로 10만큼 이동)
+                                   - 값이 음수이면 기준점에서 왼쪽으로 이동합니다. (예: pos_x=-10은 왼쪽으로 10만큼 이동)
+                pos_y (int, optional): 텍스트의 세로 위치를 설정합니다.
+                                   기본값은 0입니다.
+                                   - 값이 양수이면 기준점에서 아래쪽으로 이동합니다. (예: pos_y=10은 아래쪽으로 10만큼 이동)
+                                   - 값이 음수이면 기준점에서 위쪽으로 이동합니다. (예: pos_y=-10은 위쪽으로 10만큼 이동)
+            Returns:
+                없음
+
+            Examples:
+                >>> zumi.display_text_pos(10,10)
+
+            """
+            usePos = 1
+            # 음수를 전송하기위한 오프셋 설정
+            pos_x = pos_x + 500
+            pos_y = pos_y + 500
+
+            if not (0 <= pos_x <= 2047 and 0 <= pos_y <= 2047):
+                print("Error: pos_x and pos_y must be between 0 and 2047", file=sys.stderr)
+                return None
+            if not (usePos == 0 or usePos == 1):
+                print("Error: usePos must be 0 or 1", file=sys.stderr)
+                return None
+
+            # pos_x의 하위 8비트 추출
+            # 0xFF는 이진수로 11111111입니다.
+            buf2 = pos_x & 0xFF
+
+            # pos_y의 하위 8비트 추출
+            buf3 = pos_y & 0xFF
+
+            # buf1에 저장할 비트들 조합
+            buf1 = 0
+
+            # pos_x의 상위 3비트 추출 (오른쪽 시프트 8, 하위 3비트 마스크)
+            # 0x07은 이진수로 00000111입니다.
+            upper_bits_pos_x = (pos_x >> 8) & 0x07
+            # 추출한 상위 3비트를 buf1의 비트 6, 5, 4 위치로 이동 (왼쪽 시프트 4)
+            buf1 |= upper_bits_pos_x << 4
+
+            # pos_y의 상위 3비트 추출 (오른쪽 시프트 8, 하위 3비트 마스크)
+            upper_bits_pos_y = (pos_y >> 8) & 0x07
+            # 추출한 상위 3비트를 buf1의 비트 3, 2, 1 위치로 이동 (왼쪽 시프트 1)
+            buf1 |= upper_bits_pos_y << 1
+
+            # 플래그 비트 추출 (하위 1비트 마스크)
+            usePos_bit = usePos & 0x01
+            # 추출한 플래그 비트를 buf1의 비트 7 위치로 이동 (왼쪽 시프트 7)
+            buf1 |= usePos_bit << 7
+
+            # buf1의 비트 0은 사용하지 않으므로 0으로 유지됩니다.
+
+            #print(buf1, buf2, buf3)
+
+            self.sendCommand(CommandType.COMMAND_TEXT_SET, 0 ,0, buf1 ,buf2, buf3)
+
 
 
     def get_detect_face(self):
@@ -1628,6 +2060,61 @@ class ZumiAI:
         """
         return self._connection_handler.get_battery_data()
 
+    def get_req_datas(self):
+        """
+        get_req_datas
+        """
+        return self._connection_handler.get_req_datas()
+
+    def set_calibration_motors(self):
+        """
+        모터를 보정합니다.
+
+        1) 주미 미니를 눕혀주세요.
+        2) 명령을 실행합니다.
+        3) 완료가 될때까지 기다려주세요.
+           약간의 시간이 걸립니다.
+
+        Args:
+            없음
+
+        Returns:
+           없음
+
+        Examples:
+            >>> zumi.set_calibration_motors()
+        """
+        self.sendCommand(CommandType.COMMAND_MOTOR_CALIBRATION_START)
+
+        print("Start Motor calibration")
+
+        self.display_text_set(15,5)
+        self.display_text("Motor",1)
+        self.display_text_add("calibration",1)
+        self.display_text_add("Start",1)
+
+        time.sleep(1)
+
+        try:
+            while True:
+                datas = self.get_req_datas()
+                p_exe = datas[3]
+                print(p_exe)
+
+                if(p_exe == 0):
+                    print("Done")
+                    self.display_text("Done",1)
+                    break
+                self.display_text_add(".")
+                time.sleep(3)
+
+        except KeyboardInterrupt:
+            print("Done")
+        finally:
+            print("Program finished.")
+
+        time.sleep(2)
+        self.display_text_clear()
 
 
     # def sendForward(self):
