@@ -8,4 +8,5 @@ zumi_AI/zumi_AI.py
 zumi_ai.egg-info/PKG-INFO
 zumi_ai.egg-info/SOURCES.txt
 zumi_ai.egg-info/dependency_links.txt
+zumi_ai.egg-info/requires.txt
 zumi_ai.egg-info/top_level.txt

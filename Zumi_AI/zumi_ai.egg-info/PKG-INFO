@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: zumi-ai
-Version: 0.1.5
+Version: 0.1.6
 Summary: Zumi AI for library.
 Author-email: dr <drlee@robolink.co.kr>
 Project-URL: Homepage, https://github.com/truedo/zumi_mini_python_backup
@@ -12,6 +12,10 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: pyserial
+Requires-Dist: colorama
+Requires-Dist: pynput
+Requires-Dist: numpy
 Dynamic: license-file
 
 # Zumi AI Library

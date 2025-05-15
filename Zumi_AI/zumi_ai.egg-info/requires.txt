@@ -1,0 +1,4 @@
+pyserial
+colorama
+pynput
+numpy

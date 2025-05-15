@@ -23,7 +23,6 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="색인" href="genindex.html" />
     <link rel="search" title="검색" href="search.html" />
-    <link rel="next" title="receiver" href="receiver.html" />
     <link rel="prev" title="zumiAI" href="zumi_AI.html" /> 
 </head>
 
@@ -129,6 +128,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType.COMMAND_SCREEN_TOGGLE"><code class="docutils literal notranslate"><span class="pre">CommandType.COMMAND_SCREEN_TOGGLE</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType.COMMAND_EMOTION_CHANGE"><code class="docutils literal notranslate"><span class="pre">CommandType.COMMAND_EMOTION_CHANGE</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType.COMMAND_PLAY_SOUND"><code class="docutils literal notranslate"><span class="pre">CommandType.COMMAND_PLAY_SOUND</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType.COMMAND_MOTOR_CALIBRATION_READ"><code class="docutils literal notranslate"><span class="pre">CommandType.COMMAND_MOTOR_CALIBRATION_READ</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType.COMMAND_MOTOR_CALIBRATION_START"><code class="docutils literal notranslate"><span class="pre">CommandType.COMMAND_MOTOR_CALIBRATION_START</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#protocol.CommandType_SIZE"><code class="docutils literal notranslate"><span class="pre">CommandType_SIZE</span></code></a><ul>
@@ -186,9 +187,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType_SIZE.COMMAND_SCREEN_TOGGLE"><code class="docutils literal notranslate"><span class="pre">CommandType_SIZE.COMMAND_SCREEN_TOGGLE</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType_SIZE.COMMAND_EMOTION_CHANGE"><code class="docutils literal notranslate"><span class="pre">CommandType_SIZE.COMMAND_EMOTION_CHANGE</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType_SIZE.COMMAND_PLAY_SOUND"><code class="docutils literal notranslate"><span class="pre">CommandType_SIZE.COMMAND_PLAY_SOUND</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_START"><code class="docutils literal notranslate"><span class="pre">CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_START</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_READ"><code class="docutils literal notranslate"><span class="pre">CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_READ</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#protocol.PacketDataIndex"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_COM"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_COM</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_INFO"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_INFO</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_REQ"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_REQ</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_PSTAT"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_PSTAT</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_SEN_FR"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_SEN_FR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_SEN_FL"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_SEN_FL</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#protocol.PacketDataIndex.DATA_SEN_BR"><code class="docutils literal notranslate"><span class="pre">PacketDataIndex.DATA_SEN_BR</span></code></a></li>
@@ -218,7 +225,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="receiver.html">receiver</a></li>
 </ul>
 
         </div>
@@ -617,6 +623,16 @@
 <span class="sig-name descname"><span class="pre">COMMAND_PLAY_SOUND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">242</span></em><a class="headerlink" href="#protocol.CommandType.COMMAND_PLAY_SOUND" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.CommandType.COMMAND_MOTOR_CALIBRATION_READ">
+<span class="sig-name descname"><span class="pre">COMMAND_MOTOR_CALIBRATION_READ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">245</span></em><a class="headerlink" href="#protocol.CommandType.COMMAND_MOTOR_CALIBRATION_READ" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.CommandType.COMMAND_MOTOR_CALIBRATION_START">
+<span class="sig-name descname"><span class="pre">COMMAND_MOTOR_CALIBRATION_START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">247</span></em><a class="headerlink" href="#protocol.CommandType.COMMAND_MOTOR_CALIBRATION_START" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -726,7 +742,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="protocol.CommandType_SIZE.COMMAND_GO_INFINITE">
-<span class="sig-name descname"><span class="pre">COMMAND_GO_INFINITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_GO_INFINITE" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">COMMAND_GO_INFINITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_GO_INFINITE" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -871,7 +887,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="protocol.CommandType_SIZE.COMMAND_TEXT_SET">
-<span class="sig-name descname"><span class="pre">COMMAND_TEXT_SET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_TEXT_SET" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">COMMAND_TEXT_SET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_TEXT_SET" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -894,6 +910,16 @@
 <span class="sig-name descname"><span class="pre">COMMAND_PLAY_SOUND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_PLAY_SOUND" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_START">
+<span class="sig-name descname"><span class="pre">COMMAND_MOTOR_CALIBRATION_START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_START" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_READ">
+<span class="sig-name descname"><span class="pre">COMMAND_MOTOR_CALIBRATION_READ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#protocol.CommandType_SIZE.COMMAND_MOTOR_CALIBRATION_READ" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -901,6 +927,26 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">protocol.</span></span><span class="sig-name descname"><span class="pre">PacketDataIndex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#protocol.PacketDataIndex" title="Link to this definition"></a></dt>
 <dd><p>기반 클래스: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.PacketDataIndex.DATA_COM">
+<span class="sig-name descname"><span class="pre">DATA_COM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#protocol.PacketDataIndex.DATA_COM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.PacketDataIndex.DATA_INFO">
+<span class="sig-name descname"><span class="pre">DATA_INFO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#protocol.PacketDataIndex.DATA_INFO" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.PacketDataIndex.DATA_REQ">
+<span class="sig-name descname"><span class="pre">DATA_REQ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#protocol.PacketDataIndex.DATA_REQ" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="protocol.PacketDataIndex.DATA_PSTAT">
+<span class="sig-name descname"><span class="pre">DATA_PSTAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#protocol.PacketDataIndex.DATA_PSTAT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="protocol.PacketDataIndex.DATA_SEN_FR">
 <span class="sig-name descname"><span class="pre">DATA_SEN_FR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#protocol.PacketDataIndex.DATA_SEN_FR" title="Link to this definition"></a></dt>
@@ -1031,7 +1077,6 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="zumi_AI.html" class="btn btn-neutral float-left" title="zumiAI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="receiver.html" class="btn btn-neutral float-right" title="receiver" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

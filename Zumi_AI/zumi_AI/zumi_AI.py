@@ -9,11 +9,13 @@ from threading import Thread
 from colorama import Fore, Back, Style
 from serial.tools.list_ports import comports
 from pynput import keyboard
-# from protocol import * # make html 사용시 적용
-# from receiver import * # make html 사용시 적용
 
-from .protocol import *
-from .receiver import *
+
+from protocol import * # make html 사용시 적용
+from receiver import * # make html 사용시 적용
+
+#from .protocol import *
+#from .receiver import *
 
 
 def convertByteArrayToString(dataArray):
@@ -30,152 +32,6 @@ def convertByteArrayToString(dataArray):
             string += "{0:02X} ".format(data)
 
     return string
-
-
-
-
-# _external_key_callbacks = {}
-# # 키보드 리스너 객체 및 스레드
-# _external_listener = None
-# _external_listener_thread = None
-
-# def _parse_key_string(key_str):
-#     """
-#     문자열 키 이름을 pynput 키 객체로 변환합니다.
-#     (클래스 내부의 _parse_interrupt_key와 유사)
-#     """
-#     special_keys = {
-#         'space': keyboard.Key.space,
-#         'esc': keyboard.Key.esc,
-#         'enter': keyboard.Key.enter,
-#         'shift': keyboard.Key.shift,
-#         'ctrl': keyboard.Key.ctrl,
-#         'alt': keyboard.Key.alt,
-#         'up': keyboard.Key.up,
-#         'down': keyboard.Key.down,
-#         'left': keyboard.Key.left,
-#         'right': keyboard.Key.right,
-#         # 필요에 따라 다른 특수 키 추가
-#     }
-
-#     key_str_lower = key_str.lower()
-
-#     if key_str_lower in special_keys:
-#         return special_keys[key_str_lower]
-
-#     # 문자 키 처리
-#     if len(key_str) == 1:
-#          # pynput 1.0.0 이상
-#          try:
-#              return keyboard.KeyCode(char=key_str)
-#          except Exception:
-#               print(f"경고: 문자 '{key_str}'에 대한 KeyCode 생성 실패.")
-#               return None
-
-#     # 변환 실패
-#     return None
-
-# def _external_on_press(key):
-#     """
-#     단일 외부 리스너에 연결될 콜백 함수.
-#     눌린 키에 해당하는 등록된 콜백이 있는지 확인하고 실행합니다.
-#     """
-#     # 눌린 키가 등록된 키보드 콜백 딕셔너리에 있는지 확인
-#     if key in _external_key_callbacks:
-#         # 등록된 함수가 있다면 호출
-#         callback_func = _external_key_callbacks[key]
-#         try:
-#             # 콜백 함수에 눌린 키 정보를 전달할 수도 있습니다.
-#             # callback_func(key)
-#             callback_func() # 여기서는 간단히 인자 없이 호출하도록 함. 필요시 변경.
-#             # print(f"-> 외부 콜백 실행: {key}") # 디버깅용
-#         except Exception as e:
-#             print(f"외부 콜백 실행 중 오류 발생 ({key}): {e}")
-#         # 참고: 여기서 return False를 반환하면 이 리스너 자체는 중지되지만,
-#         # 보통 외부 유틸리티 리스너는 여러 키에 반응하고 계속 실행되는 경우가 많으므로
-#         # 특정 키에 대한 콜백 실행이 리스너를 멈추게 하지는 않습니다.
-#         # 만약 특정 키(예: 'end' 키)가 눌리면 모든 외부 리스닝을 멈추고 싶다면
-#         # 해당 키에 연결된 콜백에서 external_key_interrupt_stop()을 호출하도록 구현합니다.
-
-
-# def key_press_set(key_str, callback_func):
-#     """
-#     특정 키가 눌렸을 때 실행될 함수를 등록합니다.
-#     key_str: 등록할 키 이름 문자열 (예: "a", "esc", "space")
-#     callback_func: 해당 키가 눌렸을 때 호출될 함수
-#     """
-#     if not callable(callback_func):
-#         print(f"오류: '{key_str}'에 연결하려는 객체가 호출 가능한 함수가 아닙니다.")
-#         return
-
-#     key_obj = _parse_key_string(key_str)
-
-#     if key_obj is None:
-#         print(f"경고: 알 수 없는 키 이름 '{key_str}'입니다. 등록되지 않았습니다.")
-#         return
-
-#     # 키와 함수 매핑 등록/업데이트
-#     _external_key_callbacks[key_obj] = callback_func
-#     # print(f"'{key_str}' ({key_obj})에 콜백 함수 등록됨.") # 디버깅용
-
-
-# def key_press_start():
-#     """
-#     등록된 키보드 인터럽트 리스너를 시작합니다.
-#     프로그램 시작 시 한 번만 호출하면 됩니다.
-#     """
-#     global _external_listener, _external_listener_thread
-
-#     if _external_listener_thread is not None and _external_listener_thread.is_alive():
-#         print("키보드 인터럽트 리스너가 이미 실행 중입니다.")
-#         return
-
-#     if not _external_key_callbacks:
-#         print("경고: 등록된 키보드 인터럽트 콜백 함수가 없습니다. 리스너를 시작하지 않습니다.")
-#         return
-
-#     # 단일 키보드 리스너 생성 및 설정
-#     _external_listener = keyboard.Listener(on_press=_external_on_press, on_release=None)
-
-#     # 리스너를 실행할 별도의 스레드 생성 및 시작
-#     # 데몬 스레드로 설정하여 메인 스레드 종료 시 자동으로 종료되도록 함 (간편한 유틸리티 목적)
-#     # 만약 확실한 정리가 필요하다면 daemon=False로 하고 external_key_interrupt_stop() 시 join() 호출
-#     _external_listener_thread = threading.Thread(target=_external_listener.start, daemon=True)
-#     _external_listener_thread.start()
-
-#     print("외부 키보드 인터럽트 리스너 시작됨.")
-#     # 등록된 키 목록 출력 (선택 사항)
-#     # print("감지 대기 중인 키:", [_get_key_repr(k) for k in _external_key_callbacks.keys()])
-
-
-# def key_press_stop():
-#     """
-#     실행 중인 외부 키보드 인터럽트 리스너를 중지합니다.
-#     프로그램 종료 시 명시적으로 호출할 수 있습니다.
-#     """
-#     global _external_listener, _external_listener_thread
-
-#     if _external_listener is not None and _external_listener.running:
-#         print("외부 키보드 인터럽트 리스너 중지 요청.")
-#         _external_listener.stop()
-#         # 데몬 스레드라면 join()은 필수는 아니지만, 기다리고 싶다면 호출
-#         if _external_listener_thread is not None and _external_listener_thread.is_alive():
-#              _external_listener_thread.join()
-#              print("외부 키보드 인터럽트 리스너 스레드 종료됨.")
-#     else:
-#         print("실행 중인 외부 키보드 인터럽트 리스너가 없습니다.")
-
-
-
-# pynput 키 객체를 읽기 쉬운 문자열로 변환 (출력용 헬퍼 함수)
-# _parse_key_string과 유사하지만 반대 역할
-# def _get_key_repr(key):
-#     if hasattr(key, 'char') and key.char is not None:
-#         return f"'{key.char}'"
-#     elif hasattr(key, 'name'):
-#          return key.name
-#     else:
-#          return str(key)
 
 class DebugOutput:
     def __init__(self, show_log=True, show_error=True, show_transfer=False, show_receive=False):
@@ -607,6 +463,43 @@ class ZumiAI:
         self._external_listener_thread = None
 
 
+
+    def connect(self, portname=None):
+        """
+        주미 미니를 연결합니다.
+        포트이름을 입력하지 않으면 동글을 자동검색하여 연결합니다.
+
+        Args:
+            portname : 연결된 포트이름(COM1~)
+
+        Returns:
+            없음
+
+        Examples:
+            >>> from zumi_AI.zumi_AI import *
+                zumi = ZumiAI()
+                zumi.connect(portname="COM84") # 사용 중인 포트명을 입력
+        """
+        self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
+        self._connection_handler.connect(portname)
+
+    def disconnect(self):
+        """
+        주미 미니를 연결을 종료합니다.
+
+        Args:
+            없음
+
+        Returns:
+            없음
+
+        Examples:
+            >>> zumi.disconnect()
+        """
+        self._connection_handler.close()
+
+
+
     def _parse_key_string(self, key_str):
         """
         문자열 키 이름을 pynput 키 객체로 변환합니다.
@@ -728,20 +621,6 @@ class ZumiAI:
         else:
             print("실행 중인 외부 키보드 인터럽트 리스너가 없습니다.")
 
-    # pynput 키 객체를 읽기 쉬운 문자열로 변환 (출력용 헬퍼 함수)
-    # _parse_key_string과 유사하지만 반대 역할
-    # def _get_key_repr(key):
-    #     if hasattr(key, 'char') and key.char is not None:
-    #         return f"'{key.char}'"
-    #     elif hasattr(key, 'name'):
-    #          return key.name
-    #     else:
-    #          return str(key)
-
-
-
-
-
     def _on_press(self, key):
         """
         키가 눌렸을 때 키보드 리스너 스레드에서 호출되는 콜백 메서드.
@@ -772,39 +651,6 @@ class ZumiAI:
             # 특수 키가 아닌 경우
             pass
 
-
-    def connect(self, portname=None):
-        """
-        주미 미니를 연결합니다.
-
-        Args:
-            portname : 연결된 포트이름(COM1~)
-
-        Returns:
-            없음
-
-        Examples:
-            >>> from zumi_AI.zumi_AI import *
-                zumi = ZumiAI()
-                zumi.connect(portname="COM84") # 사용 중인 포트명을 입력
-        """
-        self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
-        self._connection_handler.connect(portname)
-
-    def disconnect(self):
-        """
-        주미 미니를 연결을 종료합니다.
-
-        Args:
-            없음
-
-        Returns:
-            없음
-
-        Examples:
-            >>> zumi.disconnect()
-        """
-        self._connection_handler.close()
 
 
     def buildHeader(self) -> bytearray:
@@ -1869,7 +1715,7 @@ class ZumiAI:
         문자의 색상과 크기를 설정합니다.
 
         Args:
-            색상 : 0~22 (0의 경우 현재 상태 유지)
+            색상 : 0~22 (0의 경우 현재 상태 유지, 1은 흰색)
             크기 : 0~5 (0의 경우 현재 상태 유지)
 
         Returns:

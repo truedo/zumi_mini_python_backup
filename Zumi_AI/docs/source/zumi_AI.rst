@@ -5,8 +5,8 @@ zumi\AI
    :members:
    :undoc-members:
    :show-inheritance:
-   :exclude-members: DebugOutput,SerialConnectionHandler,
-                     add, convertByteArrayToString,
-                     sendCommand_test,
+   :exclude-members: DebugOutput, SerialConnectionHandler,
+                     convertByteArrayToString,
+                     sendCommand_test, get_req_datas,
                      buildHeader, sendCommand, makeTransferDataArray, transfer, update_size,
                      set_request, clear_request, build_request_section

@@ -11,8 +11,6 @@ zumiAI의 파이썬 문서입니다.
    :caption: Contents:
 
    zumi_AI
-   protocol
-   receiver
 
 Indices and tables
 ===========================
