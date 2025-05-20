@@ -87,6 +87,7 @@ class WebSocketCameraClient:
     def on_open(self, ws):
         """연결 성공 시"""
         print("연결 성공!")
+        self.logger.info("연결 성공")
         self.connected = True
         self.start_time = time.time()
         self.frame_count = 0

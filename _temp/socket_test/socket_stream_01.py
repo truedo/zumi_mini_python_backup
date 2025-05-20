@@ -39,6 +39,7 @@ class WebSocketCameraClient:
     def on_open(self, ws):
         """웹소켓 연결이 열렸을 때 호출"""
         print("연결 성공!")
+        print(time.ctime())
         self.ws.send("stream")  # 스트리밍 시작 요청
     
     def on_message(self, ws, message):
@@ -58,14 +59,17 @@ class WebSocketCameraClient:
                     self.frame = img
         except Exception as e:
             print(f"이미지 처리 오류: {e}")
+            print(time.ctime())
     
     def on_error(self, ws, error):
         """웹소켓 오류 발생시 호출"""
         print(f"오류 발생: {error}")
+        print(time.ctime())
     
     def on_close(self, ws, close_status_code, close_msg):
         """웹소켓 연결이 닫혔을 때 호출"""
         print("연결 종료")
+        print(time.ctime())
         self.connected = False
     
     def start(self):

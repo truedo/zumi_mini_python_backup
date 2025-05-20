@@ -134,7 +134,7 @@ class CommandType_SIZE(Enum):
     COMMAND_SPEAK                           = 8
     COMMAND_HUMAN                           = 4
     COMMAND_HAND                            = 9
-    COMMAND_LED                             = 4
+    COMMAND_LED                             = 3
 
     COMMAND_COLOR_RED                       = 19
     COMMAND_COLOR_GREEN                     = 20

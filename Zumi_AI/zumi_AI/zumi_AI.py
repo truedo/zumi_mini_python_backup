@@ -11,11 +11,27 @@ from serial.tools.list_ports import comports
 from pynput import keyboard
 
 
-from protocol import * # make html 사용시 적용
-from receiver import * # make html 사용시 적용
+#websocket
+import cv2
+import numpy as np
+import websocket
+import argparse
+import time
+import threading
+import queue
 
-#from .protocol import *
-#from .receiver import *
+import logging
+
+
+
+#from protocol import * # make html 사용시 적용
+#from receiver import * # make html 사용시 적용
+
+from .protocol import *
+from .receiver import *
+
+
+
 
 
 def convertByteArrayToString(dataArray):
@@ -88,20 +104,664 @@ class DebugOutput:
             print("")
             self._receiving_line_in_progress = False
 
-try:
-    import websocket # websocket-client 라이브러리
-    import threading
-    import time
-    import queue
-    import cv2
-    import numpy as np
-    import ssl # WSS (WebSocket Secure) 사용 시 필요
+# try:
+#     import websocket # websocket-client 라이브러리
+#     import threading
+#     import time
+#     import queue
+#     import cv2
+#     import numpy as np
+#     import ssl # WSS (WebSocket Secure) 사용 시 필요
+#     WEBSOCKET_LIB_IS_AVAILABLE = True
+# except ImportError:
+#     WEBSOCKET_LIB_IS_AVAILABLE = False
+#     print("Warning: 웹소켓을 위한 라이브러리가 없습니다.")
 
-    WEBSOCKET_LIB_IS_AVAILABLE = True
 
-except ImportError:
-    WEBSOCKET_LIB_IS_AVAILABLE = False
-    print("Warning: 웹소켓을 위한 라이브러리가 없습니다.")
+# Define packet constants based on WebSocket test code and assumptions
+WS_SENSOR_HEADER = bytes([0x24, 0x52]) # $R
+WS_SENSOR_DATA_LENGTH = 7 # Header (2) + Sensor Values (5: FR, FL, BR, BL, BC)
+# Assume a similar status packet exists over WebSocket
+WS_STATUS_HEADER = bytes([0x24, 0x53]) # $S (Assuming a different header for status)
+# Based on serial handler's data mapping (22 data bytes after 2 header bytes)
+WS_STATUS_DATA_LENGTH = 24 # Header (2) + Status Data (22)
+
+# Define data indices for the assumed status packet (relative to start of packet)
+# These map to the serial handler's PacketDataIndex values directly, assuming the header is 2 bytes
+# Using a dict or Enum would be better, but hardcoding based on serial code's _handler logic
+_STATUS_INDEX_REQ_COM = 2
+_STATUS_INDEX_REQ_INFO = 3
+_STATUS_INDEX_REQ_REQ = 4
+_STATUS_INDEX_REQ_PSTAT = 5
+_STATUS_INDEX_DETECT_FACE = 8 # Start of 3 bytes (assuming serial's index 8 is 1st byte)
+_STATUS_INDEX_DETECT_COLOR = 11 # Start of 3 bytes
+_STATUS_INDEX_DETECT_MARKER = 14 # Start of 3 bytes
+_STATUS_INDEX_DETECT_CAT = 17 # Start of 3 bytes
+_STATUS_INDEX_BTN = 20
+_STATUS_INDEX_BATTERY = 21
+# Note: This mapping assumes indices relative to the start of the 24-byte status packet.
+# Example: reqCOM is dataArray[PacketDataIndex.DATA_COM.value - self.headerLen] in serial.
+# If PacketDataIndex.DATA_COM.value is 4 and self.headerLen is 2, it reads dataArray[2].
+# So, in the 24-byte packet, this corresponds to index 2. This confirms the mapping.
+
+class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
+    """
+    Handles communication with a robot via WebSocket.
+    Receives sensor/status data and sends control commands.
+    Mimics the interface of SerialConnectionHandler for data access.
+    """
+    def __init__(self, url, usePosCheckBackground=False, debugger=None):
+        """
+        Initializes the WebSocketConnectionHandler.
+
+        Args:
+            url (str): The WebSocket server URL (e.g., 'ws://192.168.0.59/ws').
+            usePosCheckBackground (bool): Kept for compatibility, but message
+                                          processing is push-based in on_message.
+            debugger (DebugOutput, optional): An instance for logging and error output.
+        """
+        self.url = url
+        self._ws = None
+        self._ws_thread = None
+        self.connected = False # Indicates if the websocket is connected
+        self._running = False # Internal flag to control the handler's running state
+
+        self._debugger = debugger # DebugOutput instance or None
+
+        # --- Received Data ---
+        # These variables store the latest data received from the robot.
+        # Access should be protected by self._data_lock.
+        self._data_lock = threading.Lock()
+
+        # Sensor data (based on WS_SENSOR_HEADER packet)
+        # Test code mapping: FR, FL, BR, BL, BC order in packet.
+        # Serial handler getter order: FL, FR, BL, BC, BR.
+        # Store according to packet, get according to serial handler's methods.
+        self._packet_senFR = 0
+        self._packet_senFL = 0
+        self._packet_senBR = 0
+        self._packet_senBL = 0
+        self._packet_senBC = 0
+
+        # Status/Detection data (based on WS_STATUS_HEADER packet assumption)
+        self._reqCOM = 0
+        self._reqINFO = 0
+        self._reqREQ = 0
+        self._reqPSTAT = 0
+
+        self._detectFace = [0, 0, 0]
+        self._detectColor = [0, 0, 0]
+        self._detectMarker = [0, 0, 0]
+        self._detectCat = [0, 0, 0]
+
+        self._btn = 0
+        self._battery = 0
+
+        # --- Data to Send ---
+        # These variables store the current control state to be sent to the robot.
+        # Updates to these trigger sending a command packet.
+        # Access should be protected by self._send_lock if set_* methods could be called concurrently.
+        self._send_lock = threading.Lock()
+        self._l_spd = 0
+        self._r_spd = 0
+        self._l_dir = 0
+        self._r_dir = 0
+        self._led_color = 0
+        # Control packet header from test code (confusingly same as sensor data header)
+        self.SENSOR_HEADER = bytes([0x24, 0x52])
+        self.SENSOR_DATA_LENGTH = 7  # Header(2) + Data(5)
+
+        # Config/Internal Flags
+        self._usePosConnected = False # Kept for compatibility with serial handler's check
+        self._usePosCheckBackground = usePosCheckBackground # Parameter kept for compatibility
+
+        # Internal logging setup
+        # self.logger = logging.getLogger(__name__)
+        # if not self._debugger and not self.logger.handlers:
+        #      # Configure basic logging if no debugger is provided and no handlers exist
+        #      logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        self.start_time = time.time()
+        self.last_frame_time = time.time()
+        self.frame_queue = queue.Queue(maxsize=2)
+        self.sensor_queue = queue.Queue(maxsize=20)
+        self.frame_count = 0
+        self.frames_dropped = 0
+
+    # --- WebSocket Callbacks ---
+
+    def on_open(self, ws):
+        """Callback for when the WebSocket connection is opened."""
+        self.connected = True
+       # self._running = True # Set running flag when connected
+        self._usePosConnected = True # Indicate device connection
+        self._debugger._printLog("WebSocket connection opened.")
+
+        print("opened")
+        print(time.ctime())
+
+        # Send initial requests as seen in the test client
+        # These are often needed to start data streams from the server
+        try:
+            # Request video stream (handler doesn't process video, but server might need this)
+            #ws.send("stream")
+            # Request sensor data stream
+            #ws.send("sensor")
+            self._debugger._printLog("Sent initial 'stream' and 'sensor' requests.")
+        except Exception as e:
+             self._error(f"Failed to send initial messages: {e}")
+
+    def on_message(self, ws, message):
+        """Callback for when a message is received."""
+        # # self._debugger._printLog(f"Received message: {len(message)} bytes") # Optional: log raw message arrival
+        # if isinstance(message, bytes):
+        #     # Process binary data packets
+        #     #self._process_packet(message)
+        #     # print("_process_packet")
+        #     self._process_image_frame(message)
+        # else:
+        #     # Handle text messages or other types if necessary
+        #     self._debugger._printLog(f"Received non-byte message: {type(message)}")
+        #     # If text messages are part of the protocol, handle them here
+
+        try:
+            if isinstance(message, bytes):
+                #print(len(message))
+                if len(message) == self.SENSOR_DATA_LENGTH:
+                    self._process_sensor_packet(message)
+                    #print("sen")
+                else:
+                    self._process_image_frame(message)
+            else:
+                self._debugger._printLog(f"Unknown message type: {type(message)}")
+        except Exception as e:
+            self._debugger._printLog(f"Message handling error: {str(e)}")
+
+
+
+    def on_error(self, ws, error):
+        """Callback for WebSocket errors."""
+        self._error(f"WebSocket error: {error}")
+        self.connected = False # Connection is likely broken
+        # _running might remain True until on_close is called, or until run_forever exits.
+
+
+    def on_close(self, ws, close_status_code, close_msg):
+        """Callback for when the WebSocket connection is closed."""
+        self._debugger._printLog(f"WebSocket connection closed. Status: {close_status_code}, Message: {close_msg}")
+        self.connected = False
+        self._running = False # Signal that the handler should stop running
+        self._usePosConnected = False # Indicate device is disconnected
+
+
+    # --- sensor ---
+    def ws_start_sensors(self):
+        self._ws.send("sensor")
+
+    def _process_sensor_packet(self, data):
+        """센서 데이터 처리"""
+        if data[:2] != self.SENSOR_HEADER:
+            self._debugger._printLog(f"Invalid sensor header: {data[:2].hex()}")
+            return
+
+        sensor_values = {
+            'FR': data[2],
+            'FL': data[3],
+            'BR': data[4],
+            'BL': data[5],
+            'BC': data[6]
+        }
+
+        try:
+            self.sensor_queue.put_nowait(sensor_values)
+            #self.last_sensor_time = time.time()
+        except queue.Full:
+            self._debugger._printLog("Sensor queue overflow")
+
+
+    def _get_latest_sensors(self):
+        """최신 센서 값 가져오기"""
+        latest = {}
+        while not self.sensor_queue.empty():
+            latest = self.sensor_queue.get_nowait()
+        return latest
+
+    def _add_overlay(self, frame, sensors):
+        """마지막 센서 값 유지 기능 추가"""
+        # 클래스 변수로 마지막 센서 값 저장
+        if not hasattr(self, '_last_sensors'):
+            self._last_sensors = {}
+
+        # 새 센서 값이 있으면 업데이트, 없으면 마지막 값 사용
+        if sensors:
+            self._last_sensors = sensors.copy()
+        else:
+            sensors = self._last_sensors.copy()
+
+        # 센서 값 표시
+        if sensors:
+            y = 30
+            for key, value in sensors.items():
+                text = f"{key}: {value}"
+                cv2.putText(frame, text, (10, y),
+                           cv2.FONT_ITALIC, 0.5, (0, 255, 255), 2)
+                y += 20
+
+        # FPS 표시 (기존 코드 유지)
+        elapsed = time.time() - self.start_time
+        fps = self.frame_count / elapsed if elapsed > 0 else 0
+        cv2.putText(frame, f"FPS: {fps:.1f}", (10, frame.shape[0]-20),
+                   cv2.FONT_ITALIC, 0.5, (255, 255, 0), 2)
+
+
+
+    def send(self, data):
+        """
+        """
+        if not self.isConnected():
+            self._debugger._printLog("Not connected, cannot send raw data.")
+            return
+
+        if not isinstance(data, (bytes, bytearray)):
+            self._error("Send data must be bytes or bytearray.")
+            return
+
+        with self._send_lock: # Protects the underlying ws.send call
+            # try:
+            #     self._ws.send(data, opcode=websocket.ABNF.OPCODE_BINARY)
+            #     # self._debugger._printLog(f"Sent raw data: {data.hex(' ')}") # Optional: log sent data
+            # except websocket.WebSocketException as e:
+            #     self._error(f"Failed to send raw WebSocket data: {e}")
+            #     self.connected = False # Assume connection issue
+            if self.connected and self._ws:
+                try:
+                    self._ws.send(data, opcode=websocket.ABNF.OPCODE_BINARY)
+                    print("패킷 전송 성공:", data.hex(' '))
+                except Exception as e:
+                    print("패킷 전송 실패:", e)
+
+
+    # --- vision ---
+
+    def ws_start_display(self):
+        self._display_thread = threading.Thread(target=self._video_display)
+        # 스레드를 데몬 스레드로 설정하면 메인 프로그램 종료 시 함께 종료됩니다. 필요에 따라 설정하세요.
+        # self._display_thread.daemon = True
+        # 스레드 시작
+        self._display_thread.start()
+
+    def _video_display(self):
+        print("start_display")
+        """영상 디스플레이 메인 루프"""
+        self._ws.send("stream")
+        while self.connected:
+            try:
+                frame = self.frame_queue.get(timeout=2.0)
+                sensors = self._get_latest_sensors()
+
+                # 화면 오버레이 추가
+                self._add_overlay(frame, sensors)
+
+                cv2.imshow("ESP32 Stream", frame)
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q'):
+                    break
+
+            except queue.Empty:
+                if time.time() - self.last_frame_time > 5:
+                    self._error("No frames received for 5 seconds")
+                    print(time.ctime())
+                    #self.connected = False
+                #continue
+        self.stop()
+
+
+    def stop(self):
+        """리소스 정리"""
+        print("stop")
+        print(time.ctime())
+        self.running = False
+        if self._ws:
+            self._ws.close()
+        # ws 스레드가 있다면 join 시도 (데몬 스레드이므로 프로그램 종료시 함께 종료됨)
+        if self._ws_thread and self._ws_thread.is_alive():
+            self._ws_thread.join(timeout=1)
+        cv2.destroyAllWindows()
+
+
+    def _process_image_frame(self, data):
+
+        """영상 프레임 처리"""
+        try:
+            # 비동기 디코딩을 위한 스레드 풀 사용
+            self._decode_frame_async(data)
+        except Exception as e:
+            self._error(f"Frame processing error: {str(e)}")
+
+    def _decode_frame_async(self, data):
+        """별도 스레드에서 프레임 디코딩"""
+        import threading
+        threading.Thread(target=self._async_decode_task, args=(data,)).start()
+
+    def _async_decode_task(self, data):
+        """실제 디코딩 작업"""
+        try:
+            nparr = np.frombuffer(data, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            img = cv2.flip(img, 1)
+            if img is not None:
+                self._enqueue_frame(img)
+            else:
+                self._debugger._printLog("Failed to decode image")
+        except Exception as e:
+            self._error(f"Decoding error: {str(e)}")
+
+    def _enqueue_frame(self, frame):
+        """프레임 큐에 안전하게 저장"""
+        try:
+            self.frame_queue.put_nowait(frame)
+            self.frame_count += 1
+            self.last_frame_time = time.time()
+        except queue.Full:
+            self.frames_dropped += 1
+            if self.frames_dropped % 30 == 0:
+                self._error(f"Dropped frames: {self.frames_dropped}")
+
+    # --- Internal Data Processing ---
+
+
+    def _process_packet(self, data):
+        """Internal method to process received binary data packets."""
+        # self._debugger._printLog(f"Processing packet: {data.hex(' ')}") # Optional: log packet hex
+
+        with self._data_lock:
+            # Check for Sensor Data Packet (7 bytes, Header $R)
+            if data.startswith(WS_SENSOR_HEADER) and len(data) == WS_SENSOR_DATA_LENGTH:
+                # Process sensor data (5 bytes after header) - mapping from test code
+                try:
+                    # Test code mapping: FR, FL, BR, BL, BC
+                    self._packet_senFR = data[2]
+                    self._packet_senFL = data[3]
+                    self._packet_senBR = data[4]
+                    self._packet_senBL = data[5]
+                    self._packet_senBC = data[6]
+                    # self._debugger._printLog("Processed sensor packet") # Optional: log specific packet type
+                except IndexError:
+                    self._error(f"Received sensor packet with unexpected length: {len(data)} bytes")
+
+            # Check for Status/Detection Data Packet (assumed 24 bytes, Header $S)
+            # This is based on the serial handler's data fields
+            elif data.startswith(WS_STATUS_HEADER) and len(data) == WS_STATUS_DATA_LENGTH:
+                 try:
+                     # Process status/detection data based on assumed indices
+                     self._reqCOM = data[_STATUS_INDEX_REQ_COM]
+                     self._reqINFO = data[_STATUS_INDEX_REQ_INFO]
+                     self._reqREQ = data[_STATUS_INDEX_REQ_REQ]
+                     self._reqPSTAT = data[_STATUS_INDEX_REQ_PSTAT]
+
+                     # Assuming 3 bytes each for detection data
+                     self._detectFace = list(data[_STATUS_INDEX_DETECT_FACE : _STATUS_INDEX_DETECT_FACE + 3])
+                     self._detectColor = list(data[_STATUS_INDEX_DETECT_COLOR : _STATUS_INDEX_DETECT_COLOR + 3])
+                     self._detectMarker = list(data[_STATUS_INDEX_MARKER : _STATUS_INDEX_MARKER + 3])
+                     self._detectCat = list(data[_STATUS_INDEX_CAT : _STATUS_INDEX_CAT + 3])
+
+                     self._btn = data[_STATUS_INDEX_BTN]
+                     self._battery = data[_STATUS_INDEX_BATTERY]
+                     # self._debugger._printLog("Processed status packet") # Optional: log specific packet type
+
+                 except IndexError:
+                     self._error(f"Received status packet with unexpected length or index error: {len(data)} bytes")
+
+            # Add other packet types here if known (e.g., Image data header check)
+            # elif data.startswith(IMAGE_HEADER):
+            #     # If you needed to queue raw image data for external processing
+            #     pass
+
+            else:
+                 # Log packets that don't match known types or lengths
+                 header_hex = data[:2].hex(' ') if len(data) >= 2 else data.hex(' ')
+                 self._debugger._printLog(f"Received unknown packet type or length: {len(data)} bytes, Header: {header_hex}")
+
+
+    # --- Connection Management ---
+
+    def connect(self, url=None):
+        """
+        Establishes the WebSocket connection to the specified URL.
+        Starts a background thread to run the WebSocket client.
+        """
+
+        if self.isConnected():
+            self._debugger._printLog("WebSocket handler is already connected.")
+            return True
+
+        if url:
+            self.url = url
+        if not self.url:
+            self._error("WebSocket URL is not set. Cannot connect.")
+            return False
+
+        #self._debugger._printLog("aa")
+
+        self._debugger._printLog(f"Attempting to connect to WebSocket: {self.url}")
+        self._running = True # Indicate that the handler is starting its process
+
+        try:
+            # Create WebSocketApp instance with callbacks
+            self._ws = websocket.WebSocketApp(
+                self.url,
+                on_open=self.on_open,
+                on_message=self.on_message,
+                on_error=self.on_error,
+                on_close=self.on_close
+            )
+
+            # Start the connection loop in a separate thread.
+            # run_forever is blocking, so needs a thread.
+            self._ws_thread = threading.Thread(target=self._ws.run_forever)
+            self._ws_thread.daemon = True # Allow the main program to exit even if this thread is running
+            self._ws_thread.start()
+
+            # Wait briefly for the connection to potentially establish
+            # The on_open callback will set self.connected = True asynchronously
+            time.sleep(1) # Adjust sleep time as needed
+
+            if self.isConnected():
+                self._debugger._printLog("WebSocket connection initiated successfully.")
+                # Note: self.connected is set True in on_open callback
+                return True
+            else:
+                # Connection might still be pending or failed quickly before on_error/on_close fired
+                self._debugger._printLog("WebSocket connection initiation status: Pending or failed.")
+                # The on_error/on_close callbacks will provide final status.
+                return False
+
+        except Exception as e:
+            # Catch exceptions during WebSocketApp creation or thread start
+            self._error(f"Failed to create or start WebSocket client: {e}")
+            self._running = False # Ensure running flag is false on failure
+            self.connected = False
+            self._usePosConnected = False
+            self._ws = None # Clear the instance
+            return False
+
+
+    def close(self):
+        """
+        Closes the WebSocket connection and stops the background thread.
+        """
+        if not self._running and not self.isConnected():
+             self._debugger._printLog("WebSocket handler is not running or connected.")
+             return
+
+        self._debugger._printLog("Closing WebSocket connection.")
+        self._running = False # Signal the thread/callbacks to stop gracefuly
+
+        if self._ws:
+            try:
+                # Initiate the WebSocket closing handshake
+                self._ws.close()
+                self._debugger._printLog("WebSocket close method called.")
+            except Exception as e:
+                self._error(f"Error calling WebSocket close: {e}")
+
+        # Wait for the WebSocket thread to terminate.
+        # Daemon threads don't strictly need joining for program exit,
+        # but joining ensures cleanup finishes if needed.
+        if self._ws_thread and self._ws_thread.is_alive():
+            self._debugger._printLog("Joining WebSocket thread.")
+            self._ws_thread.join(timeout=5) # Wait up to 5 seconds
+
+        self._ws = None # Clear the WebSocket instance
+        self.connected = False
+        self._usePosConnected = False
+        self._debugger._printLog("WebSocket connection closed.")
+
+
+    def isOpen(self):
+        """
+        Checks if the underlying WebSocket object exists.
+        Note: Use isConnected() to check if the connection is active.
+        """
+        # This method is more relevant for serial ports. For WebSocket,
+        # self.connected is the main indicator of an active link.
+        # Kept for compatibility, but self.connected is preferred.
+        return self._ws is not None #and self.connected # prefer isConnected
+
+
+    def isConnected(self):
+        """
+        Checks if the WebSocket connection is currently active.
+        This relies on the internal `connected` flag updated by the callbacks.
+        """
+        # Both our internal running flag and the connected state should be true
+        return self.connected and self._running
+
+
+    # --- Sending Data ---
+    # These methods format and send control packets based on the robot's protocol.
+
+    def set_motor(self, left_speed, right_speed, left_dir, right_dir):
+        """
+        Sets the target motor speeds and directions and sends the command packet.
+
+        Args:
+            left_speed (int): Speed for the left motor (0-255).
+            right_speed (int): Speed for the right motor (0-255).
+            left_dir (int): Direction for the left motor (e.g., 0:Stop, 1:Forward, 2:Reverse).
+            right_dir (int): Direction for the right motor (e.g., 0:Stop, 1:Forward, 2:Reverse).
+        """
+        # Update internal state (protected by lock if multiple threads might call set_* methods)
+        with self._send_lock:
+            # Ensure values are within reasonable bounds for a single byte
+            self._l_spd = max(0, min(255, int(left_speed)))
+            self._r_spd = max(0, min(255, int(right_speed)))
+            self._l_dir = max(0, min(255, int(left_dir))) # Assuming direction fits in a byte
+            self._r_dir = max(0, min(255, int(right_dir)))
+
+        # Send the updated state as a control packet
+        self._send_control_packet()
+
+    def set_led(self, color):
+        """
+        Sets the target LED color and sends the command packet.
+
+        Args:
+            color (int): The desired LED color value (protocol specific, e.g., 0-7).
+        """
+        # Update internal state
+        with self._send_lock:
+            self._led_color = max(0, min(255, int(color))) # Ensure value fits in a byte
+
+        # Send the updated state as a control packet
+        self._send_control_packet()
+
+    # Add more set_* methods here for other robot control commands (e.g., set_arm_angle)
+    # def set_arm_angle(self, angle):
+    #     with self._send_lock:
+    #         self._arm_angle = max(0, min(180, int(angle)))
+    #     self._send_arm_packet() # Requires defining a new packet type/method
+
+    def _send_control_packet(self):
+        """
+        Internal method to construct and send the current motor/LED control packet.
+        Packet format: [0x24, 0x52, l_spd, r_spd, l_dir, r_dir, led_color] (7 bytes)
+        Based on the provided WebSocket test client code.
+        """
+        if not self.isConnected():
+            # self._debugger._printLog("Not connected, cannot send control packet.") # Avoid excessive logging if not connected
+            return
+
+        # Construct the binary packet from current internal state
+        with self._send_lock:
+            packet = bytes([
+                self._control_packet_header[0],
+                self._control_packet_header[1],
+                self._l_spd,
+                self._r_spd,
+                self._l_dir,
+                self._r_dir,
+                self._led_color
+            ])
+
+        try:
+            # Send the packet as binary data
+            self._ws.send(packet, opcode=websocket.ABNF.OPCODE_BINARY)
+            # self._debugger._printLog(f"Sent control packet: {packet.hex(' ')}") # Optional: log sent data
+        except websocket.WebSocketException as e:
+            # Handle potential exceptions during sending (e.g., connection lost)
+            self._error(f"Failed to send WebSocket control packet: {e}")
+            # Assume connection is broken if sending fails
+            self.connected = False
+            self._usePosConnected = False
+
+
+    def send(self, data):
+        """
+        Sends arbitrary raw data bytes over the WebSocket connection.
+        For standard control commands (motor, LED), use set_motor/set_led methods
+        as they handle packet formatting. This method is for sending custom
+        or unformatted binary data if needed by the protocol.
+
+        Args:
+            data (bytes or bytearray): The binary data to send.
+        """
+        if not self.isConnected():
+            self._debugger._printLog("Not connected, cannot send raw data.")
+            return
+
+        if not isinstance(data, (bytes, bytearray)):
+            self._error("Send data must be bytes or bytearray.")
+            return
+
+        with self._send_lock: # Protects the underlying ws.send call
+            try:
+                self._ws.send(data, opcode=websocket.ABNF.OPCODE_BINARY)
+                # self._debugger._printLog(f"Sent raw data: {data.hex(' ')}") # Optional: log sent data
+            except websocket.WebSocketException as e:
+                self._error(f"Failed to send raw WebSocket data: {e}")
+                self.connected = False # Assume connection issue
+
+
+    # --- Getting Received Data ---
+    # These methods provide access to the latest received data values.
+    # Access is thread-safe due to the self._data_lock in _process_packet.
+
+    # --- Debug/Logging Helpers ---
+
+    def _log(self, message):
+        """Logs an informational message using the debugger or standard logging."""
+        if self._debugger:
+            self._debugger._printLog(message)
+        else:
+            self.logger.info(message)
+
+    def _error(self, message):
+        """Logs an error message using the debugger or standard logging."""
+        if self._debugger:
+            self._debugger._printError(message)
+        else:
+            self.logger.error(message)
 
 
 class SerialConnectionHandler(): # BaseConnectionHandler 상속
@@ -186,30 +846,6 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
         self.btn = dataArray[PacketDataIndex.DATA_BTN_INPUT.value - self.headerLen]
         self.battery = dataArray[PacketDataIndex.DATA_BATTERY.value - self.headerLen]
-
-
-        #print(self.detectFace)
-        #print(self.detectColor)
-        #print(self.detectMarker)
-        #print(self.detectCat)
-
-        #print(self.btn)
-        #print(self.battery)
-
-        # print(str(self.senFL)+" "+
-        #       str(self.senFR)+" "+
-        #       str(self.senBL)+" "+
-        #       str(self.senBR)+" "+
-        #       str(self.senBC))
-
-        # # Save incoming data
-        # self._runHandler(header, dataArray)
-
-        # # Run a callback event
-        # self._runEventHandler(header.dataType)
-
-        # # Monitor data processing
-        # self._runHandlerForMonitor(header, dataArray)
 
         # Verify data processing complete
         self._receiver.checked()
@@ -416,7 +1052,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
 
 class ZumiAI:
-    def __init__(self, usePosInterruptKey=True, usePosCheckBackground=True, usePosShowErrorMessage=True, usePosShowLogMessage=False,
+    def __init__(self, usePosInterruptKey=False, usePosCheckBackground=True, usePosShowErrorMessage=True, usePosShowLogMessage=False,
                  usePosShowTransferData=True, usePosShowReceiveData=False):
 
         #self.timeStartProgram = time.time()  # Program Start Time Recording
@@ -463,6 +1099,8 @@ class ZumiAI:
         self._external_listener_thread = None
 
 
+        self._connection_handler = None
+
 
     def connect(self, portname=None):
         """
@@ -480,8 +1118,13 @@ class ZumiAI:
                 zumi = ZumiAI()
                 zumi.connect(portname="COM84") # 사용 중인 포트명을 입력
         """
-        self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
-        self._connection_handler.connect(portname)
+        #self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
+        #self._connection_handler.connect(portname)
+
+        self._connection_handler = WebSocketConnectionHandler('ws://192.168.0.59/ws', self._usePosCheckBackground, debugger=self._debugger)
+        self._connection_handler.connect()
+        #self._connection_handler.start_display()
+
 
     def disconnect(self):
         """
@@ -1796,6 +2439,12 @@ class ZumiAI:
 
 
 
+    def _get_req_datas(self):
+        """
+        get_req_datas
+        """
+        return self._connection_handler.get_req_datas()
+
     def get_detect_face(self):
         """
         얼굴 감지 값을 가져옵니다.
@@ -1906,12 +2555,6 @@ class ZumiAI:
         """
         return self._connection_handler.get_battery_data()
 
-    def get_req_datas(self):
-        """
-        get_req_datas
-        """
-        return self._connection_handler.get_req_datas()
-
     def set_calibration_motors(self):
         """
         모터를 보정합니다.
@@ -1943,7 +2586,7 @@ class ZumiAI:
 
         try:
             while True:
-                datas = self.get_req_datas()
+                datas = self._get_req_datas()
                 p_exe = datas[3]
                 print(p_exe)
 
@@ -1968,4 +2611,21 @@ class ZumiAI:
     #     data.commandType = CommandType.COMMAND_GOGO
     #     data.option = 0
     #     return self.transfer(data)
+
+    ##--------------------------------------------------------------------#
+    # 소켓 영상 제어 명령어
+    def start_video_viewer(self):
+        """
+        영상출력을 시작합니다.
+        """
+        self._connection_handler.ws_start_display()
+
+    def start_sensors(self):
+        """
+        센서 값을 가져오기를 시작합니다.
+        """
+        self._connection_handler.ws_start_sensors()
+
+
+
 
