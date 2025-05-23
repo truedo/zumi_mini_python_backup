@@ -60,6 +60,7 @@ def convertByteArrayToString(dataArray):
     return string
 
 
+
 class FaceData:
     def __init__(self):
         self.name = ''
@@ -302,6 +303,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__faceRecognizedList = []
         self.__faceDataDict = dict()
 
+        #self.__faceResults = None
+        self.__facecurrent_results  = False
+        self.__faceCenter = [0, 0]
+
+
+        self.__faceCaptureFlag = False
+        self.__faceCaptureName = None
 
         # apriltag
 
@@ -357,7 +365,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__gestureDataDict = dict()
 
         self.__gestureLandmark = []
-
 
 
         print("camera module ready")
@@ -436,24 +443,42 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
     # --- face ---
-    def FacedetectorInit(self):
+    def FaceDetectorInit(self, face_recognize_threshold = 0.8):#0.2~2.0
         if self.__faceDetectInitFlag is False:
-            self.__faceD = FaceDetector()
+            # self.__faceD = FaceDetector()
+
+            self.__mp_face_mesh = mp.solutions.face_mesh
+            self.__mp_face_drawing = mp.solutions.drawing_utils
+            self.__face_mesh = self.__mp_face_mesh.FaceMesh(
+                static_image_mode=False,
+                max_num_faces=1,
+                min_detection_confidence=0.5,
+                min_tracking_confidence=0.5
+            )
             self.__faceDetectInitFlag = True
 
-        if self.__faceLandmarkInitFlag is False:
-            self.__landD = FaceLandmark()
-            self.__faceLandmarkInitFlag = True
+        # if self.__faceLandmarkInitFlag is False:
+        #     # self.__landD = FaceLandmark()
+        #     self.__faceLandmarkInitFlag = True
 
         if self.__faceRecognizeInitFlag is False:
-            self.__faceR = FaceRecognizer()
+            #self.__faceR = FaceRecognizer()
+            # FaceRecognizer 초기화
+            try:
+                self.__face_recognizer = FaceRecognizer(face_recognaze_threshold= face_recognize_threshold) # 임계값 조정 가능 (0.2~1.0 사이)
+            except FileNotFoundError:
+                print("얼굴 인식 모델을 찾을 수 없어 FaceRecognizer를 초기화할 수 없습니다. 프로그램 종료.")
+                #exit()
+            except Exception as e:
+                print(f"FaceRecognizer 초기화 중 오류 발생: {e}. 프로그램 종료.")
+                #exit()
+
             self.__faceRecognizeInitFlag = True
 
         print("Facedetector initialized")
 
 
-    def FacedetectorStart(self):
-
+    def FaceDetectorStart(self):
         if self.__faceDetectInitFlag is False:
             print("Facedetector is not initialized")
             return
@@ -467,7 +492,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         th.deamon = True
         th.start()
 
-    def FacedetectorStop(self):
+    def FaceDetectorStop(self):
         if self.__faceDetectFlag == False :
             print("Facedetector is already stopped.")
             return
@@ -485,24 +510,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 print('no input frame yet')
                 continue
             try:
-                self.__faceDetectedList = self.__faceD(self.__raw_img)
-                self.__faceLandmarkList = self.__landD.batch_call (self.__raw_img, copy.deepcopy(self.__faceDetectedList))
-                self.__faceRecognizedList = self.__faceR(self.__raw_img, copy.deepcopy(self.__faceDetectedList))
-
-                self.__faceDataDict.clear()
-                for i in range(0,len(self.__faceDetectedList)):
-                    #print(self.__faceDetectedList)
-                    #print(self.__faceLandmarkList)
-                    #print(self.__faceRecognizedList)
-
-                    faceData = FaceData()
-                    faceData.SetData(self.__faceRecognizedList[i],
-                                     list(self.__faceDetectedList[i]),
-                                     self.__faceLandmarkList[i])
-                    self.__faceDataDict[self.__faceRecognizedList[i]] = faceData
-
-                #print(len(self.__faceDataDict))
-
+                rgb_frame = cv2.cvtColor(self.__raw_img, cv2.COLOR_BGR2RGB)
+                # FaceMesh 모델로 얼굴 랜드마크 처리
+                # results 객체에 감지된 얼굴 랜드마크 정보가 포함됩니다.
+                self.__faceResults = self.__face_mesh.process(rgb_frame)
+                if self.__faceResults.multi_face_landmarks:
+                    self.__facecurrent_results  = True
+                else:
+                    self.__facecurrent_results  = False
 
             except Exception as e:
                 print("Detect : " , e)
@@ -511,30 +526,152 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             time.sleep(0.001)
 
     def __overlay_face_boxes(self, frame):
-        color =  (0, 255, 0)
-        if self.__faceDetectedList is not None:
 
-            for faceKey,faceData in self.__faceDataDict.items():
-                addedY = 20
-                if self.__drawFaceAreaFlag:
-                    cv2.rectangle(frame, (int(faceData.box[0]), int(faceData.box[1])), (int(faceData.box[2]), int(faceData.box[3])), color, 3)
+        recognized_names_on_frame = []
 
-                if self.__drawFacePointFlag == True:
-                    s = 'x=' + str(faceData.centerX) +' y='+str(faceData.centerY)
-                    cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
-                    addedY += 20
+        if self.__facecurrent_results == True and self.__faceResults != None:
+            # 감지된 첫 번째 얼굴의 랜드마크를 가져옴
+            first_face_landmarks = self.__faceResults.multi_face_landmarks[0]
+            h, w, c = frame.shape # 이미지 높이, 너비
 
-                if self.__drawFaceSizeFlag == True:
-                    s = 'size=' + str(faceData.size)
-                    cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
-                    addedY += 20
-                if self.__drawFaceNameFlag == True:
-                    s = 'name=' + str(faceData.name)
-                    cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
-                    addedY += 20
-                if self.__drawLandmarkFlag == True:
-                    for faces in faceData.landMarks:
-                        cv2.circle(frame, (int(faces[0]),int(faces[1])), 3, (255,0,255), -1)
+            # --- 특정 랜드마크 좌표 추출 및 화면에 표시 예시 ---
+            self.__faceDataDict = {}
+            for landmark_type in face_landmark: # 모든 Enum 멤버에 대해 반복
+                coords = self.get_face_landmark_coordinates(first_face_landmarks, landmark_type, w, h)
+                if coords:
+                    self.__faceDataDict[landmark_type] = coords
+
+            # 랜드마크 표시
+            if self.__drawLandmarkFlag == True:
+
+                self.__mp_face_drawing.draw_landmarks(
+                    image=frame,
+                    landmark_list=first_face_landmarks,
+                    connections=self.__mp_face_mesh.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=self.__mp_face_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1)
+                )
+                self.__mp_face_drawing.draw_landmarks(
+                    image=frame,
+                    landmark_list=first_face_landmarks,
+                    connections=self.__mp_face_mesh.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=self.__mp_face_drawing.DrawingSpec(color=(255, 0, 0), thickness=2, circle_radius=2)
+                )
+
+
+
+                # --- 딕셔너리에서 랜드마크 좌표를 가져와 화면에 표시 예시 ---
+                if face_landmark.LEFT_EYE in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.LEFT_EYE]
+                    cv2.circle(frame, coords, 3, (255, 0, 0), -1) # 파란색 점
+                    #cv2.putText(frame, "L_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
+
+                if face_landmark.RIGHT_EYE in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.RIGHT_EYE]
+                    cv2.circle(frame, coords, 3, (0, 0, 255), -1) # 빨간색 점
+                    #cv2.putText(frame, "R_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
+
+                if face_landmark.LEFT_EYEBROW in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.LEFT_EYEBROW]
+                    cv2.circle(frame, coords, 3, (255, 100, 100), -1) # 파란색 점
+                    #cv2.putText(frame, "L_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
+
+                if face_landmark.RIGHT_EYEBROW in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.RIGHT_EYEBROW]
+                    cv2.circle(frame, coords, 3, (100, 100, 255), -1) # 빨간색 점
+                    #cv2.putText(frame, "R_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
+
+                if face_landmark.NOSE in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.NOSE]
+                    cv2.circle(frame, coords, 3, (0, 255, 0), -1) # 초록색 점
+                    #cv2.putText(frame, "Nose", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
+
+                if face_landmark.MOUTH in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.MOUTH]
+                    cv2.circle(frame, coords, 3, (0, 255, 255), -1) # 노란색 점
+                    #cv2.putText(frame, "Mouth", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 1)
+
+                if face_landmark.JAW in self.__faceDataDict:
+                    coords = self.__faceDataDict[face_landmark.JAW]
+                    cv2.circle(frame, coords, 3, (255, 255, 0), -1) # 하늘색 점
+                    #cv2.putText(frame, "Jaw", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,0), 1)
+            # --- 랜드마크 추출 및 표시 예시 끝 ---
+
+            # 얼굴 테두리 표시
+            if self.__drawFaceAreaFlag:
+                #h, w, c = frame.shape
+                x_coords = [landmark.x for landmark in first_face_landmarks.landmark]
+                y_coords = [landmark.y for landmark in first_face_landmarks.landmark]
+
+                x_min, x_max = min(x_coords), max(x_coords)
+                y_min, y_max = min(y_coords), max(y_coords)
+
+                bbox_x1 = int(x_min * w)
+                bbox_y1 = int(y_min * h)
+                bbox_x2 = int(x_max * w)
+                bbox_y2 = int(y_max * h)
+
+                padding_ratio = 0.1
+                bbox_width = bbox_x2 - bbox_x1
+                bbox_height = bbox_y2 - bbox_y1
+
+                pad_x = int(bbox_width * padding_ratio)
+                pad_y = int(bbox_height * padding_ratio)
+
+                bbox_x1 = max(0, bbox_x1 - pad_x)
+                bbox_y1 = max(0, bbox_y1 - pad_y)
+                bbox_x2 = min(w, bbox_x2 + pad_x)
+                bbox_y2 = min(h, bbox_y2 + pad_y)
+
+                current_face_bbox = [bbox_x1, bbox_y1, bbox_x2, bbox_y2]
+
+            if self.__drawFaceNameFlag == True:
+                recognized_array = self.__face_recognizer(frame, [current_face_bbox])
+
+                if len(recognized_array) > 0:
+                    recognized_name = recognized_array[0]
+                    recognized_names_on_frame.append(recognized_name)
+
+                    color = (0, 255, 255) # 기본 노란색
+                    if recognized_name != 'Unknown' and recognized_name != 'Too Small' and recognized_name != 'Error':
+                        color = (0, 255, 0) # 인식된 이름이면 초록색
+
+                cv2.rectangle(frame, (bbox_x1, bbox_y1), (bbox_x2, bbox_y2), color, 2)
+                cv2.putText(frame, recognized_name, (bbox_x1, bbox_y2 + 20), cv2.FONT_ITALIC, 0.7, color, 2)
+
+            if self.__drawFacePointFlag == True:
+                # 사각형의 중심점 계산
+                self.__faceCenter[0] = (bbox_x1 + bbox_x2) // 2
+                self.__faceCenter[1] = (bbox_y1 + bbox_y2) // 2
+                s = 'x=' + str(self.__faceCenter[0]) +' y='+str(self.__faceCenter[1])
+                cv2.putText(frame, s, (bbox_x1, bbox_y2 + 40), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+
+
+        # color =  (0, 255, 0)
+        # if self.__faceDetectedList is not None:
+
+        #     for faceKey,faceData in self.__faceDataDict.items():
+        #         addedY = 20
+        #         if self.__drawFaceAreaFlag:
+        #             cv2.rectangle(frame, (int(faceData.box[0]), int(faceData.box[1])), (int(faceData.box[2]), int(faceData.box[3])), color, 3)
+
+        #         if self.__drawFacePointFlag == True:
+        #             s = 'x=' + str(faceData.centerX) +' y='+str(faceData.centerY)
+        #             cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+        #             addedY += 20
+
+        #         if self.__drawFaceSizeFlag == True:
+        #             s = 'size=' + str(faceData.size)
+        #             cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+        #             addedY += 20
+        #         if self.__drawFaceNameFlag == True:
+        #             s = 'name=' + str(faceData.name)
+        #             cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+        #             addedY += 20
+        #         if self.__drawLandmarkFlag == True:
+        #             for faces in faceData.landMarks:
+        #                 cv2.circle(frame, (int(faces[0]),int(faces[1])), 3, (255,0,255), -1)
 
                 # pointIdx = 0
                     # if pointIdx != 0 and pointIdx != 17 and pointIdx != 22 and pointIdx != 27 and pointIdx != 36 and pointIdx != 42 and pointIdx != 48 and pointIdx != 60:
@@ -549,31 +686,36 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
 
-    def FaceCapture(self, name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/face/")):
-        if bool(name) == False:
-            print("Name parameter is Empty.")
-            return
+    def FaceCapture(self, name:str):
+        if self.__faceCaptureFlag == False:
+            self.__faceCaptureFlag = True
+            self.__faceCaptureName = name
 
-        if os.path.isdir(path) is False:
-            os.mkdir(path)
 
-        if self.__faceDetectFlag is False:
-            print("Facedetector did not run")
-            return
+        # if bool(name) == False:
+        #     print("Name parameter is Empty.")
+        #     return
 
-        cnt = 0
-        while cnt < captureCount:
-            if len(self.__faceDataDict) == 0:
-                print("Doesn't have a any face in Frame")
-                continue
+        # if os.path.isdir(path) is False:
+        #     os.mkdir(path)
 
-            bbox = (0, copy.deepcopy(self.__faceDetectedList.copy())[0])
+        # if self.__faceDetectFlag is False:
+        #     print("Facedetector did not run")
+        #     return
 
-            result = self.__faceR.SaveFace(self.__raw_img,bbox,name)
-            if result == 0:
-                cnt += 1
-                time.sleep(0.1)
-        print( name, " is saved")
+        # cnt = 0
+        # while cnt < captureCount:
+        #     if len(self.__faceDataDict) == 0:
+        #         print("Doesn't have a any face in Frame")
+        #         continue
+
+        #     bbox = (0, copy.deepcopy(self.__faceDetectedList.copy())[0])
+
+        #     result = self.__faceR.SaveFace(self.__raw_img,bbox,name)
+        #     if result == 0:
+        #         cnt += 1
+        #         time.sleep(0.1)
+        # print( name, " is saved")
 
     def DeleteFaceData(self, name:str, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
         if os.path.isdir(facePath) is False:
@@ -1351,6 +1493,57 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     print("패킷 전송 실패:", e)
 
 
+
+
+
+    def get_face_landmark_coordinates(self, face_landmarks_result, landmark_enum: face_landmark, image_width, image_height): # FaceLandmark -> face_landmark
+        """
+        MediaPipe FaceMesh 결과에서 특정 얼굴 랜드마크의 좌표를 추출합니다.
+
+        Args:
+            face_landmarks_result: MediaPipe `results.multi_face_landmarks` 리스트의 단일 얼굴 랜드마크 객체 (예: results.multi_face_landmarks[0]).
+            landmark_enum (face_landmark): 추출할 랜드마크 유형 (face_landmark Enum). # FaceLandmark -> face_landmark
+            image_width (int): 원본 이미지의 너비.
+            image_height (int): 원본 이미지의 높이.
+
+        Returns:
+            tuple[int, int] or None: 지정된 랜드마크의 (x, y) 픽셀 좌표.
+                                    여러 랜드마크가 정의된 경우 평균 좌표를 반환합니다.
+                                    감지되지 않거나 유효하지 않은 경우 None.
+        """
+        if not face_landmarks_result:
+            return None
+
+        landmark_indices = MEDIAPIPE_LANDMARK_MAP.get(landmark_enum)
+        if not landmark_indices:
+            print(f"오류: 알 수 없는 랜드마크 유형입니다: {landmark_enum.name}")
+            return None
+
+        points = []
+        for idx in landmark_indices:
+            # 랜드마크 인덱스가 유효한지 확인
+            if 0 <= idx < len(face_landmarks_result.landmark):
+                landmark = face_landmarks_result.landmark[idx]
+                # 랜드마크 좌표는 0.0 ~ 1.0 범위의 정규화된 값입니다. 픽셀 단위로 변환합니다.
+                x = int(landmark.x * image_width)
+                y = int(landmark.y * image_height)
+                points.append((x, y))
+            else:
+                print(f"경고: 랜드마크 인덱스 {idx}가 범위를 벗어납니다. (총 {len(face_landmarks_result.landmark)}개)")
+                # 하나의 중요한 랜드마크라도 없으면 이 부위의 좌표는 얻을 수 없다고 판단
+                return None
+
+        if not points:
+            return None
+
+        # 여러 점이 정의된 경우 평균 좌표를 반환하여 해당 부위의 중심점을 나타냅니다.
+        if len(points) > 1:
+            avg_x = sum([p[0] for p in points]) / len(points)
+            avg_y = sum([p[1] for p in points]) / len(points)
+            return int(avg_x), int(avg_y)
+        else:
+            return points[0] # 한 점만 정의된 경우 그 점을 반환
+
     # --- vision ---
 
     def LeftRightFlipMode(self, flag:bool):
@@ -1368,66 +1561,20 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         """영상 디스플레이 메인 루프"""
         self._ws.send("stream")
 
-        mp_face_mesh = mp.solutions.face_mesh
-        mp_drawing = mp.solutions.drawing_utils
-        face_mesh = mp_face_mesh.FaceMesh(
-            static_image_mode=False,
-            max_num_faces=1,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        )
+
+        # print("\n---------------------------------------------------------")
+        # print("웹캠을 시작합니다. 'q' 키를 눌러 종료하세요.")
+        # print("  - 'r' 키: 얼굴 등록 모드 시작 (이름 입력 후 여러 번 등록 가능)")
+        # print("  - 'e' 키: 얼굴 등록 모드 종료")
+        # print("  - 'c' 키: 등록된 모든 얼굴 데이터 삭제")
+        # print("---------------------------------------------------------\n")
+
+        #-------------------------------------------------------------------------
 
         while self.connected:
             try:
                 frame = self.frame_queue.get(timeout=2.0)
                 self.__raw_img = frame.copy()
-
-
-                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-                # FaceMesh 모델로 얼굴 랜드마크 처리
-                # results 객체에 감지된 얼굴 랜드마크 정보가 포함됩니다.
-                results = face_mesh.process(rgb_frame)
-
-                # 얼굴 랜드마크가 감지되었는지 확인
-                if results.multi_face_landmarks:
-                    # 감지된 각 얼굴에 대해 랜드마크 그리기
-                    for face_landmarks in results.multi_face_landmarks:
-                        # 랜드마크를 화면에 그립니다.
-                        # mp_face_mesh.FACEMESH_TESSELATION: 얼굴의 삼각형 메시를 그림
-                        # mp_face_mesh.FACEMESH_CONTOURS: 얼굴의 주요 윤곽선을 그림
-                        # mp_face_mesh.FACEMESH_IRISES: 눈동자 윤곽선을 그림 (FaceMesh 버전 0.8.x 이상)
-
-                        # 얼굴 메시의 삼각형 연결을 그립니다.
-                        mp_drawing.draw_landmarks(
-                            image=frame,
-                            landmark_list=face_landmarks,
-                            connections=mp_face_mesh.FACEMESH_TESSELATION,
-                            landmark_drawing_spec=None, # 랜드마크 점은 그리지 않음
-                            connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1) # 녹색 선
-                        )
-                        # 얼굴의 주요 윤곽선(눈, 코, 입 등)을 그립니다.
-                        mp_drawing.draw_landmarks(
-                            image=frame,
-                            landmark_list=face_landmarks,
-                            connections=mp_face_mesh.FACEMESH_CONTOURS,
-                            landmark_drawing_spec=None, # 랜드마크 점은 그리지 않음
-                            connection_drawing_spec=mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2, circle_radius=2) # 파란색 선
-                        )
-
-                        # //눈동자 윤곽선을 그립니다. (지원하는 경우)
-                        # //mp_face_mesh.FACEMESH_IRISES는 MediaPipe 0.8.x 이상에서 사용 가능
-                        # try:
-                        #     mp_drawing.draw_landmarks(
-                        #         image=frame,
-                        #         landmark_list=face_landmarks,
-                        #         connections=mp_face_mesh.FACEMESH_IRISES,
-                        #         landmark_drawing_spec=None,
-                        #         connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=1, circle_radius=1) # 빨간색 선
-                        #     )
-                        # except AttributeError:
-                        #     pass # 해당 버전에서 FACEMESH_IRISES가 없을 경우 무시
-
 
                 # 센서 값 화면 오버레이
                 if self.__sensorFlag == True:
@@ -1461,6 +1608,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         self.__overlay_gesture_boxes(frame)
 
 
+                if self.__faceCaptureFlag == True:
+                    #r키를 눌러 연속 캡쳐, e키를 눌러 종료
+                    cv2.putText(frame, "-press r : capture", (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50,50,250), 2)
+                    cv2.putText(frame, "-press e : end", (10, 230), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50,50,250), 2)
+
                 cv2.imshow("ZumiAI Stream", frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
@@ -1475,6 +1627,129 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     # 's' 키를 누르면 현재 프레임 저장
                     cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
                     print("img save")
+
+                elif key == ord('r'): # 'r' 키를 누르면 현재 얼굴 등록
+                    if self.__faceCaptureFlag == True:
+                        if self.__facecurrent_results == True and self.__faceResults != None:
+                            # if current_registration_name is None:
+                            #     # 등록할 이름이 아직 정해지지 않았다면 입력받기
+                            #     print("\n--- 얼굴 등록 모드 ---")
+                            #     name_input = input("등록할 얼굴의 이름을 입력하세요 (영문/숫자): ")
+                            #     if not name_input.strip():
+                            #         print("이름이 입력되지 않았습니다. 등록을 취소합니다.")
+                            #         continue
+                            #     current_registration_name = name_input.strip()
+                            #     print(f"'{current_registration_name}' 등록 모드를 시작합니다. 이 상태에서 'r' 키를 여러 번 눌러 얼굴을 추가 등록하세요.")
+                            #     print("등록 모드 종료는 'e' 키를 누르세요.")
+
+                            # 현재 감지된 첫 번째 얼굴을 등록
+                            face_landmarks = self.__faceResults.multi_face_landmarks[0]
+                            h, w, c = frame.shape # 이미지 높이, 너비
+                            x_coords = [landmark.x for landmark in face_landmarks.landmark]
+                            y_coords = [landmark.y for landmark in face_landmarks.landmark]
+                            x_min, x_max = min(x_coords), max(x_coords)
+                            y_min, y_max = min(y_coords), max(y_coords)
+
+                            bbox_x1 = int(x_min * w)
+                            bbox_y1 = int(y_min * h)
+                            bbox_x2 = int(x_max * w)
+                            bbox_y2 = int(y_max * h)
+
+                            # 등록 시에도 여백 추가 (일관된 전처리)
+                            padding_ratio = 0.1
+                            bbox_width = bbox_x2 - bbox_x1
+                            bbox_height = bbox_y2 - bbox_y1
+                            pad_x = int(bbox_width * padding_ratio)
+                            pad_y = int(bbox_height * padding_ratio)
+                            bbox_x1 = max(0, bbox_x1 - pad_x)
+                            bbox_y1 = max(0, bbox_y1 - pad_y)
+                            bbox_x2 = min(w, bbox_x2 + pad_x)
+                            bbox_y2 = min(h, bbox_y2 + pad_y)
+
+                            self.__face_recognizer.TrainModel(frame, [bbox_x1, bbox_y1, bbox_x2, bbox_y2], self.__faceCaptureName)
+                        else:
+                            print("얼굴이 감지되지 않아 등록할 수 없습니다.")
+
+                elif key == ord('e'): # 'e' 키를 눌러 등록 모드 종료
+                    if self.__faceCaptureFlag == True:
+                        self.__faceCaptureFlag = False
+                        if self.__faceCaptureName is not None:
+                            if self.__faceCaptureName in self.__face_recognizer.registerd:
+                                print(f"'{self.__faceCaptureName}' 등록 모드를 종료합니다. 등록된 얼굴 수: {self.__face_recognizer.registerd[self.__faceCaptureName].extra.shape[0]}개.")
+                            else:
+                                print(f"'{self.__faceCaptureName}' 등록 모드를 종료합니다. 등록된 얼굴이 없습니다.")
+                            self.__faceCaptureName = None
+                            self.__face_recognizer._save_registered_faces() # 등록 모드 종료 시 데이터 저장
+                            print("---------------------------------------------------------")
+                        else:
+                            print("현재 등록 모드가 아닙니다.")
+
+                #-------------------------------------------------------------------------
+                # elif key == ord('r'): # 'r' 키를 누르면 현재 얼굴 등록
+                #     if results.multi_face_landmarks:
+                #         if current_registration_name is None:
+                #             # 등록할 이름이 아직 정해지지 않았다면 입력받기
+                #             print("\n--- 얼굴 등록 모드 ---")
+                #             name_input = input("등록할 얼굴의 이름을 입력하세요 (영문/숫자): ")
+                #             if not name_input.strip():
+                #                 print("이름이 입력되지 않았습니다. 등록을 취소합니다.")
+                #                 continue
+                #             current_registration_name = name_input.strip()
+                #             print(f"'{current_registration_name}' 등록 모드를 시작합니다. 이 상태에서 'r' 키를 여러 번 눌러 얼굴을 추가 등록하세요.")
+                #             print("등록 모드 종료는 'e' 키를 누르세요.")
+
+                #         # 현재 감지된 첫 번째 얼굴을 등록
+                #         face_landmarks = results.multi_face_landmarks[0]
+
+                #         x_coords = [landmark.x for landmark in face_landmarks.landmark]
+                #         y_coords = [landmark.y for landmark in face_landmarks.landmark]
+                #         x_min, x_max = min(x_coords), max(x_coords)
+                #         y_min, y_max = min(y_coords), max(y_coords)
+
+                #         bbox_x1 = int(x_min * w)
+                #         bbox_y1 = int(y_min * h)
+                #         bbox_x2 = int(x_max * w)
+                #         bbox_y2 = int(y_max * h)
+
+                #         # 등록 시에도 여백 추가 (일관된 전처리)
+                #         bbox_width = bbox_x2 - bbox_x1
+                #         bbox_height = bbox_y2 - bbox_y1
+                #         pad_x = int(bbox_width * padding_ratio)
+                #         pad_y = int(bbox_height * padding_ratio)
+                #         bbox_x1 = max(0, bbox_x1 - pad_x)
+                #         bbox_y1 = max(0, bbox_y1 - pad_y)
+                #         bbox_x2 = min(w, bbox_x2 + pad_x)
+                #         bbox_y2 = min(h, bbox_y2 + pad_y)
+
+                #         face_recognizer.TrainModel(frame, [bbox_x1, bbox_y1, bbox_x2, bbox_y2], current_registration_name)
+                #     else:
+                #         print("얼굴이 감지되지 않아 등록할 수 없습니다.")
+
+                # elif key == ord('e'): # 'e' 키를 눌러 등록 모드 종료
+                #     if current_registration_name is not None:
+                #         if current_registration_name in face_recognizer.registerd:
+                #             print(f"'{current_registration_name}' 등록 모드를 종료합니다. 등록된 얼굴 수: {face_recognizer.registerd[current_registration_name].extra.shape[0]}개.")
+                #         else:
+                #             print(f"'{current_registration_name}' 등록 모드를 종료합니다. 등록된 얼굴이 없습니다.")
+                #         current_registration_name = None
+                #         face_recognizer._save_registered_faces() # 등록 모드 종료 시 데이터 저장
+                #         print("---------------------------------------------------------")
+                #     else:
+                #         print("현재 등록 모드가 아닙니다.")
+
+                # elif key == ord('c'): # 'c' 키를 누르면 모든 등록된 얼굴 지우기
+                #     if input("정말로 모든 등록된 얼굴을 지우시겠습니까? (y/n): ").lower() == 'y':
+                #         face_recognizer.RemoveAllFace() # 파일 시스템에서 이미지 및 .pkl 삭제
+                #         face_recognizer.registerd = {} # 메모리에서도 등록 정보 지우기
+                #         current_registration_name = None # 등록 모드도 초기화
+                #         print("모든 등록된 얼굴이 지워졌습니다.")
+                #     else:
+                #         print("모든 얼굴 삭제를 취소했습니다.")
+
+
+                #-------------------------------------------------------------------------
+
+
 
 
             except queue.Empty:
@@ -3643,21 +3918,21 @@ class ZumiAI:
     ##--------------------------------------------------------------------#
 
     # face
-    def FacedetectorInit(self):
-        self._connection_handler.FacedetectorInit()
+    def FaceDetectorInit(self, face_recognize_threshold = 0.8):
+        self._connection_handler.FaceDetectorInit(face_recognize_threshold)
 
-    def FacedetectorStart(self):
-        self._connection_handler.FacedetectorStart()
+    def FaceDetectorStart(self):
+        self._connection_handler.FaceDetectorStart()
 
-    def FacedetectorStop(self):
-        self._connection_handler.FacedetectorStop()
+    def FaceDetectorStop(self):
+        self._connection_handler.FaceDetectorStop()
 
 
-    def FaceCapture(self,name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/face/")):
-        self._connection_handler.FaceCapture(name,captureCount,path)
+    def FaceCapture(self,name:str):
+        self._connection_handler.FaceCapture(name)
 
-    def TrainFaceData(self,facePath:str =pkg_resources.resource_filename(__package__,"res/face/")):
-        self._connection_handler.TrainFaceData(facePath)
+    # def TrainFaceData(self,facePath:str =pkg_resources.resource_filename(__package__,"res/face/")):
+    #     self._connection_handler.TrainFaceData(facePath)
 
     def DeleteFaceData(self, name:str, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
         self._connection_handler.DeleteFaceData(name,facePath)
@@ -3666,8 +3941,8 @@ class ZumiAI:
         self._connection_handler.DeleteAllFaceData(facePath)
 
 
-    def GetFaceCount(self):
-        return self._connection_handler.GetFaceCount()
+    # def GetFaceCount(self):
+    #     return self._connection_handler.GetFaceCount()
 
     def GetFaceExist(self,name:str="Human0"):
         return self._connection_handler.GetFaceExist(name)
@@ -3675,9 +3950,8 @@ class ZumiAI:
     def GetFaceNames(self):
         return self._connection_handler.GetFaceNames()
 
-
-    def GetFaceSize(self,name:str="Human0"):
-        return self._connection_handler.GetFaceSize(name)
+    # def GetFaceSize(self,name:str="Human0"):
+    #     return self._connection_handler.GetFaceSize(name)
 
     def GetFaceCenterPoint(self,name:str="Human0"):
         return self._connection_handler.GetFaceCenterPoint(name)

@@ -368,3 +368,23 @@ class face_landmark(Enum):
     NOSE = 5
     MOUTH = 6
     JAW = 7
+
+
+MEDIAPIPE_LANDMARK_MAP = {
+    # 눈 (바깥쪽, 안쪽 코너를 대표점으로 사용)
+    face_landmark.LEFT_EYE: [33, 133],  # FaceLandmark -> face_landmark
+    face_landmark.RIGHT_EYE: [263, 362], # FaceLandmark -> face_landmark
+
+    # 눈썹 (안쪽 끝과 바깥쪽 끝을 대표점으로 사용)
+    face_landmark.LEFT_EYEBROW: [70, 105], # FaceLandmark -> face_landmark
+    face_landmark.RIGHT_EYEBROW: [300, 334], # FaceLandmark -> face_landmark
+
+    # 코 (코끝을 대표점으로 사용)
+    face_landmark.NOSE: [1],             # FaceLandmark -> face_landmark
+
+    # 입술 (윗입술 중앙, 아랫입술 중앙을 대표점으로 사용)
+    face_landmark.MOUTH: [13, 14],       # FaceLandmark -> face_landmark
+
+    # 턱 (턱 끝을 대표점으로 사용)
+    face_landmark.JAW: [152]             # FaceLandmark -> face_landmark
+}

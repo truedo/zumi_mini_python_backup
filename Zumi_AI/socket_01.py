@@ -13,9 +13,14 @@ zumi.connect()
 
 zumi.start_video_viewer()
 
-zumi.sensorInit()
-zumi.sensorStart()
+zumi.FaceDetectorInit()
+zumi.FaceDetectorStart()
+zumi.FaceCapture("aa")
+
+#zumi.sensorInit()
+#zumi.sensorStart()
 #zumi.sensorStop()
+
 ##
 ##zumi.GestureDetectorInit()
 ##zumi.GestureDetectorStart()
@@ -36,7 +41,7 @@ zumi.sensorStart()
 #zumi.FacedetectorInit()
 #zumi.FacedetectorStart()
 ##
-##print("start captur")q
+##print("start captur")
 ##time.sleep(1)
 ##zumi.FaceCapture("CHA",5)
 ##time.sleep(1)
