@@ -358,3 +358,13 @@ class Command_variable_byte(ISerializable):
         # return data
 
 
+
+
+class face_landmark(Enum):
+    LEFT_EYE = 1
+    RIGHT_EYE = 2
+    LEFT_EYEBROW = 3
+    RIGHT_EYEBROW = 4
+    NOSE = 5
+    MOUTH = 6
+    JAW = 7

@@ -31,8 +31,18 @@ from .protocol import *
 from .receiver import *
 
 
+from .face_detector import FaceDetector
+from .face_landmark import FaceLandmark
+from .face_recognizer import FaceRecognizer
+from .number_recognizer import NumberRecognizer
+from .sketch_recognizer import SketchRecognizer
 
+import mediapipe as mp
 
+import pkg_resources
+import copy
+import os
+from pupil_apriltags import Detector
 
 def convertByteArrayToString(dataArray):
     """
@@ -48,6 +58,39 @@ def convertByteArrayToString(dataArray):
             string += "{0:02X} ".format(data)
 
     return string
+
+
+class FaceData:
+    def __init__(self):
+        self.name = ''
+        self.box = []
+        self.landMarks = None
+        self.centerX = 0
+        self.centerY = 0
+        self.size = 0
+
+    def SetData(self, name:str, box, landmarks):
+        self.name = name
+        self.box = box
+        self.landMarks = landmarks
+        self.centerX = int((box[0] + box[2]) / 2)
+        self.centerY = int((box[1] + box[3]) / 2)
+        self.size = self.landMarks[16][0] - self.landMarks[0][0]
+
+class SketchData:
+    def __init__(self, name:str, box:list):
+        self.name = name
+        self.box = box
+        self.centerX = int((self.box[0][0] + self.box[2][0]) / 2)
+        self.centerY = int((self.box[0][1] + self.box[2][1]) / 2)
+        self.size = abs(int(self.box[2][0] - self.box[0][0]))
+        self.textX = 0
+        self.textY = 20000
+        for i in range(4):
+            if self.textX < self.box[i][0]:
+                self.textX = self.box[i][0]
+            if self.textY > self.box[i][1]:
+                self.textY = self.box[i][1]
 
 class DebugOutput:
     def __init__(self, show_log=True, show_error=True, show_transfer=False, show_receive=False):
@@ -140,7 +183,7 @@ _STATUS_INDEX_DETECT_CAT = 17 # Start of 3 bytes
 _STATUS_INDEX_BTN = 20
 _STATUS_INDEX_BATTERY = 21
 # Note: This mapping assumes indices relative to the start of the 24-byte status packet.
-# Example: reqCOM is dataArray[PacketDataIndex.DATA_COM.value - self.headerLen] in serial.
+# Example: reqCOM is dataArray[PacketDataIndex.DATA_COM.vaFlue - self.headerLen] in serial.
 # If PacketDataIndex.DATA_COM.value is 4 and self.headerLen is 2, it reads dataArray[2].
 # So, in the 24-byte packet, this corresponds to index 2. This confirms the mapping.
 
@@ -228,6 +271,104 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.frame_count = 0
         self.frames_dropped = 0
 
+        self.__flipLRFlag = False
+
+
+
+        # sensor
+        self.__sensorInitFlag = False
+        self.__sensorFlag = False
+        self.__drawSensorAreaFlag = True
+
+
+
+        self.__raw_img = None
+
+        # face
+        self.__faceDetectFlag = False
+        self.__drawFaceAreaFlag = True
+        self.__drawFaceNameFlag = True
+        self.__drawFacePointFlag = True
+        self.__drawFaceSizeFlag = True
+        self.__drawLandmarkFlag = True
+
+        self.__faceDetectInitFlag = False
+        self.__faceDetectedList = []
+
+        self.__faceLandmarkInitFlag = False
+        self.__faceLandmarkList = []
+
+        self.__faceRecognizeInitFlag = False
+        self.__faceRecognizedList = []
+        self.__faceDataDict = dict()
+
+
+        # apriltag
+
+
+        # april detector
+        self.__aprilDetectFlag = False
+        self.__aprilDetectInitFlag = False
+        self.__drawAprilAreaFlag = True
+        self.__drawAprilIdFlag = True
+        self.__drawAprilPointFlag = True
+        self.__drawAprilSizeFlag = True
+        self.__drawAprilDistanceFlag = True
+        self.__aprilDetectedCorners = []
+        self.__aprilDetectedIds = []
+        self.__aprilDataDict = dict()
+
+        self.__tags =[]
+
+        # number recognizer
+        self.__numberDetectInitFlag = False
+        self.__numberDetectFlag = False
+        self.__drawNumberAreaFlag = True
+        self.__drawNumberFlag = True
+        self.__drawNumberPointFlag = True
+        self.__drawNumberSizeFlag = True
+
+        self.__numberRecognizedStr = ''
+        self.__numberDetectedList = []
+
+
+        # sketch detector
+        self.__sketchDetectFlag = False
+        self.__sketchDetectInitFlag = False
+        self.__drawSketchAreaFlag = True
+        self.__drawSketchNameFlag = True
+        self.__drawSketchPointFlag = True
+        self.__drawSketchSizeFlag = True
+        self.__sketchRecognizedList = []
+        self.__sketchDetectedList = []
+        self.__sketchDataDict = dict()
+
+
+        # gesture detector
+        self.__gestureDetectFlag = False
+        self.__gestureDetectInitFlag = False
+        self.__drawGestureAreaFlag = True
+        self.__drawGestureIdFlag = True
+        self.__drawGesturePointFlag = True
+        self.__drawGestureSizeFlag = True
+        self.__drawGestureDistanceFlag = True
+        self.__gestureDetectedCorners = []
+        self.__gestureDetectedIds = []
+        self.__gestureDataDict = dict()
+
+        self.__gestureLandmark = []
+
+
+
+        print("camera module ready")
+        # self.april_detector = Detector(families='tag25h9',
+        #                nthreads=1,
+        #                quad_decimate=1.0,
+        #                quad_sigma=0.0,
+        #                refine_edges=1,
+        #                decode_sharpening=0.25,
+        #                debug=0) # 필요시 debug=1 로 변경하여 내부 디버그 정보 확인
+
     # --- WebSocket Callbacks ---
 
     def on_open(self, ws):
@@ -294,9 +435,838 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self._usePosConnected = False # Indicate device is disconnected
 
 
+    # --- face ---
+    def FacedetectorInit(self):
+        if self.__faceDetectInitFlag is False:
+            self.__faceD = FaceDetector()
+            self.__faceDetectInitFlag = True
+
+        if self.__faceLandmarkInitFlag is False:
+            self.__landD = FaceLandmark()
+            self.__faceLandmarkInitFlag = True
+
+        if self.__faceRecognizeInitFlag is False:
+            self.__faceR = FaceRecognizer()
+            self.__faceRecognizeInitFlag = True
+
+        print("Facedetector initialized")
+
+
+    def FacedetectorStart(self):
+
+        if self.__faceDetectInitFlag is False:
+            print("Facedetector is not initialized")
+            return
+
+        if self.__faceDetectFlag == True:
+            print("Facedetector is already working.")
+            return
+        self.__faceDetectFlag = True
+
+        th = threading.Thread(target=self.__facedetect)
+        th.deamon = True
+        th.start()
+
+    def FacedetectorStop(self):
+        if self.__faceDetectFlag == False :
+            print("Facedetector is already stopped.")
+            return
+
+        self.__faceDetectFlag = False
+        time.sleep(1)
+
+        print("Facedetector off")
+
+
+    def __facedetect(self):
+        while self.__faceDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                print('no input frame yet')
+                continue
+            try:
+                self.__faceDetectedList = self.__faceD(self.__raw_img)
+                self.__faceLandmarkList = self.__landD.batch_call (self.__raw_img, copy.deepcopy(self.__faceDetectedList))
+                self.__faceRecognizedList = self.__faceR(self.__raw_img, copy.deepcopy(self.__faceDetectedList))
+
+                self.__faceDataDict.clear()
+                for i in range(0,len(self.__faceDetectedList)):
+                    #print(self.__faceDetectedList)
+                    #print(self.__faceLandmarkList)
+                    #print(self.__faceRecognizedList)
+
+                    faceData = FaceData()
+                    faceData.SetData(self.__faceRecognizedList[i],
+                                     list(self.__faceDetectedList[i]),
+                                     self.__faceLandmarkList[i])
+                    self.__faceDataDict[self.__faceRecognizedList[i]] = faceData
+
+                #print(len(self.__faceDataDict))
+
+
+            except Exception as e:
+                print("Detect : " , e)
+                continue
+
+            time.sleep(0.001)
+
+    def __overlay_face_boxes(self, frame):
+        color =  (0, 255, 0)
+        if self.__faceDetectedList is not None:
+
+            for faceKey,faceData in self.__faceDataDict.items():
+                addedY = 20
+                if self.__drawFaceAreaFlag:
+                    cv2.rectangle(frame, (int(faceData.box[0]), int(faceData.box[1])), (int(faceData.box[2]), int(faceData.box[3])), color, 3)
+
+                if self.__drawFacePointFlag == True:
+                    s = 'x=' + str(faceData.centerX) +' y='+str(faceData.centerY)
+                    cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+                    addedY += 20
+
+                if self.__drawFaceSizeFlag == True:
+                    s = 'size=' + str(faceData.size)
+                    cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+                    addedY += 20
+                if self.__drawFaceNameFlag == True:
+                    s = 'name=' + str(faceData.name)
+                    cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+                    addedY += 20
+                if self.__drawLandmarkFlag == True:
+                    for faces in faceData.landMarks:
+                        cv2.circle(frame, (int(faces[0]),int(faces[1])), 3, (255,0,255), -1)
+
+                # pointIdx = 0
+                    # if pointIdx != 0 and pointIdx != 17 and pointIdx != 22 and pointIdx != 27 and pointIdx != 36 and pointIdx != 42 and pointIdx != 48 and pointIdx != 60:
+                    #     cv2.line(frame, (self.__faceLandmarkList[faceIdx][pointIdx][0], self.__faceLandmarkList[faceIdx][pointIdx][1]), (self.__faceLandmarkList[faceIdx][pointIdx-1][0], self.__faceLandmarkList[faceIdx][pointIdx-1][1]), (255,255,0), 1)
+                    # pointIdx += 1
+                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][41][0], self.__faceLandmarkList[faceIdx][41][1]), (self.__faceLandmarkList[faceIdx][36][0], self.__faceLandmarkList[faceIdx][36][1]), (255,255,0), 1)
+                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][47][0], self.__faceLandmarkList[faceIdx][47][1]), (self.__faceLandmarkList[faceIdx][42][0], self.__faceLandmarkList[faceIdx][42][1]), (255,255,0), 1)
+                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][59][0], self.__faceLandmarkList[faceIdx][59][1]), (self.__faceLandmarkList[faceIdx][48][0], self.__faceLandmarkList[faceIdx][48][1]), (255,255,0), 1)
+                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][67][0], self.__faceLandmarkList[faceIdx][67][1]), (self.__faceLandmarkList[faceIdx][60][0], self.__faceLandmarkList[faceIdx][60][1]), (255,255,0), 1)
+        #else:
+        #    print('__faceDataDict none')
+
+
+
+    def FaceCapture(self, name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/face/")):
+        if bool(name) == False:
+            print("Name parameter is Empty.")
+            return
+
+        if os.path.isdir(path) is False:
+            os.mkdir(path)
+
+        if self.__faceDetectFlag is False:
+            print("Facedetector did not run")
+            return
+
+        cnt = 0
+        while cnt < captureCount:
+            if len(self.__faceDataDict) == 0:
+                print("Doesn't have a any face in Frame")
+                continue
+
+            bbox = (0, copy.deepcopy(self.__faceDetectedList.copy())[0])
+
+            result = self.__faceR.SaveFace(self.__raw_img,bbox,name)
+            if result == 0:
+                cnt += 1
+                time.sleep(0.1)
+        print( name, " is saved")
+
+    def DeleteFaceData(self, name:str, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
+        if os.path.isdir(facePath) is False:
+            print(facePath +" is not directory.")
+            return
+
+        self.__faceR.RemoveFace(name, facePath)
+
+        print(name + ' is deleted')
+
+    def DeleteAllFaceData(self, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
+        if os.path.isdir(facePath) is False:
+            print(facePath +"is not directory.")
+            return
+
+        self.__faceR.RemoveAllFace(facePath)
+
+        print('all face is deleted')
+
+
+    def TrainFaceData(self, facePath:str =pkg_resources.resource_filename(__package__,"res/face/")):
+
+        print(facePath)
+
+        if os.path.isdir(facePath) is False:
+            print(facePath +" is not directory.")
+            return
+
+        faceD = FaceDetector()
+        self.__faceR.registerd.clear()
+
+        filenames = os.listdir(facePath)
+        for filename in filenames:
+            name = os.path.basename(filename)
+            image = cv2.imread(facePath + filename, cv2.IMREAD_ANYCOLOR)
+            facedetectedList = faceD(image)
+
+            if np.any(facedetectedList) == False:
+                print("Doesn't have a any face in Frame")
+                continue
+
+            name = name.split('_')[0]
+            #print(name)
+            bbox = (0, facedetectedList[0])
+            self.__faceR.TrainModel(image, bbox, name)
+
+
+
+    def GetFaceCount(self) -> int:
+        """
+        카메라에 확인된 얼굴들의 이름을 list 형태로 반환하는 함수입니다.
+        현재 인식된 얼굴이 없다면 빈 리스트를 반환합니다.
+        """
+        return len(self.__faceDataDict)
+
+    def GetFaceExist(self, name:str="Human0") -> bool:
+        """""
+        카메라에 인식된 얼굴 중, name의 이름을 가진 얼굴이 있는지 반환하는 함수입니다.
+        name : 검출할 얼굴의 이름입니다.
+        """""
+
+        return name in self.__faceDataDict
+
+    def GetFaceNames(self) -> list:
+        """""
+        카메라에 확인된 얼굴들의 이름을 list 형태로 반환하는 함수입니다.
+        현재 인식된 얼굴이 없다면 빈 리스트를 반환합니다.
+        """""
+        if len(self.__faceRecognizedList) == 0:
+            return []
+
+        return list(self.__faceRecognizedList)
+
+
+    def GetFaceSize(self, name:str="Human0") -> int:
+
+        """""
+        카메라에 인식된 얼굴 중, name의 이름을 가진 얼굴의 크기를 반환하는 함수입니다.
+        name : 크기를 구할 얼굴의 이름입니다.
+        입력하지 않는다면, 학습되지 않은 얼굴의 사이즈를 반환합니다.
+        """""
+        if name in self.__faceDataDict:
+            return self.__faceDataDict[name].size
+        pass
+
+    def GetFaceCenterPoint(self, name:str="Human0") -> list:
+        """""
+        카메라에 인식된 얼굴들 중 name의 이름을 가진 얼굴의 중심 좌표를 반환하는 함수입니다.
+        name : 좌표를 구할 얼굴의 이름입니다.
+        입력하지 않는다면, 학습되지 않은 얼굴의 사이즈를 반환합니다.
+        """""
+
+        if name in self.__faceDataDict:
+            return [self.__faceDataDict[name].centerX,self.__faceDataDict[name].centerY]
+        pass
+
+
+    def GetFaceLandmarkPoint(self, landmark: face_landmark, name: str = "Human0") -> list:
+        x = y = 0
+
+        if name not in self.__faceDataDict:
+            return [x, y]
+
+        lm = self.__faceDataDict[name].landMarks
+
+        if landmark == face_landmark.LEFT_EYE:
+            x = (lm[36][0] + lm[39][0]) / 2
+            y = (lm[36][1] + lm[39][1]) / 2
+        elif landmark == face_landmark.RIGHT_EYE:
+            x = (lm[42][0] + lm[45][0]) / 2
+            y = (lm[42][1] + lm[45][1]) / 2
+        elif landmark == face_landmark.LEFT_EYEBROW:
+            x, y = lm[19]
+        elif landmark == face_landmark.RIGHT_EYEBROW:
+            x, y = lm[24]
+        elif landmark == face_landmark.NOSE:
+            x, y = lm[33]
+        elif landmark == face_landmark.MOUTH:
+            x = (lm[48][0] + lm[54][0]) / 2
+            y = (lm[48][1] + lm[54][1]) / 2
+        elif landmark == face_landmark.JAW:
+            x, y = lm[8]
+        else :
+            print("else")
+
+
+        return [x, y]
+
+    # april
+    def AprilDetectorInit(self):
+        if self.__aprilDetectInitFlag is False:
+
+            self.__aprilD = Detector(families='tag25h9',
+                        nthreads=1,
+                        quad_decimate=1.0,
+                        quad_sigma=0.0,
+                        refine_edges=1,
+                        decode_sharpening=0.25,
+                        debug=0) # 필요시 debug=1 로 변경하여 내부 디버그 정보 확인
+
+            self.__aprilDetectInitFlag = True
+            self.__drawAprilAreaFlag = True
+        print("April detector initialized")
+
+    def AprilDetectorStart(self):
+        if self.__aprilDetectInitFlag is False:
+            print("April detector is not initialized")
+            return
+
+        if self.__aprilDetectFlag == True:
+            print("April detector is already working.")
+            return
+        self.__aprilDetectFlag = True
+
+        th = threading.Thread(target=self.__aprildetect)
+        th.deamon = True
+        th.start()
+
+    def AprildetectorStop(self):
+        if self.__aprilDetectFlag == False :
+            print("April detector is already stopped.")
+            return
+
+        self.__aprilDetectFlag = False
+        time.sleep(1)
+
+        print("April detector off")
+
+    def __aprildetect(self):
+        while self.__aprilDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                print('no input frame yet')
+                continue
+            try:
+                gray = cv2.cvtColor(self.__raw_img, cv2.COLOR_BGR2GRAY)
+                # AprilTag 감지
+                self.__tags = self.__aprilD.detect(gray)
+                #print(self.__tags)
+
+                # [Detection object:
+                # tag_family = b'tag25h9'
+                # tag_id = 4
+                # hamming = 0
+                # decision_margin = 45.611053466796875
+                # homography = [[ 3.77331906e+01  6.80398211e+00  1.91501846e+02]
+                #  [-3.59211993e+00  3.69436373e+01  1.23676557e+02]
+                #  [ 1.28310501e-02  6.73024659e-03  1.00000000e+00]]
+                # center = [191.50184647 123.67655733]
+                # corners = [[161.55827332 165.22029114]
+                #  [231.51037598 154.01533508]
+                #  [221.08227539  82.63665009]
+                #  [149.89685059  92.12716675]]
+                # pose_R = None
+                # pose_t = None
+                # pose_err = None
+                # ]
+
+
+
+                #coners, ids, markerDict = self.__aprilD(self.__raw_img)
+
+                # if ids is not None:
+                #     self.__aprilDetectedCorners = list(coners)
+                #     self.__aprilDetectedIds = ids
+                #     self.__aprilDataDict = copy.deepcopy(markerDict)
+                # else:
+                #     self.__aprilDetectedCorners = []
+                #     self.__aprilDetectedIds = []
+                #     self.__aprilDataDict = dict()
+
+                #time.sleep(0.1)
+
+            except Exception as e:
+                print("April detector error : " , e)
+                continue
+
+            time.sleep(0.001)
+
+
+    def __overlay_april_boxes(self,frame):
+        duplicateId = []
+        color = (0, 255, 0)
+
+        # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # # AprilTag 감지
+        # tags = self.__aprilD.detect(gray)
+
+        # 감지된 태그 정보 출력 및 시각화
+        for tag in self.__tags:
+            #print(f"Tag ID: {tag.tag_id}, Center: {tag.center}, Corners: {tag.corners}")
+
+            # Tag ID: 4,
+            # Center: [206.1433955  138.54275798],
+            # Corners: [[243.91590881 103.00775146]
+            # [171.52641296  98.70207977]
+            # [167.60879517 174.79470825]
+            # [240.3183136  177.87466431]]
+
+            # 태그 주변에 사각형 그리기
+            for i in range(4):
+                pt1 = tuple(map(int, tag.corners[i]))
+                pt2 = tuple(map(int, tag.corners[(i + 1) % 4]))
+                cv2.line(frame, pt1, pt2, (0, 255, 0), 2)
+
+            # 태그 ID 표시
+            cv2.putText(frame, str(tag.tag_id), tuple(map(int, tag.center)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+
+        # if self.__aprilDetectedIds is None:
+        #     pass
+        # else:
+        #     idx = 0
+        #     for corners in self.__aprilDetectedCorners:
+        #         addedY = 0
+        #         id = self.__aprilDetectedIds[idx]
+        #         if id in duplicateId:
+        #             color = self.__UnregisterdColor
+        #         else:
+        #             color =self.__RegisterdColor
+        #             duplicateId.append(id)
+
+        #         x = int((corners[0][0][0] + corners[0][2][0]) / 2)
+        #         y = int((corners[0][0][1] + corners[0][2][1]) / 2)
+        #         if self.__drawAprilAreaFlag == True:
+        #             cv2.polylines(frame, np.array([corners[0]], np.int32), True, color, 3)
+        #         if self.__drawAprilIdFlag == True:
+        #             s = 'id='+str(id)
+        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+        #             addedY += 20
+        #         if self.__drawAprilPointFlag == True:
+        #             s = 'x=' + str(x) +' y='+str(y)
+        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+        #             addedY += 20
+        #         if self.__drawAprilSizeFlag == True:
+        #             april_perimeter = cv2.arcLength(corners[0], True) / 7
+        #             s = 'size='+ str(int(april_perimeter))
+        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+        #             addedY += 20
+        #         if self.__drawAprilDistanceFlag == True:
+        #             s = 'distance={:.2f}'.format(self.__aprilDataDict[id].distance)
+        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+        #             addedY += 20
+        #         idx+=1
+
+
+    def GetAprilId(self) -> int:
+        #print(self.__tags)
+        if self.__tags is None or len(self.__tags) == 0:
+            return -1
+        else:
+            return self.__tags[0].tag_id
+
+    def GetAprilCenterPoint(self) -> list:
+        if self.__tags is None or len(self.__tags) == 0:
+            pass
+        else:
+            return self.__tags[0].center
+
+    def GetAprilExist(self,id:int)->bool:
+        if self.__tags is None or len(self.__tags) == 0:
+            return False
+        else:
+            if self.__tags[0].tag_id == id:
+                return True
+            else :
+                return False
+
+    # --- numbers ---
+
+    def NumberRecognizerInit(self):
+        if self.__numberDetectInitFlag is False:
+            self.__numberR = NumberRecognizer()
+            self.__numberDetectInitFlag = True
+
+        print("Number recognizer initialized")
+
+    def GetRecognizedNumbers(self)->str:
+        if self.__numberRecognizedStr:
+            return self.__numberRecognizedStr
+
+    def GetRecognizedNumberPoint(self)->list:
+        if self.__numberDetectedList is not None and len(self.__numberDetectedList) > 0:
+            x = int((self.__numberDetectedList[0][0][0] + self.__numberDetectedList[0][2][0]) / 2)
+            y = int((self.__numberDetectedList[0][0][1] + self.__numberDetectedList[0][2][1]) / 2)
+            return [x, y]
+        pass
+
+    def GetRecognizedNumberSize(self)->int:
+        if self.__numberDetectedList is not None and len(self.__numberDetectedList) > 0:
+            return abs(int(self.__numberDetectedList[0][2][0] - self.__numberDetectedList[0][0][0]))
+
+    def NumberRecognizerStart(self):
+        if self.__numberDetectInitFlag is False:
+            print("Number recognizer is not initialized")
+            return
+
+        if self.__numberDetectFlag == True:
+            print("Number recognizer is already working.")
+            return
+        self.__numberDetectFlag = True
+
+        th = threading.Thread(target=self.__numberdetect)
+        th.deamon = True
+        th.start()
+
+    def NumberRecognizerStop(self):
+        if self.__numberDetectFlag == False :
+            print("Number recognizer is already stopped.")
+            return
+
+        self.__numberDetectFlag = False
+        time.sleep(1)
+
+        print("Number recognizer off")
+
+
+    def __numberdetect(self):
+        while self.__numberDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                # print('no input frame yet')
+                continue
+            try:
+                self.__numberRecognizedStr,self.__numberDetectedList = self.__numberR(self.__raw_img)
+            except Exception as e:
+                # print("Number recognizer error : " , e)
+                continue
+
+            time.sleep(0.05)
+
+
+    def __overlay_number_boxes(self, frame):
+        color = (0, 255, 0)
+
+        # print(self.__numberDetectedList)
+        # print(" ")
+        for detected in self.__numberDetectedList:
+            addedY = 0
+            x = int((detected[0][0] + detected[2][0]) / 2)
+            y = int((detected[0][1] + detected[2][1]) / 2)
+            _x = int((self.__numberDetectedList[0][0][0] + self.__numberDetectedList[0][2][0]) / 2)
+            _y = int((self.__numberDetectedList[0][0][1] + self.__numberDetectedList[0][2][1]) / 2)
+
+            if self.__drawNumberAreaFlag == True:
+                cv2.polylines(frame, np.array([detected], np.int32), True, color, 3)
+            if self.__drawNumberFlag == True:
+                s = 'number='+str(self.__numberRecognizedStr)
+                cv2.putText(frame, s, (_x, _y+addedY), cv2.FONT_ITALIC,0.5, (0,255,0), 1)
+                addedY += 20
+            if self.__drawNumberPointFlag == True:
+                s = 'x=' + str(x) +' y='+str(y)
+                cv2.putText(frame, s, (_x, _y+addedY), cv2.FONT_ITALIC,0.5, (0,255,0), 1)
+                addedY += 20
+            if self.__drawNumberSizeFlag == True:
+                s = 'size=' + str( abs ( int ( detected[2][0] - detected[0][0])))
+                cv2.putText(frame, s, (_x, _y+addedY), cv2.FONT_ITALIC,0.5, (0,255,0), 1)
+                addedY += 20
+
+
+    # --- scketch ---
+    def SketchDetectorInit(self):
+        if self.__sketchDetectInitFlag is False:
+            self.__sketchR = SketchRecognizer()
+            self.__sketchDetectInitFlag = True
+
+        print("Sketch detector initialized")
+
+    def SketchDetectorStart(self):
+        if self.__sketchDetectInitFlag is False:
+            print("Sketch detector is not initialized")
+            return
+
+        if self.__sketchDetectFlag == True:
+            print("Sketch detector is already working.")
+            return
+        self.__sketchDetectFlag = True
+
+        th = threading.Thread(target=self.__sketchdetect)
+        th.deamon = True
+        th.start()
+
+
+    def SketchDetectorStop(self):
+        if self.__sketchDetectFlag == False :
+            print("Sketch detector is already stopped.")
+            return
+
+        self.__sketchDetectFlag = False
+        time.sleep(1)
+
+        print("Sketch detector off")
+
+    def __sketchdetect(self):
+        while self.__sketchDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                # print('no input frame yet')
+                continue
+            try:
+                self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
+                self.__sketchDataDict.clear()
+                for i in range(0, len(self.__sketchDetectedList)):
+                    self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i])
+
+                if len(self.__sketchRecognizedList) == 0:
+                    time.sleep(0.0)
+                    continue
+            except Exception as e:
+                # print("Sketch detector error : " , e)
+                continue
+
+            time.sleep(0.01)
+
+    def __overlay_sketch_boxes(self, frame):
+        color = (0, 255, 0)
+
+        for sketchKey, sketchData in self.__sketchDataDict.items():
+            addedY = 0
+            if self.__drawSketchAreaFlag:
+                cv2.polylines(frame, np.array([sketchData.box], np.int32), True, color, 3)
+            if self.__drawSketchNameFlag:
+                s = 'id='+str(sketchData.name)
+                cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                addedY += 20
+            if self.__drawSketchPointFlag == True:
+                s = 'x=' + str(sketchData.centerX) +' y='+str(sketchData.centerY)
+                cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                addedY += 20
+            if self.__drawSketchSizeFlag == True:
+                s = 'size=' + str(sketchData.size)
+                cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                addedY += 20
+
+    def SketchCapture(self, name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/sketch/")):
+        if bool(name) == False:
+            print("Name parameter is Empty.")
+            return
+
+        if os.path.isdir(path) is False:
+            os.mkdir(path)
+
+        if self.__sketchDetectFlag is False:
+            print("Sketchdetector did not run")
+            return
+
+        cnt = 0
+        while cnt < captureCount:
+            if len(self.__sketchRecognizedList) == 0:
+                print("Doesn't have a any sketch in Frame")
+                time.sleep(0.0)
+                continue
+
+            result = self.__sketchR.SaveSketch(self.__raw_img,name)
+            if result == 0:
+                cnt += 1
+                time.sleep(0.1)
+        print( name, " is saved")
+
+    def TrainSketchData(self, sketchPath:str = pkg_resources.resource_filename(__package__,"res/sketch/")):
+        if os.path.isdir(sketchPath) is False:
+            print(sketchPath +" is not directory.")
+            return
+
+        orbDescriptors = []
+        nameIndexList = []
+        nameIntList = []
+
+        sketchD = SketchRecognizer()
+        filenames = os.listdir(sketchPath)
+        for filename in filenames:
+            name = os.path.basename(filename)
+            image = cv2.imread(sketchPath+filename, cv2.IMREAD_GRAYSCALE)
+            image = cv2.resize(image, (150,150))
+            _, des = sketchD.orbDetector.detectAndCompute(image, None)
+            name = name.split('_')[0]
+
+            if not(name in nameIndexList):
+                nameIndexList.append(name)
+            nameIntList.append(nameIndexList.index(name))
+            orbDescriptors.append(des)
+
+        self.__sketchR.TrainModel(nameIndexList, nameIntList, orbDescriptors)
+
+    def DeleteSketchData(self, name:str, sketchPath:str=pkg_resources.resource_filename(__package__,"res/sketch/")):
+
+        if os.path.isdir(sketchPath) is False:
+            print(sketchPath +" is not directory.")
+            return
+
+        self.__sketchR.RemoveSketch(name, sketchPath)
+
+        print(name + ' is deleted')
+
+
+    def GetSketchExist(self,name:str="Sketch") ->bool:
+        return name in self.__sketchDataDict
+
+    def GetSketchCenterPoint(self, name:str) -> list:
+        if name in self.__sketchDataDict:
+            return [self.__sketchDataDict[name].centerX,self.__sketchDataDict[name].centerY]
+        pass
+
+
+
+    # gesture
+
+    def GestureDetectorInit(self):
+        if self.__gestureDetectInitFlag is False:
+
+            # Mediapipe 설정
+            self.__mp_hands = mp.solutions.hands
+            self.__hands = self.__mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+            self.__mp_drawing = mp.solutions.drawing_utils
+
+            self.__gestureDetectInitFlag = True
+            self.__drawGestureAreaFlag = True
+        print("Gesture detector initialized")
+
+    def GestureDetectorStart(self):
+        if self.__gestureDetectInitFlag is False:
+            print("Gesture detector is not initialized")
+            return
+
+        if self.__gestureDetectFlag == True:
+            print("Gesture detector is already working.")
+            return
+        self.__gestureDetectFlag = True
+
+        th = threading.Thread(target=self.__gesturedetect)
+        th.deamon = True
+        th.start()
+
+    def GestureDetectorStop(self):
+        if self.__gestureDetectFlag == False :
+            print("Gesture detector is already stopped.")
+            return
+
+        self.__gestureDetectFlag = False
+        time.sleep(1)
+
+        print("Gesture detector off")
+
+
+    def __gesturedetect(self):
+        while self.__gestureDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                print('no input frame yet')
+                continue
+            try:
+
+                img_rgb = cv2.cvtColor(self.__raw_img, cv2.COLOR_BGR2RGB)
+                result = self.__hands.process(img_rgb)
+
+                if result.multi_hand_landmarks:
+                    for self.__gestureLandmark in result.multi_hand_landmarks:
+                        fingers_status = self.__get_finger_status(self.__gestureLandmark)
+                        #print(self.__recognize_gesture(fingers_status))
+                        #print(self.__gestureLandmark)
+                        # 손 랜드마크와 연결선 그리기
+                        #self.__mp_drawing.draw_landmarks(frame, self.__gestureLandmark, self.__mp_hands.HAND_CONNECTIONS)
+                else:
+                        self.__gestureLandmark = []
+            except Exception as e:
+                print("Gesture detector error : " , e)
+                continue
+
+            time.sleep(0.001)
+
+    def __overlay_gesture_boxes(self, frame):
+        self.__mp_drawing.draw_landmarks(frame, self.__gestureLandmark, self.__mp_hands.HAND_CONNECTIONS)
+
+
+    def __get_finger_status(self,hand):
+        """
+        손가락이 펴져 있는지 접혀 있는지 확인하는 함수
+        """
+        # 오른손만 사용
+        fingers = []
+
+        # 엄지: 랜드마크 4가 랜드마크 2의 오른쪽에 있으면 펼쳐진 상태
+        if hand.landmark[4].x < hand.landmark[3].x:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        # 나머지 손가락: 각 손가락의 팁 (8, 12, 16, 20)이 PIP (6, 10, 14, 18) 위에 있으면 펼쳐진 상태
+        tips = [8, 12, 16, 20]
+        pip_joints = [6, 10, 14, 18]
+        for tip, pip in zip(tips, pip_joints):
+            if hand.landmark[tip].y < hand.landmark[pip].y:
+                fingers.append(1)
+            else:
+                fingers.append(0)
+
+        return fingers
+
+
+    def __recognize_gesture(self,fingers_status):
+        if fingers_status == [0, 0, 0, 0, 0]:
+            return 'fist'
+        elif fingers_status == [0, 1, 0, 0, 0]:
+            return 'point'
+        elif fingers_status == [1, 1, 1, 1, 1]:
+            return 'open'
+        elif fingers_status == [0, 1, 1, 0, 0]:
+            return 'peace'
+        elif fingers_status == [1, 1, 0, 0, 0]:
+            return 'standby'
+
+
+
+
+
     # --- sensor ---
-    def ws_start_sensors(self):
-        self._ws.send("sensor")
+    def sensorInit(self):
+        if self.__sensorInitFlag is False:
+            self._ws.send("sensor")
+
+            self.__sensorInitFlag = True
+            self.__drawSensorAreaFlag = True
+        print("Sensor initialized")
+
+
+    def sensorStart(self):
+        if self.__sensorInitFlag is False:
+            print("Sensor is not initialized")
+            return
+
+        if self.__sensorFlag == True:
+            print("Sensor is already working.")
+            return
+        self.__sensorFlag = True
+
+
+    def sensorStop(self):
+        if self.__sensorFlag == False :
+            print("Sensor is already stopped.")
+            return
+
+        self.__sensorFlag = False
+        time.sleep(1)
+
+        print("Sensor off")
+
+
+
+
 
     def _process_sensor_packet(self, data):
         """센서 데이터 처리"""
@@ -326,7 +1296,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             latest = self.sensor_queue.get_nowait()
         return latest
 
-    def _add_overlay(self, frame, sensors):
+    def _sensor_overlay(self, frame, sensors):
         """마지막 센서 값 유지 기능 추가"""
         # 클래스 변수로 마지막 센서 값 저장
         if not hasattr(self, '_last_sensors'):
@@ -383,6 +1353,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # --- vision ---
 
+    def LeftRightFlipMode(self, flag:bool):
+        self.__flipLRFlag = flag
+
     def ws_start_display(self):
         self._display_thread = threading.Thread(target=self._video_display)
         # 스레드를 데몬 스레드로 설정하면 메인 프로그램 종료 시 함께 종료됩니다. 필요에 따라 설정하세요.
@@ -394,18 +1367,115 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         print("start_display")
         """영상 디스플레이 메인 루프"""
         self._ws.send("stream")
+
+        mp_face_mesh = mp.solutions.face_mesh
+        mp_drawing = mp.solutions.drawing_utils
+        face_mesh = mp_face_mesh.FaceMesh(
+            static_image_mode=False,
+            max_num_faces=1,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5
+        )
+
         while self.connected:
             try:
                 frame = self.frame_queue.get(timeout=2.0)
-                sensors = self._get_latest_sensors()
+                self.__raw_img = frame.copy()
 
-                # 화면 오버레이 추가
-                self._add_overlay(frame, sensors)
 
-                cv2.imshow("ESP32 Stream", frame)
+                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                # FaceMesh 모델로 얼굴 랜드마크 처리
+                # results 객체에 감지된 얼굴 랜드마크 정보가 포함됩니다.
+                results = face_mesh.process(rgb_frame)
+
+                # 얼굴 랜드마크가 감지되었는지 확인
+                if results.multi_face_landmarks:
+                    # 감지된 각 얼굴에 대해 랜드마크 그리기
+                    for face_landmarks in results.multi_face_landmarks:
+                        # 랜드마크를 화면에 그립니다.
+                        # mp_face_mesh.FACEMESH_TESSELATION: 얼굴의 삼각형 메시를 그림
+                        # mp_face_mesh.FACEMESH_CONTOURS: 얼굴의 주요 윤곽선을 그림
+                        # mp_face_mesh.FACEMESH_IRISES: 눈동자 윤곽선을 그림 (FaceMesh 버전 0.8.x 이상)
+
+                        # 얼굴 메시의 삼각형 연결을 그립니다.
+                        mp_drawing.draw_landmarks(
+                            image=frame,
+                            landmark_list=face_landmarks,
+                            connections=mp_face_mesh.FACEMESH_TESSELATION,
+                            landmark_drawing_spec=None, # 랜드마크 점은 그리지 않음
+                            connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1) # 녹색 선
+                        )
+                        # 얼굴의 주요 윤곽선(눈, 코, 입 등)을 그립니다.
+                        mp_drawing.draw_landmarks(
+                            image=frame,
+                            landmark_list=face_landmarks,
+                            connections=mp_face_mesh.FACEMESH_CONTOURS,
+                            landmark_drawing_spec=None, # 랜드마크 점은 그리지 않음
+                            connection_drawing_spec=mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2, circle_radius=2) # 파란색 선
+                        )
+
+                        # //눈동자 윤곽선을 그립니다. (지원하는 경우)
+                        # //mp_face_mesh.FACEMESH_IRISES는 MediaPipe 0.8.x 이상에서 사용 가능
+                        # try:
+                        #     mp_drawing.draw_landmarks(
+                        #         image=frame,
+                        #         landmark_list=face_landmarks,
+                        #         connections=mp_face_mesh.FACEMESH_IRISES,
+                        #         landmark_drawing_spec=None,
+                        #         connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=1, circle_radius=1) # 빨간색 선
+                        #     )
+                        # except AttributeError:
+                        #     pass # 해당 버전에서 FACEMESH_IRISES가 없을 경우 무시
+
+
+                # 센서 값 화면 오버레이
+                if self.__sensorFlag == True:
+                    if self.__drawSensorAreaFlag == True:
+                        sensors = self._get_latest_sensors()
+                        self._sensor_overlay(frame, sensors)
+
+                # 얼굴 인식 화면 오버레이
+                if self.__faceDetectFlag == True:
+                    self.__overlay_face_boxes(frame)
+
+                # apriltag 인식 화면 오버레이
+                if self.__aprilDetectFlag == True:
+                    if self.__drawAprilAreaFlag == True:
+                        #print("ap")
+                        self.__overlay_april_boxes(frame)
+
+                # 숫자 인식 화면 오버레이
+                if self.__numberDetectFlag == True:
+                    if self.__drawNumberAreaFlag == True:
+                        self.__overlay_number_boxes(frame)
+
+                # 스케치 인식 화면 오버레이
+                if self.__sketchDetectFlag == True:
+                    if self.__drawSketchAreaFlag == True:
+                        self.__overlay_sketch_boxes(frame)
+
+                # 제스처 인식 화면 오버레이
+                if self.__gestureDetectFlag == True:
+                    if self.__drawGestureAreaFlag == True:
+                        self.__overlay_gesture_boxes(frame)
+
+
+                cv2.imshow("ZumiAI Stream", frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
+                    self.__faceDetectFlag = False
+                    self.__aprilDetectFlag = False
+                    self.__numberDetectFlag = False
+                    self.__sketchDetectFlag = False
+                    self.__gestureDetectFlag = True
                     break
+
+                elif key == ord('s') and frame is not None:
+                    # 's' 키를 누르면 현재 프레임 저장
+                    cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
+                    print("img save")
+
 
             except queue.Empty:
                 if time.time() - self.last_frame_time > 5:
@@ -448,7 +1518,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         try:
             nparr = np.frombuffer(data, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            img = cv2.flip(img, 1)
+
+            #img = cv2.flip(img, 1) # 별도의 함수 필요
+            if self.__flipLRFlag == True:
+                img = cv2.flip(img, 1)
+
             if img is not None:
                 self._enqueue_frame(img)
             else:
@@ -637,83 +1711,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # Both our internal running flag and the connected state should be true
         return self.connected and self._running
 
-
-    # --- Sending Data ---
-    # These methods format and send control packets based on the robot's protocol.
-
-    def set_motor(self, left_speed, right_speed, left_dir, right_dir):
-        """
-        Sets the target motor speeds and directions and sends the command packet.
-
-        Args:
-            left_speed (int): Speed for the left motor (0-255).
-            right_speed (int): Speed for the right motor (0-255).
-            left_dir (int): Direction for the left motor (e.g., 0:Stop, 1:Forward, 2:Reverse).
-            right_dir (int): Direction for the right motor (e.g., 0:Stop, 1:Forward, 2:Reverse).
-        """
-        # Update internal state (protected by lock if multiple threads might call set_* methods)
-        with self._send_lock:
-            # Ensure values are within reasonable bounds for a single byte
-            self._l_spd = max(0, min(255, int(left_speed)))
-            self._r_spd = max(0, min(255, int(right_speed)))
-            self._l_dir = max(0, min(255, int(left_dir))) # Assuming direction fits in a byte
-            self._r_dir = max(0, min(255, int(right_dir)))
-
-        # Send the updated state as a control packet
-        self._send_control_packet()
-
-    def set_led(self, color):
-        """
-        Sets the target LED color and sends the command packet.
-
-        Args:
-            color (int): The desired LED color value (protocol specific, e.g., 0-7).
-        """
-        # Update internal state
-        with self._send_lock:
-            self._led_color = max(0, min(255, int(color))) # Ensure value fits in a byte
-
-        # Send the updated state as a control packet
-        self._send_control_packet()
-
     # Add more set_* methods here for other robot control commands (e.g., set_arm_angle)
     # def set_arm_angle(self, angle):
     #     with self._send_lock:
     #         self._arm_angle = max(0, min(180, int(angle)))
     #     self._send_arm_packet() # Requires defining a new packet type/method
-
-    def _send_control_packet(self):
-        """
-        Internal method to construct and send the current motor/LED control packet.
-        Packet format: [0x24, 0x52, l_spd, r_spd, l_dir, r_dir, led_color] (7 bytes)
-        Based on the provided WebSocket test client code.
-        """
-        if not self.isConnected():
-            # self._debugger._printLog("Not connected, cannot send control packet.") # Avoid excessive logging if not connected
-            return
-
-        # Construct the binary packet from current internal state
-        with self._send_lock:
-            packet = bytes([
-                self._control_packet_header[0],
-                self._control_packet_header[1],
-                self._l_spd,
-                self._r_spd,
-                self._l_dir,
-                self._r_dir,
-                self._led_color
-            ])
-
-        try:
-            # Send the packet as binary data
-            self._ws.send(packet, opcode=websocket.ABNF.OPCODE_BINARY)
-            # self._debugger._printLog(f"Sent control packet: {packet.hex(' ')}") # Optional: log sent data
-        except websocket.WebSocketException as e:
-            # Handle potential exceptions during sending (e.g., connection lost)
-            self._error(f"Failed to send WebSocket control packet: {e}")
-            # Assume connection is broken if sending fails
-            self.connected = False
-            self._usePosConnected = False
 
 
     def send(self, data):
@@ -1122,6 +2124,7 @@ class ZumiAI:
         #self._connection_handler.connect(portname)
 
         self._connection_handler = WebSocketConnectionHandler('ws://192.168.0.59/ws', self._usePosCheckBackground, debugger=self._debugger)
+       # self._connection_handler = WebSocketConnectionHandler('ws://192.168.0.82/ws', self._usePosCheckBackground, debugger=self._debugger)
         self._connection_handler.connect()
         #self._connection_handler.start_display()
 
@@ -1757,21 +2760,10 @@ class ZumiAI:
             >>> zumi.led_pattern(1, 1)
         """
         if not isinstance(pattern, LED_effectType):
-            if pattern == 1:
-                pattern=LED_effectType.LED_BLINK
-            elif pattern == 2:
-                pattern=LED_effectType.LED_FLICKER
-            elif pattern == 3:
-                pattern=LED_effectType.LED_DIMMING
-            elif pattern == 4:
-                pattern=LED_effectType.LED_SUNRIZE
-            elif pattern == 5:
-                pattern=LED_effectType.LED_SUNSET
-            elif pattern == 6:
-                pattern=LED_effectType.LED_RAINBOW
-            else:
-                pattern=LED_effectType.LED_NORMAL
-
+            try:
+                pattern = LED_effectType(pattern)
+            except ValueError:
+                pattern = LED_effectType.LED_NORMAL  # 기본값
 
         time_high = 0
         time_low = 0
@@ -2620,12 +3612,152 @@ class ZumiAI:
         """
         self._connection_handler.ws_start_display()
 
-    def start_sensors(self):
+
+
+    # --- vision ---
+    def LeftRightFlipMode(self, flag:bool):
+        self._connection_handler.LeftRightFlipMode(flag)
+
+
+    ##--------------------------------------------------------------------#]
+    # sensor
+    def sensorInit(self):
+        """
+        센서 값을 가져오기를 준비합니다.
+        """
+        self._connection_handler.sensorInit()
+
+    def sensorStart(self):
         """
         센서 값을 가져오기를 시작합니다.
         """
-        self._connection_handler.ws_start_sensors()
+        self._connection_handler.sensorStart()
+
+    def sensorStop(self):
+        """
+        센서 값을 가져오기를 중지합니다.
+        """
+        self._connection_handler.sensorStop()
 
 
+    ##--------------------------------------------------------------------#
+
+    # face
+    def FacedetectorInit(self):
+        self._connection_handler.FacedetectorInit()
+
+    def FacedetectorStart(self):
+        self._connection_handler.FacedetectorStart()
+
+    def FacedetectorStop(self):
+        self._connection_handler.FacedetectorStop()
 
 
+    def FaceCapture(self,name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/face/")):
+        self._connection_handler.FaceCapture(name,captureCount,path)
+
+    def TrainFaceData(self,facePath:str =pkg_resources.resource_filename(__package__,"res/face/")):
+        self._connection_handler.TrainFaceData(facePath)
+
+    def DeleteFaceData(self, name:str, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
+        self._connection_handler.DeleteFaceData(name,facePath)
+
+    def DeleteAllFaceData(self, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
+        self._connection_handler.DeleteAllFaceData(facePath)
+
+
+    def GetFaceCount(self):
+        return self._connection_handler.GetFaceCount()
+
+    def GetFaceExist(self,name:str="Human0"):
+        return self._connection_handler.GetFaceExist(name)
+
+    def GetFaceNames(self):
+        return self._connection_handler.GetFaceNames()
+
+
+    def GetFaceSize(self,name:str="Human0"):
+        return self._connection_handler.GetFaceSize(name)
+
+    def GetFaceCenterPoint(self,name:str="Human0"):
+        return self._connection_handler.GetFaceCenterPoint(name)
+
+    def GetFaceLandmarkPoint(self, landmark=1, name: str = "Human0"):
+        if not isinstance(landmark, face_landmark):
+            try:
+                landmark = face_landmark(landmark)
+            except ValueError:
+                landmark = face_landmark.NOSE
+        return self._connection_handler.GetFaceLandmarkPoint(landmark,name)
+
+
+    ##--------------------------------------------------------------------#
+    # april
+    def AprilDetectorInit(self):
+        self._connection_handler.AprilDetectorInit()
+
+    def AprilDetectorStart(self):
+        self._connection_handler.AprilDetectorStart()
+
+    def AprildetectorStop(self):
+        self._connection_handler.AprildetectorStop()
+
+    def GetAprilId(self):
+        return self._connection_handler.GetAprilId()
+
+    def GetAprilCenterPoint(self):
+        return self._connection_handler.GetAprilCenterPoint()
+
+    def GetAprilExist(self,id:int):
+        return self._connection_handler.GetAprilExist(id)
+
+
+    ##--------------------------------------------------------------------#
+    # number
+    def NumberRecognizerInit(self):
+        self._connection_handler.NumberRecognizerInit()
+
+    def NumberRecognizerStart(self):
+        self._connection_handler.NumberRecognizerStart()
+
+    def NumberRecognizerStop(self):
+        self._connection_handler.NumberRecognizerStop()
+
+    ##--------------------------------------------------------------------#]
+    # scketch
+    def SketchDetectorInit(self):
+        self._connection_handler.SketchDetectorInit()
+
+    def SketchDetectorStart(self):
+        self._connection_handler.SketchDetectorStart()
+
+    def SketchDetectorStop(self):
+        self._connection_handler.SketchDetectorStop()
+
+    def SketchCapture(self, name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/sketch/")):
+        self._connection_handler.SketchCapture(name,captureCount,path)
+
+    def TrainSketchData(self, sketchPath:str = pkg_resources.resource_filename(__package__,"res/sketch/")):
+        self._connection_handler.TrainSketchData(sketchPath)
+
+    def GetSketchExist(self,name:str="Sketch"):
+        return self._connection_handler.GetSketchExist(name)
+
+    def GetSketchCenterPoint(self,name:str="Sketch"):
+        return self._connection_handler.GetSketchCenterPoint(name)
+
+
+    ##--------------------------------------------------------------------#]
+    # gesture
+
+    def GestureDetectorInit(self):
+        self._connection_handler.GestureDetectorInit()
+
+    def GestureDetectorStart(self):
+        self._connection_handler.GestureDetectorStart()
+
+    def GestureDetectorStop(self):
+        self._connection_handler.GestureDetectorStop()
+
+    # def GetGesturePoint(self,name:str="Sketch"):
+    #     return self._connection_handler.GetSketchCenterPoint(name)
