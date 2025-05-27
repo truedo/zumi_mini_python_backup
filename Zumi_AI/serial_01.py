@@ -38,9 +38,9 @@ zumi.key_press_set("esc", handle_esc_key)
 zumi.key_press_start()
 #zumi.key_press_stop()
 
-#zumi.forward_dist()
-#time.sleep(2)aa
-#zumi.stop()
+zumi.forward_dist()
+time.sleep(2)
+zumi.stop()
 ###zumi.control_motor(2,40,1,40)
 ##time.sleep(1)
 ##zumi.control_motor(1,40,2,40)

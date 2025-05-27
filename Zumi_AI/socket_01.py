@@ -4,22 +4,46 @@ from zumi_AI.zumi_AI import *
 
 
 zumi = ZumiAI()
+# serial
+#zumi.connect()
+#zumi.connect("COM84")
 
-#zumi.connect('ws://192.168.0.59/ws')
-
-zumi.connect()
-
+# web socket
+zumi.connect('192.168.0.59')
 
 
 zumi.start_video_viewer()
 
-zumi.FaceDetectorInit()
-zumi.FaceDetectorStart()
-zumi.FaceCapture("aa")
+zumi.sensor_init()
+zumi.sensor_start()
+#zumi.sensor_stop()
 
-#zumi.sensorInit()
-#zumi.sensorStart()
-#zumi.sensorStop()
+
+
+##
+##zumi.marker_detector_init()
+##zumi.marker_detector_start()
+##zumi.marker_detector_stop()
+
+
+zumi.gesture_detector_init()
+zumi.gesture_detector_start()
+#zumi.gesture_detector_stop()
+
+
+
+
+##
+##zumi.FaceDetectorInit()
+##zumi.FaceDetectorStart()
+##
+##time.sleep(1)
+##
+###zumi.DeleteAllFaceData()
+###zumi.DeleteFaceData("aa")
+##
+###zumi.FaceTrain("girl")
+
 
 ##
 ##zumi.GestureDetectorInit()
@@ -63,20 +87,20 @@ zumi.FaceCapture("aa")
 
 
 
-#time.sleep(1)
-##
-##try:
-##    while True:
-##        count = zumi.GetSketchCenterPoint("flower")
-##        print(count)
-##        
-##        time.sleep(0.5)
-##        
-##except KeyboardInterrupt:
-##
-##    zumi.stop()
-##    zumi.close()
-##    print("Done")
+time.sleep(1)
+
+try:
+    while True:
+        count1 = zumi.get_gesture_size()
+        print(count1)        
+        
+        time.sleep(0.5)
+        
+except KeyboardInterrupt:
+
+    zumi.stop()
+    zumi.close()
+    print("Done")
 
 
 

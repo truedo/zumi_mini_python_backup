@@ -21,7 +21,7 @@ import threading
 import queue
 
 import logging
-
+import re # 정규 표현식 모듈 임포트
 
 
 #from protocol import * # make html 사용시 적용
@@ -31,7 +31,6 @@ from .protocol import *
 from .receiver import *
 
 
-from .face_detector import FaceDetector
 from .face_landmark import FaceLandmark
 from .face_recognizer import FaceRecognizer
 from .number_recognizer import NumberRecognizer
@@ -58,7 +57,6 @@ def convertByteArrayToString(dataArray):
             string += "{0:02X} ".format(data)
 
     return string
-
 
 
 class FaceData:
@@ -253,7 +251,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self._led_color = 0
         # Control packet header from test code (confusingly same as sensor data header)
         self.SENSOR_HEADER = bytes([0x24, 0x52])
-        self.SENSOR_DATA_LENGTH = 7  # Header(2) + Data(5)
+        self.SENSOR_DATA_LENGTH = 10  # Header(2) + Data(5)
 
         # Config/Internal Flags
         self._usePosConnected = False # Kept for compatibility with serial handler's check
@@ -274,16 +272,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         self.__flipLRFlag = False
 
-
+        self.__raw_img = None
 
         # sensor
         self.__sensorInitFlag = False
         self.__sensorFlag = False
         self.__drawSensorAreaFlag = True
 
-
-
-        self.__raw_img = None
 
         # face
         self.__faceDetectFlag = False
@@ -294,30 +289,37 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__drawLandmarkFlag = True
 
         self.__faceDetectInitFlag = False
-        self.__faceDetectedList = []
-
-        self.__faceLandmarkInitFlag = False
-        self.__faceLandmarkList = []
 
         self.__faceRecognizeInitFlag = False
-        self.__faceRecognizedList = []
+
         self.__faceDataDict = dict()
 
         #self.__faceResults = None
         self.__facecurrent_results  = False
         self.__faceCenter = [0, 0]
+        self.__faceSize = 0
+
+        self.__faceTrainFlag = False
+        self.__faceTrainName = None
+        self.__faceRecognizedName = None
+
+        #self.__current_face_bbox = []
+        #self.__first_face_landmarks = []
+
+        self.__faceDetectedList = []
+        self.__faceLandmarkInitFlag = False
+        self.__faceLandmarkList = []
+        self.__faceRecognizedList = []
 
 
-        self.__faceCaptureFlag = False
-        self.__faceCaptureName = None
+        # apriltag detector
 
-        # apriltag
-
-
-        # april detector
         self.__aprilDetectFlag = False
         self.__aprilDetectInitFlag = False
         self.__drawAprilAreaFlag = True
+        self.__aprilTags =[]
+        self.__april_size =[]
+
         self.__drawAprilIdFlag = True
         self.__drawAprilPointFlag = True
         self.__drawAprilSizeFlag = True
@@ -326,7 +328,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__aprilDetectedIds = []
         self.__aprilDataDict = dict()
 
-        self.__tags =[]
+
 
         # number recognizer
         self.__numberDetectInitFlag = False
@@ -365,6 +367,12 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__gestureDataDict = dict()
 
         self.__gestureLandmark = []
+
+        self.__gestureFingersStatus= []
+        self.__gestureCenter = []
+        self.__gestureSize = 0
+
+
 
 
         print("camera module ready")
@@ -443,7 +451,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
     # --- face ---
-    def FaceDetectorInit(self, face_recognize_threshold = 0.8):#0.2~2.0
+    def _faceDetectorInit(self, face_recognize_threshold = 0.8):#0.2~2.0
+
         if self.__faceDetectInitFlag is False:
             # self.__faceD = FaceDetector()
 
@@ -477,8 +486,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         print("Facedetector initialized")
 
-
-    def FaceDetectorStart(self):
+    def _faceDetectorStart(self):
         if self.__faceDetectInitFlag is False:
             print("Facedetector is not initialized")
             return
@@ -492,7 +500,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         th.deamon = True
         th.start()
 
-    def FaceDetectorStop(self):
+    def _faceDetectorStop(self):
         if self.__faceDetectFlag == False :
             print("Facedetector is already stopped.")
             return
@@ -501,7 +509,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         time.sleep(1)
 
         print("Facedetector off")
-
 
     def __facedetect(self):
         while self.__faceDetectFlag:
@@ -513,11 +520,80 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 rgb_frame = cv2.cvtColor(self.__raw_img, cv2.COLOR_BGR2RGB)
                 # FaceMesh 모델로 얼굴 랜드마크 처리
                 # results 객체에 감지된 얼굴 랜드마크 정보가 포함됩니다.
+
+
                 self.__faceResults = self.__face_mesh.process(rgb_frame)
+
                 if self.__faceResults.multi_face_landmarks:
+
                     self.__facecurrent_results  = True
+
+                    h, w, c = self.__raw_img.shape # 이미지 높이, 너비
+
+                    # 감지된 첫 번째 얼굴의 랜드마크를 가져옴
+                    self.__first_face_landmarks = self.__faceResults.multi_face_landmarks[0]
+
+                    # --- 특정 랜드마크 좌표 추출 및 화면에 표시 예시 ---
+                    self.__faceDataDict = {}
+                    for landmark_type in face_landmark: # 모든 Enum 멤버에 대해 반복
+                        coords = self.get_face_landmark_coordinates(self.__first_face_landmarks, landmark_type, w, h)
+                        if coords:
+                            self.__faceDataDict[landmark_type] = coords
+
+
+                    # --- 얼굴 테두리 계산
+                    x_coords = [landmark.x for landmark in self.__first_face_landmarks.landmark]
+                    y_coords = [landmark.y for landmark in self.__first_face_landmarks.landmark]
+
+                    x_min, x_max = min(x_coords), max(x_coords)
+                    y_min, y_max = min(y_coords), max(y_coords)
+
+                    bbox_x1 = int(x_min * w)
+                    bbox_y1 = int(y_min * h)
+                    bbox_x2 = int(x_max * w)
+                    bbox_y2 = int(y_max * h)
+
+                    padding_ratio = 0.1
+                    bbox_width = bbox_x2 - bbox_x1
+                    bbox_height = bbox_y2 - bbox_y1
+
+                    pad_x = int(bbox_width * padding_ratio)
+                    pad_y = int(bbox_height * padding_ratio)
+
+                    bbox_x1 = max(0, bbox_x1 - pad_x)
+                    bbox_y1 = max(0, bbox_y1 - pad_y)
+                    bbox_x2 = min(w, bbox_x2 + pad_x)
+                    bbox_y2 = min(h, bbox_y2 + pad_y)
+
+                    self.__current_face_bbox = [bbox_x1, bbox_y1, bbox_x2, bbox_y2]
+
+                    # --- 사각형의 중심점 계산
+                    self.__faceCenter[0] = (self.__current_face_bbox[0] + self.__current_face_bbox[2]) // 2
+                    self.__faceCenter[1] = (self.__current_face_bbox[1] + self.__current_face_bbox[3]) // 2
+
+                    # --- 얼굴 사이즈 계산
+                    face_width = self.__current_face_bbox[2] - self.__current_face_bbox[0]
+                    face_height = self.__current_face_bbox[3] - self.__current_face_bbox[1]
+                    self.__faceSize = face_width * face_height
+
+
+
+                     # --- 이름 체크
+                    recognized_array = self.__face_recognizer(self.__raw_img, [self.__current_face_bbox])
+                    if len(recognized_array) > 0:
+                        self.__faceRecognizedName = recognized_array[0]
+                        # recognized_names_on_frame.append(self.__faceRecognizedName)
+
+                        color = (0, 255, 255) # 기본 노란색
+                        if self.__faceRecognizedName != 'Unknown' and self.__faceRecognizedName != 'Too Small' and self.__faceRecognizedName != 'Error':
+                            color = (0, 255, 0) # 인식된 이름이면 초록색
+
                 else:
                     self.__facecurrent_results  = False
+                    self.__faceRecognizedName = 'Unknown'
+                    self.__faceCenter = [0, 0]
+                    self.__faceDataDict = {}
+                    self.__faceSize=0
 
             except Exception as e:
                 print("Detect : " , e)
@@ -527,325 +603,123 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     def __overlay_face_boxes(self, frame):
 
-        recognized_names_on_frame = []
-
         if self.__facecurrent_results == True and self.__faceResults != None:
-            # 감지된 첫 번째 얼굴의 랜드마크를 가져옴
-            first_face_landmarks = self.__faceResults.multi_face_landmarks[0]
-            h, w, c = frame.shape # 이미지 높이, 너비
-
-            # --- 특정 랜드마크 좌표 추출 및 화면에 표시 예시 ---
-            self.__faceDataDict = {}
-            for landmark_type in face_landmark: # 모든 Enum 멤버에 대해 반복
-                coords = self.get_face_landmark_coordinates(first_face_landmarks, landmark_type, w, h)
-                if coords:
-                    self.__faceDataDict[landmark_type] = coords
+            color = (0, 255, 255) # 기본 노란색
 
             # 랜드마크 표시
             if self.__drawLandmarkFlag == True:
 
                 self.__mp_face_drawing.draw_landmarks(
                     image=frame,
-                    landmark_list=first_face_landmarks,
+                    landmark_list=self.__first_face_landmarks,
                     connections=self.__mp_face_mesh.FACEMESH_TESSELATION,
                     landmark_drawing_spec=None,
                     connection_drawing_spec=self.__mp_face_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1)
                 )
                 self.__mp_face_drawing.draw_landmarks(
                     image=frame,
-                    landmark_list=first_face_landmarks,
+                    landmark_list=self.__first_face_landmarks,
                     connections=self.__mp_face_mesh.FACEMESH_CONTOURS,
                     landmark_drawing_spec=None,
                     connection_drawing_spec=self.__mp_face_drawing.DrawingSpec(color=(255, 0, 0), thickness=2, circle_radius=2)
                 )
 
-
-
                 # --- 딕셔너리에서 랜드마크 좌표를 가져와 화면에 표시 예시 ---
                 if face_landmark.LEFT_EYE in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.LEFT_EYE]
                     cv2.circle(frame, coords, 3, (255, 0, 0), -1) # 파란색 점
-                    #cv2.putText(frame, "L_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
 
                 if face_landmark.RIGHT_EYE in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.RIGHT_EYE]
                     cv2.circle(frame, coords, 3, (0, 0, 255), -1) # 빨간색 점
-                    #cv2.putText(frame, "R_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
 
                 if face_landmark.LEFT_EYEBROW in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.LEFT_EYEBROW]
                     cv2.circle(frame, coords, 3, (255, 100, 100), -1) # 파란색 점
-                    #cv2.putText(frame, "L_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
 
                 if face_landmark.RIGHT_EYEBROW in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.RIGHT_EYEBROW]
                     cv2.circle(frame, coords, 3, (100, 100, 255), -1) # 빨간색 점
-                    #cv2.putText(frame, "R_Eye", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
 
                 if face_landmark.NOSE in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.NOSE]
                     cv2.circle(frame, coords, 3, (0, 255, 0), -1) # 초록색 점
-                    #cv2.putText(frame, "Nose", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
 
                 if face_landmark.MOUTH in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.MOUTH]
                     cv2.circle(frame, coords, 3, (0, 255, 255), -1) # 노란색 점
-                    #cv2.putText(frame, "Mouth", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,255), 1)
 
                 if face_landmark.JAW in self.__faceDataDict:
                     coords = self.__faceDataDict[face_landmark.JAW]
                     cv2.circle(frame, coords, 3, (255, 255, 0), -1) # 하늘색 점
-                    #cv2.putText(frame, "Jaw", (coords[0]+5, coords[1]-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,0), 1)
-            # --- 랜드마크 추출 및 표시 예시 끝 ---
 
             # 얼굴 테두리 표시
             if self.__drawFaceAreaFlag:
-                #h, w, c = frame.shape
-                x_coords = [landmark.x for landmark in first_face_landmarks.landmark]
-                y_coords = [landmark.y for landmark in first_face_landmarks.landmark]
+                cv2.rectangle(frame, (self.__current_face_bbox[0], self.__current_face_bbox[1]), (self.__current_face_bbox[2], self.__current_face_bbox[3]), color, 2)
 
-                x_min, x_max = min(x_coords), max(x_coords)
-                y_min, y_max = min(y_coords), max(y_coords)
-
-                bbox_x1 = int(x_min * w)
-                bbox_y1 = int(y_min * h)
-                bbox_x2 = int(x_max * w)
-                bbox_y2 = int(y_max * h)
-
-                padding_ratio = 0.1
-                bbox_width = bbox_x2 - bbox_x1
-                bbox_height = bbox_y2 - bbox_y1
-
-                pad_x = int(bbox_width * padding_ratio)
-                pad_y = int(bbox_height * padding_ratio)
-
-                bbox_x1 = max(0, bbox_x1 - pad_x)
-                bbox_y1 = max(0, bbox_y1 - pad_y)
-                bbox_x2 = min(w, bbox_x2 + pad_x)
-                bbox_y2 = min(h, bbox_y2 + pad_y)
-
-                current_face_bbox = [bbox_x1, bbox_y1, bbox_x2, bbox_y2]
-
-            if self.__drawFaceNameFlag == True:
-                recognized_array = self.__face_recognizer(frame, [current_face_bbox])
-
-                if len(recognized_array) > 0:
-                    recognized_name = recognized_array[0]
-                    recognized_names_on_frame.append(recognized_name)
-
-                    color = (0, 255, 255) # 기본 노란색
-                    if recognized_name != 'Unknown' and recognized_name != 'Too Small' and recognized_name != 'Error':
-                        color = (0, 255, 0) # 인식된 이름이면 초록색
-
-                cv2.rectangle(frame, (bbox_x1, bbox_y1), (bbox_x2, bbox_y2), color, 2)
-                cv2.putText(frame, recognized_name, (bbox_x1, bbox_y2 + 20), cv2.FONT_ITALIC, 0.7, color, 2)
-
+            # 중심점 표시
             if self.__drawFacePointFlag == True:
-                # 사각형의 중심점 계산
-                self.__faceCenter[0] = (bbox_x1 + bbox_x2) // 2
-                self.__faceCenter[1] = (bbox_y1 + bbox_y2) // 2
                 s = 'x=' + str(self.__faceCenter[0]) +' y='+str(self.__faceCenter[1])
-                cv2.putText(frame, s, (bbox_x1, bbox_y2 + 40), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
+                cv2.putText(frame, s, (self.__current_face_bbox[0], self.__current_face_bbox[3] + 40), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
 
+            # 이름 표시
+            if self.__drawFaceNameFlag == True:
+                cv2.putText(frame, self.__faceRecognizedName, (self.__current_face_bbox[0], self.__current_face_bbox[3] + 20), cv2.FONT_ITALIC, 0.7, color, 2)
 
-        # color =  (0, 255, 0)
-        # if self.__faceDetectedList is not None:
+    def _faceTrain(self, name:str):
+        if self.__faceTrainFlag == False:
+            #print("FaceTrain")
+            self.__faceTrainFlag = True
+            self.__faceTrainName = name
 
-        #     for faceKey,faceData in self.__faceDataDict.items():
-        #         addedY = 20
-        #         if self.__drawFaceAreaFlag:
-        #             cv2.rectangle(frame, (int(faceData.box[0]), int(faceData.box[1])), (int(faceData.box[2]), int(faceData.box[3])), color, 3)
+    def _deleteFaceData(self, name:str):
+        self.__face_recognizer.RemoveFace(name)
+        self.__faceTrainFlag = False
+        self.__faceTrainName = None
 
-        #         if self.__drawFacePointFlag == True:
-        #             s = 'x=' + str(faceData.centerX) +' y='+str(faceData.centerY)
-        #             cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
-        #             addedY += 20
+    def _deleteAllFaceData(self):
+        self.__face_recognizer.RemoveAllFace() # 파일 시스템에서 이미지 및 .pkl 삭제
+        self.__faceTrainFlag = False
+        self.__faceTrainName = None
 
-        #         if self.__drawFaceSizeFlag == True:
-        #             s = 'size=' + str(faceData.size)
-        #             cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
-        #             addedY += 20
-        #         if self.__drawFaceNameFlag == True:
-        #             s = 'name=' + str(faceData.name)
-        #             cv2.putText(frame, s, (int(faceData.box[0]),int(faceData.box[3]+addedY)), cv2.FONT_ITALIC,0.7, (0,255,0), 2)
-        #             addedY += 20
-        #         if self.__drawLandmarkFlag == True:
-        #             for faces in faceData.landMarks:
-        #                 cv2.circle(frame, (int(faces[0]),int(faces[1])), 3, (255,0,255), -1)
+    def _isFaceDetected(self, name:str="Unknown") -> bool:
+        _findName = False
+        if(self.__faceRecognizedName == name):
+            _findName = True
+        return _findName
 
-                # pointIdx = 0
-                    # if pointIdx != 0 and pointIdx != 17 and pointIdx != 22 and pointIdx != 27 and pointIdx != 36 and pointIdx != 42 and pointIdx != 48 and pointIdx != 60:
-                    #     cv2.line(frame, (self.__faceLandmarkList[faceIdx][pointIdx][0], self.__faceLandmarkList[faceIdx][pointIdx][1]), (self.__faceLandmarkList[faceIdx][pointIdx-1][0], self.__faceLandmarkList[faceIdx][pointIdx-1][1]), (255,255,0), 1)
-                    # pointIdx += 1
-                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][41][0], self.__faceLandmarkList[faceIdx][41][1]), (self.__faceLandmarkList[faceIdx][36][0], self.__faceLandmarkList[faceIdx][36][1]), (255,255,0), 1)
-                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][47][0], self.__faceLandmarkList[faceIdx][47][1]), (self.__faceLandmarkList[faceIdx][42][0], self.__faceLandmarkList[faceIdx][42][1]), (255,255,0), 1)
-                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][59][0], self.__faceLandmarkList[faceIdx][59][1]), (self.__faceLandmarkList[faceIdx][48][0], self.__faceLandmarkList[faceIdx][48][1]), (255,255,0), 1)
-                # cv2.line(frame, (self.__faceLandmarkList[faceIdx][67][0], self.__faceLandmarkList[faceIdx][67][1]), (self.__faceLandmarkList[faceIdx][60][0], self.__faceLandmarkList[faceIdx][60][1]), (255,255,0), 1)
-        #else:
-        #    print('__faceDataDict none')
+    def _getDetectedFaceName(self) -> str:
+        return self.__faceRecognizedName
 
+    def _getFaceCenter(self) -> list:
+        return self.__faceCenter
 
+    def _GetFaceSize(self) -> int:
+        return self.__faceSize
 
-    def FaceCapture(self, name:str):
-        if self.__faceCaptureFlag == False:
-            self.__faceCaptureFlag = True
-            self.__faceCaptureName = name
-
-
-        # if bool(name) == False:
-        #     print("Name parameter is Empty.")
-        #     return
-
-        # if os.path.isdir(path) is False:
-        #     os.mkdir(path)
-
-        # if self.__faceDetectFlag is False:
-        #     print("Facedetector did not run")
-        #     return
-
-        # cnt = 0
-        # while cnt < captureCount:
-        #     if len(self.__faceDataDict) == 0:
-        #         print("Doesn't have a any face in Frame")
-        #         continue
-
-        #     bbox = (0, copy.deepcopy(self.__faceDetectedList.copy())[0])
-
-        #     result = self.__faceR.SaveFace(self.__raw_img,bbox,name)
-        #     if result == 0:
-        #         cnt += 1
-        #         time.sleep(0.1)
-        # print( name, " is saved")
-
-    def DeleteFaceData(self, name:str, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
-        if os.path.isdir(facePath) is False:
-            print(facePath +" is not directory.")
-            return
-
-        self.__faceR.RemoveFace(name, facePath)
-
-        print(name + ' is deleted')
-
-    def DeleteAllFaceData(self, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
-        if os.path.isdir(facePath) is False:
-            print(facePath +"is not directory.")
-            return
-
-        self.__faceR.RemoveAllFace(facePath)
-
-        print('all face is deleted')
-
-
-    def TrainFaceData(self, facePath:str =pkg_resources.resource_filename(__package__,"res/face/")):
-
-        print(facePath)
-
-        if os.path.isdir(facePath) is False:
-            print(facePath +" is not directory.")
-            return
-
-        faceD = FaceDetector()
-        self.__faceR.registerd.clear()
-
-        filenames = os.listdir(facePath)
-        for filename in filenames:
-            name = os.path.basename(filename)
-            image = cv2.imread(facePath + filename, cv2.IMREAD_ANYCOLOR)
-            facedetectedList = faceD(image)
-
-            if np.any(facedetectedList) == False:
-                print("Doesn't have a any face in Frame")
-                continue
-
-            name = name.split('_')[0]
-            #print(name)
-            bbox = (0, facedetectedList[0])
-            self.__faceR.TrainModel(image, bbox, name)
-
-
-
-    def GetFaceCount(self) -> int:
-        """
-        카메라에 확인된 얼굴들의 이름을 list 형태로 반환하는 함수입니다.
-        현재 인식된 얼굴이 없다면 빈 리스트를 반환합니다.
-        """
-        return len(self.__faceDataDict)
-
-    def GetFaceExist(self, name:str="Human0") -> bool:
-        """""
-        카메라에 인식된 얼굴 중, name의 이름을 가진 얼굴이 있는지 반환하는 함수입니다.
-        name : 검출할 얼굴의 이름입니다.
-        """""
-
-        return name in self.__faceDataDict
-
-    def GetFaceNames(self) -> list:
-        """""
-        카메라에 확인된 얼굴들의 이름을 list 형태로 반환하는 함수입니다.
-        현재 인식된 얼굴이 없다면 빈 리스트를 반환합니다.
-        """""
-        if len(self.__faceRecognizedList) == 0:
-            return []
-
-        return list(self.__faceRecognizedList)
-
-
-    def GetFaceSize(self, name:str="Human0") -> int:
-
-        """""
-        카메라에 인식된 얼굴 중, name의 이름을 가진 얼굴의 크기를 반환하는 함수입니다.
-        name : 크기를 구할 얼굴의 이름입니다.
-        입력하지 않는다면, 학습되지 않은 얼굴의 사이즈를 반환합니다.
-        """""
-        if name in self.__faceDataDict:
-            return self.__faceDataDict[name].size
-        pass
-
-    def GetFaceCenterPoint(self, name:str="Human0") -> list:
-        """""
-        카메라에 인식된 얼굴들 중 name의 이름을 가진 얼굴의 중심 좌표를 반환하는 함수입니다.
-        name : 좌표를 구할 얼굴의 이름입니다.
-        입력하지 않는다면, 학습되지 않은 얼굴의 사이즈를 반환합니다.
-        """""
-
-        if name in self.__faceDataDict:
-            return [self.__faceDataDict[name].centerX,self.__faceDataDict[name].centerY]
-        pass
-
-
-    def GetFaceLandmarkPoint(self, landmark: face_landmark, name: str = "Human0") -> list:
-        x = y = 0
-
-        if name not in self.__faceDataDict:
-            return [x, y]
-
-        lm = self.__faceDataDict[name].landMarks
-
-        if landmark == face_landmark.LEFT_EYE:
-            x = (lm[36][0] + lm[39][0]) / 2
-            y = (lm[36][1] + lm[39][1]) / 2
-        elif landmark == face_landmark.RIGHT_EYE:
-            x = (lm[42][0] + lm[45][0]) / 2
-            y = (lm[42][1] + lm[45][1]) / 2
-        elif landmark == face_landmark.LEFT_EYEBROW:
-            x, y = lm[19]
-        elif landmark == face_landmark.RIGHT_EYEBROW:
-            x, y = lm[24]
-        elif landmark == face_landmark.NOSE:
-            x, y = lm[33]
-        elif landmark == face_landmark.MOUTH:
-            x = (lm[48][0] + lm[54][0]) / 2
-            y = (lm[48][1] + lm[54][1]) / 2
-        elif landmark == face_landmark.JAW:
-            x, y = lm[8]
+    def _GetFaceLandmark(self, landmark: face_landmark) -> list:
+        if self.__facecurrent_results == True and self.__faceResults != None:
+            if landmark == face_landmark.LEFT_EYE:
+                return self.__faceDataDict[face_landmark.LEFT_EYE]
+            elif landmark == face_landmark.RIGHT_EYE:
+                return self.__faceDataDict[face_landmark.RIGHT_EYE]
+            elif landmark == face_landmark.LEFT_EYEBROW:
+                return self.__faceDataDict[face_landmark.LEFT_EYEBROW]
+            elif landmark == face_landmark.RIGHT_EYEBROW:
+                return self.__faceDataDict[face_landmark.RIGHT_EYEBROW]
+            elif landmark == face_landmark.NOSE:
+                return self.__faceDataDict[face_landmark.NOSE]
+            elif landmark == face_landmark.MOUTH:
+                return self.__faceDataDict[face_landmark.MOUTH]
+            elif landmark == face_landmark.JAW:
+                return self.__faceDataDict[face_landmark.JAW]
+            else :
+                return [0, 0]
         else :
-            print("else")
-
-
-        return [x, y]
+                return [0, 0]
 
     # april
-    def AprilDetectorInit(self):
+    def _AprilDetectorInit(self):
         if self.__aprilDetectInitFlag is False:
 
             self.__aprilD = Detector(families='tag25h9',
@@ -860,7 +734,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__drawAprilAreaFlag = True
         print("April detector initialized")
 
-    def AprilDetectorStart(self):
+    def _AprilDetectorStart(self):
         if self.__aprilDetectInitFlag is False:
             print("April detector is not initialized")
             return
@@ -874,7 +748,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         th.deamon = True
         th.start()
 
-    def AprildetectorStop(self):
+    def _AprildetectorStop(self):
         if self.__aprilDetectFlag == False :
             print("April detector is already stopped.")
             return
@@ -893,8 +767,40 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             try:
                 gray = cv2.cvtColor(self.__raw_img, cv2.COLOR_BGR2GRAY)
                 # AprilTag 감지
-                self.__tags = self.__aprilD.detect(gray)
-                #print(self.__tags)
+                self.__aprilTags = self.__aprilD.detect(gray)
+                #print(self.__aprilTags)
+
+                # # 예시 detection object에서 corners 값 추출
+                # detection_corners = np.array([
+                #     [161.55827332, 165.22029114],
+                #     [231.51037598, 154.01533508],
+                #     [221.08227539, 82.63665009],
+                #     [149.89685059, 92.12716675]
+                # ])
+
+                # # 모든 X 좌표 중 최소/최대값, 모든 Y 좌표 중 최소/최대값 찾기
+                # min_x = np.min(detection_corners[:, 0])
+                # max_x = np.max(detection_corners[:, 0])
+                # min_y = np.min(detection_corners[:, 1])
+                # max_y = np.max(detection_corners[:, 1])
+
+                # # 바운딩 박스 너비와 높이
+                # bbox_width = max_x - min_x
+                # bbox_height = max_y - min_y
+
+                # print(f"바운딩 박스 너비: {bbox_width:.2f} 픽셀")
+                # print(f"바운딩 박스 높이: {bbox_height:.2f} 픽셀")
+
+
+                # 슈레이스 공식 (Shoelace formula)을 사용하여 다각형 면적 계산
+                # (x1y2 + x2y3 + x3y4 + x4y1) - (y1x2 + y2x3 + y3x4 + y4x1)
+                # x = self.__aprilTags[0].corners[:, 0]
+                # y = self.__aprilTags[0].corners[:, 1]
+
+                # self.__april_size = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
+                # print(f"다각형 면적: {self.__april_size:.2f} 픽셀^2")
+
+
 
                 # [Detection object:
                 # tag_family = b'tag25h9'
@@ -945,7 +851,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # tags = self.__aprilD.detect(gray)
 
         # 감지된 태그 정보 출력 및 시각화
-        for tag in self.__tags:
+        for tag in self.__aprilTags:
             #print(f"Tag ID: {tag.tag_id}, Center: {tag.center}, Corners: {tag.corners}")
 
             # Tag ID: 4,
@@ -1003,27 +909,40 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         #         idx+=1
 
 
-    def GetAprilId(self) -> int:
-        #print(self.__tags)
-        if self.__tags is None or len(self.__tags) == 0:
-            return -1
-        else:
-            return self.__tags[0].tag_id
-
-    def GetAprilCenterPoint(self) -> list:
-        if self.__tags is None or len(self.__tags) == 0:
-            pass
-        else:
-            return self.__tags[0].center
-
-    def GetAprilExist(self,id:int)->bool:
-        if self.__tags is None or len(self.__tags) == 0:
+    def _isMarkerDetected(self,id:int)->bool:
+        if self.__aprilTags is None or len(self.__aprilTags) == 0:
             return False
         else:
-            if self.__tags[0].tag_id == id:
+            if self.__aprilTags[0].tag_id == id:
                 return True
             else :
                 return False
+
+    def _GetAprilId(self) -> int:
+        #print(self.__aprilTags)
+        if self.__aprilTags is None or len(self.__aprilTags) == 0:
+            return -1
+        else:
+            return self.__aprilTags[0].tag_id
+
+    def _GetAprilCenter(self) -> list:
+        if self.__aprilTags is None or len(self.__aprilTags) == 0:
+            pass
+        else:
+            return self.__aprilTags[0].center
+
+    def _GetAprilSize(self) -> list:
+        if self.__aprilTags is None or len(self.__aprilTags) == 0:
+            return 0
+        else:
+            x = self.__aprilTags[0].corners[:, 0]
+            y = self.__aprilTags[0].corners[:, 1]
+
+            self.__april_size = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
+            return self.__april_size
+
+
+
 
     # --- numbers ---
 
@@ -1031,7 +950,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if self.__numberDetectInitFlag is False:
             self.__numberR = NumberRecognizer()
             self.__numberDetectInitFlag = True
-
         print("Number recognizer initialized")
 
     def GetRecognizedNumbers(self)->str:
@@ -1073,7 +991,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         print("Number recognizer off")
 
-
     def __numberdetect(self):
         while self.__numberDetectFlag:
             if self.__raw_img is None:
@@ -1087,7 +1004,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 continue
 
             time.sleep(0.05)
-
 
     def __overlay_number_boxes(self, frame):
         color = (0, 255, 0)
@@ -1267,7 +1183,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # gesture
 
-    def GestureDetectorInit(self):
+    def _GestureDetectorInit(self):
         if self.__gestureDetectInitFlag is False:
 
             # Mediapipe 설정
@@ -1279,7 +1195,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__drawGestureAreaFlag = True
         print("Gesture detector initialized")
 
-    def GestureDetectorStart(self):
+    def _GestureDetectorStart(self):
         if self.__gestureDetectInitFlag is False:
             print("Gesture detector is not initialized")
             return
@@ -1293,7 +1209,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         th.deamon = True
         th.start()
 
-    def GestureDetectorStop(self):
+    def _GestureDetectorStop(self):
         if self.__gestureDetectFlag == False :
             print("Gesture detector is already stopped.")
             return
@@ -1315,15 +1231,55 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 img_rgb = cv2.cvtColor(self.__raw_img, cv2.COLOR_BGR2RGB)
                 result = self.__hands.process(img_rgb)
 
+                # if not result.multi_hand_landmarks:
+                #     self.__gestureLandmark = []
+                h, w, c = self.__raw_img.shape # 이미지 높이, 너비
+
                 if result.multi_hand_landmarks:
+
+                #     wrist_landmark = self.__gestureLandmark.landmark[mp.solutions.hands.HandLandmark.WRIST]
+                #    # self.__current_hand_center = (int(wrist_landmark.x * w), int(wrist_landmark.y * h))
+                #     print(int(wrist_landmark.x ))
+        #방법 2: 모든 랜드마크의 평균을 중심점으로 사용 (더 정확할 수 있음)
+
                     for self.__gestureLandmark in result.multi_hand_landmarks:
-                        fingers_status = self.__get_finger_status(self.__gestureLandmark)
+                        #hand_landmarks = result.multi_hand_landmarks[0]
+                        __hand_type_label = result.multi_handedness[0].classification[0].label
+                        self.__gestureFingersStatus = self.__get_finger_status(self.__gestureLandmark,__hand_type_label)
                         #print(self.__recognize_gesture(fingers_status))
                         #print(self.__gestureLandmark)
                         # 손 랜드마크와 연결선 그리기
                         #self.__mp_drawing.draw_landmarks(frame, self.__gestureLandmark, self.__mp_hands.HAND_CONNECTIONS)
+
+                        x_coords = [lm.x for lm in self.__gestureLandmark.landmark]
+                        y_coords = [lm.y for lm in self.__gestureLandmark.landmark]
+                        avg_x = np.mean(x_coords)
+                        avg_y = np.mean(y_coords)
+                        self.__gestureCenter = (int(avg_x * w), int(avg_y * h))
+                        #print(self.__current_hand_center)
+
+                        # --- 손의 크기 계산 로직 시작 ---
+                        # 모든 랜드마크의 X, Y 좌표 추출 (정규화된 값)
+                        all_x_coords = [lm.x for lm in self.__gestureLandmark.landmark]
+                        all_y_coords = [lm.y for lm in self.__gestureLandmark.landmark]
+
+                        # 이미지 픽셀 값으로 변환 (min/max 찾기 위해)
+                        min_x_pixel = int(min(all_x_coords) * w)
+                        max_x_pixel = int(max(all_x_coords) * w)
+                        min_y_pixel = int(min(all_y_coords) * h)
+                        max_y_pixel = int(max(all_y_coords) * h)
+
+                        # 바운딩 박스 너비와 높이 계산
+                        bbox_width = max_x_pixel - min_x_pixel
+                        bbox_height = max_y_pixel - min_y_pixel
+
+                        self.__gestureSize = bbox_width * bbox_height # (너비, 높이) 튜플로 저장
+
+
                 else:
                         self.__gestureLandmark = []
+                        self.__gestureFingersStatus= []
+
             except Exception as e:
                 print("Gesture detector error : " , e)
                 continue
@@ -1333,50 +1289,88 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def __overlay_gesture_boxes(self, frame):
         self.__mp_drawing.draw_landmarks(frame, self.__gestureLandmark, self.__mp_hands.HAND_CONNECTIONS)
 
-
-    def __get_finger_status(self,hand):
+    def __get_finger_status(self, hand_landmarks, hand_type_label: str) -> list[int]:
         """
-        손가락이 펴져 있는지 접혀 있는지 확인하는 함수
+        손가락이 펴져 있는지 접혀 있는지 확인하는 내부 함수
+        Args:
+            hand_landmarks: MediaPipe에서 감지된 손 랜드마크 객체 (예: results.multi_hand_landmarks[0])
+            hand_type_label (str): 'Left' 또는 'Right' 문자열 (MediaPipe에서 감지된 손의 타입)
+        Returns:
+            list[int]: [엄지, 검지, 중지, 약지, 새끼] 각 손가락의 상태 (1: 펴짐, 0: 쥐어짐)
         """
-        # 오른손만 사용
         fingers = []
+        landmarks = hand_landmarks.landmark # 간결한 접근을 위해
 
-        # 엄지: 랜드마크 4가 랜드마크 2의 오른쪽에 있으면 펼쳐진 상태
-        if hand.landmark[4].x < hand.landmark[3].x:
-            fingers.append(1)
+        # 엄지손가락 판단 로직 (손 타입에 따라 X축 방향 반전)
+        # 엄지 끝(landmark[4])이 엄지 중간(landmark[3])보다
+        # 오른손의 경우 왼쪽에 있으면 펴짐 (x 값이 작음)
+        # 왼손의 경우 오른쪽에 있으면 펴짐 (x 값이 큼)
+        if hand_type_label == 'Right':
+            if landmarks[4].x < landmarks[3].x:
+                fingers.append(1) # 펴짐
+            else:
+                fingers.append(0) # 쥐어짐
+        elif hand_type_label == 'Left':
+            if landmarks[4].x > landmarks[3].x: # X축 방향 반대
+                fingers.append(1) # 펴짐
+            else:
+                fingers.append(0) # 쥐어짐
         else:
-            fingers.append(0)
+            self._debugger._printLog(f"Warning: Unknown hand type label: {hand_type_label}. Cannot determine thumb status.")
+            fingers.append(0) # 기본값으로 쥐어짐 처리
 
-        # 나머지 손가락: 각 손가락의 팁 (8, 12, 16, 20)이 PIP (6, 10, 14, 18) 위에 있으면 펼쳐진 상태
+        # 나머지 손가락 (검지, 중지, 약지, 새끼손가락) 판단 로직 (Y축 기준)
+        # 각 손가락의 팁(끝) (8, 12, 16, 20)이 PIP (6, 10, 14, 18) 위에 있으면 펼쳐진 상태 (Y값이 더 작음)
         tips = [8, 12, 16, 20]
         pip_joints = [6, 10, 14, 18]
-        for tip, pip in zip(tips, pip_joints):
-            if hand.landmark[tip].y < hand.landmark[pip].y:
-                fingers.append(1)
+        for tip_idx, pip_idx in zip(tips, pip_joints):
+            if landmarks[tip_idx].y < landmarks[pip_idx].y:
+                fingers.append(1) # 펴짐
             else:
-                fingers.append(0)
+                fingers.append(0) # 쥐어짐
 
         return fingers
 
 
-    def __recognize_gesture(self,fingers_status):
-        if fingers_status == [0, 0, 0, 0, 0]:
+    def _GetGestureRecognize(self):
+        if self.__gestureFingersStatus == [0, 0, 0, 0, 0]:
             return 'fist'
-        elif fingers_status == [0, 1, 0, 0, 0]:
+        elif self.__gestureFingersStatus == [0, 1, 0, 0, 0]:
             return 'point'
-        elif fingers_status == [1, 1, 1, 1, 1]:
+        elif self.__gestureFingersStatus == [1, 1, 1, 1, 1]:
             return 'open'
-        elif fingers_status == [0, 1, 1, 0, 0]:
+        elif self.__gestureFingersStatus == [0, 1, 1, 0, 0]:
             return 'peace'
-        elif fingers_status == [1, 1, 0, 0, 0]:
+        elif self.__gestureFingersStatus == [1, 1, 0, 0, 0]:
             return 'standby'
+        elif self.__gestureFingersStatus == [1, 0, 0, 0, 0]:
+            return 'thumbs_up'
+        else:
+            return 'None'
+
+    def _GetGestureFinger(self):
+        return self.__gestureFingersStatus
 
 
+    def _GetGestureCenter(self):
+        return self.__gestureCenter
 
+    def _GetGestureSize(self):
+        return self.__gestureSize
 
+    # def _GetGestureCenter(self) -> tuple[int, int] | None:
+    #     """현재 감지된 손 제스처의 중심점 좌표를 반환합니다."""
+    #     if self.__gestureLandmark and self.__gestureLandmark.landmark:
+    #         # MediaPipe 랜드마크는 0.0 ~ 1.0 정규화된 값
+    #         # 이미지 픽셀 값으로 변환
+    #         frame_height, frame_width, _ = self.current_frame_shape if hasattr(self, 'current_frame_shape') else (480, 640, 3) # 임시 프레임 크기
+    #         center_x = int(self.__gestureLandmark.landmark[0].x * frame_width) # 손목 랜드마크 0번 사용
+    #         center_y = int(self.__gestureLandmark.landmark[0].y * frame_height)
+    #         return (center_x, center_y)
+    #     return None
 
     # --- sensor ---
-    def sensorInit(self):
+    def _sensorInit(self):
         if self.__sensorInitFlag is False:
             self._ws.send("sensor")
 
@@ -1385,7 +1379,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         print("Sensor initialized")
 
 
-    def sensorStart(self):
+    def _sensorStart(self):
         if self.__sensorInitFlag is False:
             print("Sensor is not initialized")
             return
@@ -1396,7 +1390,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__sensorFlag = True
 
 
-    def sensorStop(self):
+    def _sensorStop(self):
         if self.__sensorFlag == False :
             print("Sensor is already stopped.")
             return
@@ -1416,12 +1410,20 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self._debugger._printLog(f"Invalid sensor header: {data[:2].hex()}")
             return
 
+        bat_offset = 0
+        if data[8] > 100 :
+            bat_offset = 3
+
+
         sensor_values = {
             'FR': data[2],
             'FL': data[3],
             'BR': data[4],
             'BL': data[5],
-            'BC': data[6]
+            'BC': data[6],
+            'BTN': data[7],
+            'BAT': data[8] - bat_offset,
+            'STAT': data[9]
         }
 
         try:
@@ -1546,10 +1548,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # --- vision ---
 
-    def LeftRightFlipMode(self, flag:bool):
+    def _setLeftRightFlipMode(self, flag:bool):
         self.__flipLRFlag = flag
 
-    def ws_start_display(self):
+    def _start_display(self):
         self._display_thread = threading.Thread(target=self._video_display)
         # 스레드를 데몬 스레드로 설정하면 메인 프로그램 종료 시 함께 종료됩니다. 필요에 따라 설정하세요.
         # self._display_thread.daemon = True
@@ -1608,7 +1610,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         self.__overlay_gesture_boxes(frame)
 
 
-                if self.__faceCaptureFlag == True:
+                if self.__faceTrainFlag == True:
                     #r키를 눌러 연속 캡쳐, e키를 눌러 종료
                     cv2.putText(frame, "-press r : capture", (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50,50,250), 2)
                     cv2.putText(frame, "-press e : end", (10, 230), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50,50,250), 2)
@@ -1629,7 +1631,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     print("img save")
 
                 elif key == ord('r'): # 'r' 키를 누르면 현재 얼굴 등록
-                    if self.__faceCaptureFlag == True:
+                    if self.__faceTrainFlag == True:
                         if self.__facecurrent_results == True and self.__faceResults != None:
                             # if current_registration_name is None:
                             #     # 등록할 이름이 아직 정해지지 않았다면 입력받기
@@ -1666,19 +1668,19 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                             bbox_x2 = min(w, bbox_x2 + pad_x)
                             bbox_y2 = min(h, bbox_y2 + pad_y)
 
-                            self.__face_recognizer.TrainModel(frame, [bbox_x1, bbox_y1, bbox_x2, bbox_y2], self.__faceCaptureName)
+                            self.__face_recognizer.TrainModel(frame, [bbox_x1, bbox_y1, bbox_x2, bbox_y2], self.__faceTrainName)
                         else:
                             print("얼굴이 감지되지 않아 등록할 수 없습니다.")
 
                 elif key == ord('e'): # 'e' 키를 눌러 등록 모드 종료
-                    if self.__faceCaptureFlag == True:
-                        self.__faceCaptureFlag = False
-                        if self.__faceCaptureName is not None:
-                            if self.__faceCaptureName in self.__face_recognizer.registerd:
-                                print(f"'{self.__faceCaptureName}' 등록 모드를 종료합니다. 등록된 얼굴 수: {self.__face_recognizer.registerd[self.__faceCaptureName].extra.shape[0]}개.")
+                    if self.__faceTrainFlag == True:
+                        self.__faceTrainFlag = False
+                        if self.__faceTrainName is not None:
+                            if self.__faceTrainName in self.__face_recognizer.registerd:
+                                print(f"'{self.__faceTrainName}' 등록 모드를 종료합니다. 등록된 얼굴 수: {self.__face_recognizer.registerd[self.__faceTrainName].extra.shape[0]}개.")
                             else:
-                                print(f"'{self.__faceCaptureName}' 등록 모드를 종료합니다. 등록된 얼굴이 없습니다.")
-                            self.__faceCaptureName = None
+                                print(f"'{self.__faceTrainName}' 등록 모드를 종료합니다. 등록된 얼굴이 없습니다.")
+                            self.__faceTrainName = None
                             self.__face_recognizer._save_registered_faces() # 등록 모드 종료 시 데이터 저장
                             print("---------------------------------------------------------")
                         else:
@@ -2061,7 +2063,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self.headerLen = 2
 
 
-        self.reqCOM = 0
+        #self.reqCOM = 0
         self.reqINFO = 0
         self.reqREQ = 0
         self.reqPSTAT = 0
@@ -2081,7 +2083,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self.btn = 0
         self.battery = 0
 
-    def _handler(self, dataArray):
+    def __handler(self, dataArray):
 
         # for i in range(0, 24):
         #     print("0x%02X" % dataArray[i])
@@ -2093,7 +2095,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
         # self.detectFace = dataArray[8]
 
-        self.reqCOM = dataArray[PacketDataIndex.DATA_COM.value - self.headerLen]
+        #self.reqCOM = dataArray[PacketDataIndex.DATA_COM.value - self.headerLen]
         self.reqINFO = dataArray[PacketDataIndex.DATA_INFO.value - self.headerLen]
         self.reqREQ = dataArray[PacketDataIndex.DATA_REQ.value - self.headerLen]
         self.reqPSTAT = dataArray[PacketDataIndex.DATA_PSTAT.value - self.headerLen]
@@ -2104,6 +2106,9 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self.senBR = dataArray[PacketDataIndex.DATA_SEN_BR.value - self.headerLen]
         self.senBC = dataArray[PacketDataIndex.DATA_SEN_BC.value - self.headerLen]
         self.senBL = dataArray[PacketDataIndex.DATA_SEN_BL.value - self.headerLen]
+
+        self.btn = dataArray[PacketDataIndex.DATA_BTN_INPUT.value - self.headerLen]
+        self.battery = dataArray[PacketDataIndex.DATA_BATTERY.value - self.headerLen]
 
         self.detectFace[0] = dataArray[PacketDataIndex.DATA_DETECT_FACE.value - self.headerLen]
         self.detectFace[1] = dataArray[PacketDataIndex.DATA_DETECT_FACE_X.value - self.headerLen]
@@ -2121,31 +2126,29 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self.detectCat[1] = dataArray[PacketDataIndex.DATA_DETECT_CAT_X.value - self.headerLen]
         self.detectCat[2] = dataArray[PacketDataIndex.DATA_DETECT_CAT_Y.value - self.headerLen]
 
-        self.btn = dataArray[PacketDataIndex.DATA_BTN_INPUT.value - self.headerLen]
-        self.battery = dataArray[PacketDataIndex.DATA_BATTERY.value - self.headerLen]
 
         # Verify data processing complete
         self._receiver.checked()
 
         #return header.dataType
 
-    def _receiving(self):
+    def __receiving(self):
         while self._usePosThreadRun:
 
             self._bufferQueue.put(self._serialport.read())
 
             # Automatic update of data when incoming data background check is enabled
             if self._usePosCheckBackground:
-                # while self.check() != DataType.None_:
+                # while self.__check() != DataType.None_:
                 #     pass
 
-                while self.check() != 0:
+                while self.__check() != 0:
                     #print("check")
                     pass
 
             # sleep(0.001)
 
-    def check(self):
+    def __check(self):
 
         #
         while not self._bufferQueue.empty():
@@ -2176,7 +2179,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
             if self._receiver.state == StateLoading.Loaded:
 
-                self._handler(self._receiver.data)
+                self.__handler(self._receiver.data)
                 return 1
         return 0
 
@@ -2222,7 +2225,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
 
             if self.isOpen():
                 self._usePosThreadRun = True
-                self._thread = Thread(target=self._receiving, args=(), daemon=True)
+                self._thread = Thread(target=self.__receiving, args=(), daemon=True)
                 self._thread.start()
                 self._debugger._printLog("Connected.({0})".format(portname))
 
@@ -2290,41 +2293,31 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         # except Exception as e:
         #      raise ConnectionError(f"Error sending serial data: {e}") from e
 
-    def get_req_datas(self):
-        return (self.reqCOM, self.reqINFO, self.reqREQ, self.reqPSTAT) # Return a tuple copy
+    def _get_req_datas(self):
+        return (self.reqINFO, self.reqREQ, self.reqPSTAT) # Return a tuple copy
 
+    def _get_PSTAT_data(self):
+        return (self.reqPSTAT) # Return a PSTAT flag
 
-    def get_ir_all_readings(self):
+    def _get_ir_all_readings(self):
         """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
         #with self._data_lock:
         return (self.senFL, self.senFR, self.senBL, self.senBC, self.senBR) # Return a tuple copy
 
-    def get_ir_front_readings(self):
-        """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
-        #with self._data_lock:
-        return (self.senFL, self.senFR)
+    def _get_detect_data(self,dataIndex):
+        if dataIndex == PacketDataIndex.DATA_DETECT_FACE:
+            return self.detectFace
+        elif dataIndex == PacketDataIndex.DATA_DETECT_COLOR:
+            return self.detectColor
+        elif dataIndex == PacketDataIndex.DATA_DETECT_MARKER:
+            return self.detectMarker
+        elif dataIndex == PacketDataIndex.DATA_DETECT_CAT:
+            return self.detectCat
 
-    def get_ir_bottom_readings(self):
-        """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
-        #with self._data_lock:
-        return (self.senBL, self.senBC, self.senBR)
-
-    def get_detect_face_data(self):
-        return self.detectFace
-
-    def get_detect_color_data(self):
-        return self.detectColor
-
-    def get_detect_marker_data(self):
-        return self.detectMarker
-
-    def get_detect_cat_data(self):
-        return self.detectCat
-
-    def get_btn_data(self):
+    def _get_btn_data(self):
         return self.btn
 
-    def get_battery_data(self):
+    def _get_battery_data(self):
         return self.battery
 
 
@@ -2378,6 +2371,20 @@ class ZumiAI:
 
         self._connection_handler = None
 
+    def _is_valid_ip(self, address):
+        """주어진 문자열이 유효한 IPv4 주소 형식인지 확인합니다."""
+        # 간단한 IPv4 정규 표현식 (더 엄격하게 만들 수 있음)
+        # 0-255.0-255.0-255.0-255 형식 확인
+        pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+        if re.match(pattern, address):
+            # 각 옥텟이 0-255 범위에 있는지 추가 검사
+            parts = address.split('.')
+            for part in parts:
+                if not (0 <= int(part) <= 255):
+                    return False
+            return True
+        return False
+
 
     def connect(self, portname=None):
         """
@@ -2395,13 +2402,59 @@ class ZumiAI:
                 zumi = ZumiAI()
                 zumi.connect(portname="COM84") # 사용 중인 포트명을 입력
         """
-        #self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
-        #self._connection_handler.connect(portname)
+        # Handling
+        if portname is None:
+            # 1. portname이 None이면 시리얼 포트 자동 검색
+            self._debugger._printLog("입력값이 없습니다. 시리얼 포트 자동 검색을 시도합니다.")
+            #return self._connect_serial(None)
+            self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
+            self._connection_handler.connect(portname)
 
-        self._connection_handler = WebSocketConnectionHandler('ws://192.168.0.59/ws', self._usePosCheckBackground, debugger=self._debugger)
-       # self._connection_handler = WebSocketConnectionHandler('ws://192.168.0.82/ws', self._usePosCheckBackground, debugger=self._debugger)
-        self._connection_handler.connect()
-        #self._connection_handler.start_display()
+        elif self._is_valid_ip(portname):
+            # 2. portname이 IP 주소 형식인 경우 웹소켓 연결
+            self._debugger._printLog(f"'{portname}'이(가) IP 주소 형식입니다. 웹소켓 연결을 시도합니다.")
+            #return self._connect_websocket(portname)
+            #portname = '192.168.0.59'
+            websocket_url = f'ws://{portname}/ws'
+            self._connection_handler = WebSocketConnectionHandler(
+                websocket_url,
+                self._usePosCheckBackground,
+                debugger=self._debugger
+            )
+            self._connection_handler.connect()
+
+
+
+        else:
+            # 3. 그 외의 경우 (예: "COM84", "/dev/ttyUSB0") 시리얼 포트 연결
+            self._debugger._printLog(f"'{portname}'이(가) 시리얼 포트 이름 형식입니다. 시리얼 연결을 시도합니다.")
+            #return self._connect_serial(portname)
+            self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
+            self._connection_handler.connect(portname)
+
+
+        # websocket
+
+
+        # Serial
+        # self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
+        # self._connection_handler.connect(portname)
+
+
+
+        # # websocket
+        # addressIP = '192.168.0.59'
+        # websocket_url = f'ws://{addressIP}/ws'
+        # self._connection_handler = WebSocketConnectionHandler(
+        #     websocket_url,
+        #     self._usePosCheckBackground,
+        #     debugger=self._debugger
+        # )
+        # self._connection_handler.connect()
+
+
+        # self._connection_handler = WebSocketConnectionHandler('ws://192.168.0.59/ws', self._usePosCheckBackground, debugger=self._debugger)
+        # self._connection_handler.connect()
 
 
     def disconnect(self):
@@ -3373,7 +3426,7 @@ class ZumiAI:
                 print(ir)
         """
 
-        return self._connection_handler.get_ir_all_readings()
+        return self._connection_handler._get_ir_all_readings()
 
     def get_IR_sensor_bottom(self):
         """
@@ -3391,8 +3444,9 @@ class ZumiAI:
             >>> ir = zumi.get_IR_sensor_bottom()
                 print(ir)
         """
-
-        return self._connection_handler.get_ir_bottom_readings()
+        all_readings = self._connection_handler._get_ir_all_readings()
+        # 튜플 슬라이싱을 사용하여 앞쪽 2개의 값만 선택
+        return all_readings[2:5] # 또는 all_readings[2:]
 
     def get_IR_sensor_front(self):
         """
@@ -3409,8 +3463,9 @@ class ZumiAI:
             >>> ir = zumi.get_IR_sensor_front()
                 print(ir)
         """
-
-        return self._connection_handler.get_ir_front_readings()
+        all_readings = self._connection_handler._get_ir_all_readings()
+        # 튜플 슬라이싱을 사용하여 앞쪽 2개의 값만 선택
+        return all_readings[0:2] # 또는 all_readings[:2]
 
     def set_detect_color(self, set = 0):
         """
@@ -3706,11 +3761,11 @@ class ZumiAI:
 
 
 
-    def _get_req_datas(self):
-        """
-        get_req_datas
-        """
-        return self._connection_handler.get_req_datas()
+    # def _get_req_datas(self):
+    #     """
+    #     _get_req_datas
+    #     """
+    #     return self._connection_handler._get_req_datas()
 
     def get_detect_face(self):
         """
@@ -3729,7 +3784,7 @@ class ZumiAI:
                 print(detect_face)
         """
 
-        return self._connection_handler.get_detect_face_data()
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_FACE)
 
     def get_detect_color(self):
         """
@@ -3747,7 +3802,7 @@ class ZumiAI:
             >>> detect_color = zumi.get_detect_color()
                 print(detect_color)
         """
-        return self._connection_handler.get_detect_color_data()
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_COLOR)
 
     def get_detect_marker(self):
         """
@@ -3765,7 +3820,7 @@ class ZumiAI:
             >>> detect_marker = zumi.get_detect_marker()
                 print(detect_marker)
         """
-        return self._connection_handler.get_detect_marker_data()
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_MARKER)
 
     def get_detect_cat(self):
         """
@@ -3783,7 +3838,7 @@ class ZumiAI:
             >>> detect_cat = zumi.get_detect_cat()
                 print(detect_cat)
         """
-        return self._connection_handler.get_detect_cat_data()
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_CAT)
 
     def get_button(self):
         """
@@ -3804,7 +3859,7 @@ class ZumiAI:
                 print(detect_btn)
         """
 
-        return self._connection_handler.get_btn_data()
+        return self._connection_handler._get_btn_data()
 
     def get_battery(self):
         """
@@ -3820,7 +3875,7 @@ class ZumiAI:
             >>> battery = zumi.get_battery()
                 print(detect_battery)
         """
-        return self._connection_handler.get_battery_data()
+        return self._connection_handler._get_battery_data()
 
     def set_calibration_motors(self):
         """
@@ -3853,8 +3908,7 @@ class ZumiAI:
 
         try:
             while True:
-                datas = self._get_req_datas()
-                p_exe = datas[3]
+                p_exe = self._connection_handler._get_PSTAT_data()
                 print(p_exe)
 
                 if(p_exe == 0):
@@ -3885,117 +3939,197 @@ class ZumiAI:
         """
         영상출력을 시작합니다.
         """
-        self._connection_handler.ws_start_display()
-
-
+        self._connection_handler._start_display()
 
     # --- vision ---
-    def LeftRightFlipMode(self, flag:bool):
-        self._connection_handler.LeftRightFlipMode(flag)
-
+    def setLeftRightFlipMode(self, flag:bool):
+        self._connection_handler._setLeftRightFlipMode(flag)
 
     ##--------------------------------------------------------------------#]
     # sensor
-    def sensorInit(self):
+    def sensor_init(self):
         """
         센서 값을 가져오기를 준비합니다.
         """
-        self._connection_handler.sensorInit()
+        self._connection_handler._sensorInit()
 
-    def sensorStart(self):
+    def sensor_start(self):
         """
         센서 값을 가져오기를 시작합니다.
         """
-        self._connection_handler.sensorStart()
+        self._connection_handler._sensorStart()
 
-    def sensorStop(self):
+    def sensor_stop(self):
         """
         센서 값을 가져오기를 중지합니다.
         """
-        self._connection_handler.sensorStop()
+        self._connection_handler._sensorStop()
 
 
     ##--------------------------------------------------------------------#
 
     # face
-    def FaceDetectorInit(self, face_recognize_threshold = 0.8):
-        self._connection_handler.FaceDetectorInit(face_recognize_threshold)
+    def face_detector_init(self, face_recognize_threshold = 0.8):
+        """""
+        얼굴 인식 기능을 초기화
+        """""
+        self._connection_handler._faceDetectorInit(face_recognize_threshold)
 
-    def FaceDetectorStart(self):
-        self._connection_handler.FaceDetectorStart()
+    def face_detector_start(self):
+        """""
+        얼굴 인식 기능을 시작
+        """""
+        self._connection_handler._faceDetectorStart()
 
-    def FaceDetectorStop(self):
-        self._connection_handler.FaceDetectorStop()
+    def face_detector_stop(self):
+        """""
+        얼굴 인식 기능을 종료
+        """""
+        self._connection_handler._faceDetectorStop()
 
+    def is_face_detected(self,name:str="Unknown"):
+        """""
+        카메라에 입력한 이름을 가진 얼굴이 있는지 반환
+        name : 검출할 얼굴의 이름
+        """""
+        return self._connection_handler._isFaceDetected(name)
 
-    def FaceCapture(self,name:str):
-        self._connection_handler.FaceCapture(name)
+    def get_detected_face_name(self):
+        """""
+        카메라에 확인된 얼굴의 이름을 반환
+        현재 인식된 얼굴이 없다면 Unknown를 반환
+        """""
+        return self._connection_handler._getDetectedFaceName()
 
-    # def TrainFaceData(self,facePath:str =pkg_resources.resource_filename(__package__,"res/face/")):
-    #     self._connection_handler.TrainFaceData(facePath)
+    def get_face_center(self):
+        """""
+        카메라에 인식된 얼굴의 중심 좌표를 반환
+        """""
+        return self._connection_handler._getFaceCenter()
 
-    def DeleteFaceData(self, name:str, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
-        self._connection_handler.DeleteFaceData(name,facePath)
+    def get_face_size(self):
+        """""
+        카메라에 인식된 얼굴의 크기를 반환
+        """""
+        return self._connection_handler._GetFaceSize()
 
-    def DeleteAllFaceData(self, facePath:str=pkg_resources.resource_filename(__package__,"res/face/")):
-        self._connection_handler.DeleteAllFaceData(facePath)
-
-
-    # def GetFaceCount(self):
-    #     return self._connection_handler.GetFaceCount()
-
-    def GetFaceExist(self,name:str="Human0"):
-        return self._connection_handler.GetFaceExist(name)
-
-    def GetFaceNames(self):
-        return self._connection_handler.GetFaceNames()
-
-    # def GetFaceSize(self,name:str="Human0"):
-    #     return self._connection_handler.GetFaceSize(name)
-
-    def GetFaceCenterPoint(self,name:str="Human0"):
-        return self._connection_handler.GetFaceCenterPoint(name)
-
-    def GetFaceLandmarkPoint(self, landmark=1, name: str = "Human0"):
+    def get_face_landmark(self, landmark=1):
+        """""
+        얼굴의 특정 부위의 좌표를 반환
+        LEFT_EYE = 1
+        RIGHT_EYE = 2
+        LEFT_EYEBROW = 3
+        RIGHT_EYEBROW = 4
+        NOSE = 5
+        MOUTH = 6
+        JAW = 7
+        """""
         if not isinstance(landmark, face_landmark):
             try:
                 landmark = face_landmark(landmark)
             except ValueError:
                 landmark = face_landmark.NOSE
-        return self._connection_handler.GetFaceLandmarkPoint(landmark,name)
+        return self._connection_handler._GetFaceLandmark(landmark)
 
+    def face_train(self,name:str):
+        """""
+        얼굴 학습 모드
+        키보드의 z키를 누르면 얼굴을 학습합니다.
+        키도드의 e키를 누르면 종료합니다.
+        name : 등록할 얼굴의 이름
+        """""
+        self._connection_handler._faceTrain(name)
+
+    def delete_face_data(self, name:str):
+        """""
+        등록된 얼굴중 입력한 이름의 데이터 삭제
+        name : 삭제할 얼굴의 이름
+        """""
+        self._connection_handler._deleteFaceData(name)
+
+    def delete_all_Face_data(self):
+        """""
+        등록된 모든 얼굴의 데이터 삭제
+        """""
+        self._connection_handler._deleteAllFaceData()
 
     ##--------------------------------------------------------------------#
     # april
-    def AprilDetectorInit(self):
-        self._connection_handler.AprilDetectorInit()
+    def marker_detector_init(self):
+        """""
+        마커 인식 기능을 초기화
+        """""
+        self._connection_handler._AprilDetectorInit()
 
-    def AprilDetectorStart(self):
-        self._connection_handler.AprilDetectorStart()
+    def marker_detector_start(self):
+        """""
+        마커 인식 기능을 시작
+        """""
+        self._connection_handler._AprilDetectorStart()
 
-    def AprildetectorStop(self):
-        self._connection_handler.AprildetectorStop()
+    def marker_detector_stop(self):
+        """""
+        마커 인식 기능을 종료
+        """""
+        self._connection_handler._AprildetectorStop()
 
-    def GetAprilId(self):
-        return self._connection_handler.GetAprilId()
+    def is_marker_detected(self,id:int):
+        """""
+        카메라에 입력한 ID의 마커가 있는지 반환
+        nId : 검출할 마커 아이디
+        """""
+        return self._connection_handler._isMarkerDetected(id)
 
-    def GetAprilCenterPoint(self):
-        return self._connection_handler.GetAprilCenterPoint()
+    def get_marker_Id(self):
+        """""
+        카메라에 확인된 마커의 ID를 반환
+        """""
+        return self._connection_handler._GetAprilId()
 
-    def GetAprilExist(self,id:int):
-        return self._connection_handler.GetAprilExist(id)
+    def get_marker_center(self):
+        """""
+        카메라에 인식된 마커의 중심 좌표를 반환
+        """""
+        return self._connection_handler._GetAprilCenter()
 
+    def get_marker_size(self):
+        """""
+        카메라에 인식된 마커의 중심 좌표를 반환
+        """""
+        return self._connection_handler._GetAprilSize()
 
-    ##--------------------------------------------------------------------#
-    # number
-    def NumberRecognizerInit(self):
-        self._connection_handler.NumberRecognizerInit()
+    ##--------------------------------------------------------------------#]
+    # gesture
 
-    def NumberRecognizerStart(self):
-        self._connection_handler.NumberRecognizerStart()
+    def gesture_detector_init(self):
+        self._connection_handler._GestureDetectorInit()
 
-    def NumberRecognizerStop(self):
-        self._connection_handler.NumberRecognizerStop()
+    def gesture_detector_start(self):
+        self._connection_handler._GestureDetectorStart()
+
+    def gesture_detector_stop(self):
+        self._connection_handler._GestureDetectorStop()
+
+    def get_gesture_finger(self):
+        """""
+        손가락이 펴져 있는지 접혀 있는지 확인
+        Args:
+            hand_landmarks: MediaPipe에서 감지된 손 랜드마크 객체 (예: results.multi_hand_landmarks[0])
+            hand_type_label (str): 'Left' 또는 'Right' 문자열 (MediaPipe에서 감지된 손의 타입)
+        Returns:
+            list[int]: [엄지, 검지, 중지, 약지, 새끼] 각 손가락의 상태 (1: 펴짐, 0: 쥐어짐)
+        """""
+        return self._connection_handler._GetGestureFinger()
+
+    def get_gesture_recognize(self):
+        return self._connection_handler._GetGestureRecognize()
+
+    def get_gesture_center(self):
+        return self._connection_handler._GetGestureCenter()
+
+    def get_gesture_size(self):
+        return self._connection_handler._GetGestureSize()
+
 
     ##--------------------------------------------------------------------#]
     # scketch
@@ -4021,17 +4155,11 @@ class ZumiAI:
         return self._connection_handler.GetSketchCenterPoint(name)
 
 
-    ##--------------------------------------------------------------------#]
-    # gesture
-
-    def GestureDetectorInit(self):
-        self._connection_handler.GestureDetectorInit()
-
-    def GestureDetectorStart(self):
-        self._connection_handler.GestureDetectorStart()
-
-    def GestureDetectorStop(self):
-        self._connection_handler.GestureDetectorStop()
-
-    # def GetGesturePoint(self,name:str="Sketch"):
-    #     return self._connection_handler.GetSketchCenterPoint(name)
+    ##--------------------------------------------------------------------#
+    # number
+    def NumberRecognizerInit(self):
+        self._connection_handler.NumberRecognizerInit()
+    def NumberRecognizerStart(self):
+        self._connection_handler.NumberRecognizerStart()
+    def NumberRecognizerStop(self):
+        self._connection_handler.NumberRecognizerStop()
