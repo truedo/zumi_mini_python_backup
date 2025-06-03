@@ -12,12 +12,24 @@ zumi = ZumiAI()
 zumi.connect('192.168.0.59')
 
 
-zumi.start_video_viewer()
+zumi.camera_stream_start()
+
+
+
+
 
 zumi.sensor_init()
 zumi.sensor_start()
 #zumi.sensor_stop()
 
+#zumi.yolo_check_add_obj("stop sign")
+
+zumi.yolo_detector_init()
+zumi.yolo_detector_start()
+
+
+##zumi.sign_detector_init()
+##zumi.sign_detector_start()
 
 
 ##
@@ -26,8 +38,8 @@ zumi.sensor_start()
 ##zumi.marker_detector_stop()
 
 
-zumi.gesture_detector_init()
-zumi.gesture_detector_start()
+##zumi.gesture_detector_init()
+##zumi.gesture_detector_start()
 #zumi.gesture_detector_stop()
 
 
@@ -91,7 +103,7 @@ time.sleep(1)
 
 try:
     while True:
-        count1 = zumi.get_gesture_size()
+        count1 = zumi.is_stopsign_detected()
         print(count1)        
         
         time.sleep(0.5)

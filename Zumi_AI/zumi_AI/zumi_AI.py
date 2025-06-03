@@ -43,6 +43,10 @@ import copy
 import os
 from pupil_apriltags import Detector
 
+# import tensorflow as tf
+# from tensorflow import keras
+from ultralytics import YOLO
+
 def convertByteArrayToString(dataArray):
     """
     바이트를 스트링으로 변환 합니다.
@@ -185,6 +189,31 @@ _STATUS_INDEX_BATTERY = 21
 # Example: reqCOM is dataArray[PacketDataIndex.DATA_COM.vaFlue - self.headerLen] in serial.
 # If PacketDataIndex.DATA_COM.value is 4 and self.headerLen is 2, it reads dataArray[2].
 # So, in the 24-byte packet, this corresponds to index 2. This confirms the mapping.
+# 1. GTSRB 클래스 라벨 정의 (제공해주신 모델 학습 코드 기반)
+
+
+num_classes = 43 # GTSRB는 총 43개의 클래스
+
+# Speed Class 0-9
+speed_class = ['Speed Limit ' + item for item in ['20', '30', '50', '60', '70', '80']] + \
+              ['End of Speed Limit 80 kmph']
+speed_class += ['Speed Limit ' + item for item in ['100', '120']]
+
+# 10, 11 No Passing
+no_pass = ['No Passing' + item for item in ['', ' vehicle over 3.5 ton']]
+
+# 12-42 (총 31개)
+rest = ['Right-of-way at intersection', 'Priority road', 'Yield', 'Stop', 'No vehicles', 'Veh > 3.5 tons prohibited',
+        'No entry', 'General caution', 'Dangerous curve left', 'Dangerous curve right', 'Double curve', 'Bumpy road',
+        'Slippery road', 'Road narrows on the right', 'Road work', 'Traffic signals', 'Pedestrians', 'Children crossing',
+        'Bicycles crossing', 'Beware of ice/snow','Wild animals crossing', 'End speed + passing limits', 'Turn right ahead',
+        'Turn left ahead', 'Ahead only', 'Go straight or right', 'Go straight or left', 'Keep right', 'Keep left',
+        'Roundabout mandatory', 'End of no passing', 'End no passing vehicle > 3.5 tons'] # GTSRB는 42번이 마지막 클래스입니다.
+
+gtsrb_labels = speed_class + no_pass + rest
+
+
+
 
 class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     """
@@ -273,6 +302,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__flipLRFlag = False
 
         self.__raw_img = None
+
+        self.__cameraStreamFlag = False
+
 
         # sensor
         self.__sensorInitFlag = False
@@ -372,6 +404,27 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__gestureCenter = []
         self.__gestureSize = 0
 
+
+        # sign detector
+        self.__signDetectInitFlag = False
+        self.__signDetectFlag = False
+        self.__signModelPath = None
+
+        self.__signDetectedRegions=[]
+        self.__signModel = None
+
+        # yolo_v8
+        self.__yoloDetectInitFlag = False
+        self.__yoloDetectFlag = False
+        self.__drawYoloAreaFlag = True
+
+        self.__yoloModel = None
+
+        self.__yoloResults = []
+        self.__yoloTarget_classes = set()
+
+        self.__yoloStopSignCenter = [0, 0]
+        self.__yoloStopSignDetect = False
 
 
 
@@ -841,7 +894,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
             time.sleep(0.001)
 
-
     def __overlay_april_boxes(self,frame):
         duplicateId = []
         color = (0, 255, 0)
@@ -870,44 +922,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             # 태그 ID 표시
             cv2.putText(frame, str(tag.tag_id), tuple(map(int, tag.center)),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-
-
-        # if self.__aprilDetectedIds is None:
-        #     pass
-        # else:
-        #     idx = 0
-        #     for corners in self.__aprilDetectedCorners:
-        #         addedY = 0
-        #         id = self.__aprilDetectedIds[idx]
-        #         if id in duplicateId:
-        #             color = self.__UnregisterdColor
-        #         else:
-        #             color =self.__RegisterdColor
-        #             duplicateId.append(id)
-
-        #         x = int((corners[0][0][0] + corners[0][2][0]) / 2)
-        #         y = int((corners[0][0][1] + corners[0][2][1]) / 2)
-        #         if self.__drawAprilAreaFlag == True:
-        #             cv2.polylines(frame, np.array([corners[0]], np.int32), True, color, 3)
-        #         if self.__drawAprilIdFlag == True:
-        #             s = 'id='+str(id)
-        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-        #             addedY += 20
-        #         if self.__drawAprilPointFlag == True:
-        #             s = 'x=' + str(x) +' y='+str(y)
-        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-        #             addedY += 20
-        #         if self.__drawAprilSizeFlag == True:
-        #             april_perimeter = cv2.arcLength(corners[0], True) / 7
-        #             s = 'size='+ str(int(april_perimeter))
-        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-        #             addedY += 20
-        #         if self.__drawAprilDistanceFlag == True:
-        #             s = 'distance={:.2f}'.format(self.__aprilDataDict[id].distance)
-        #             cv2.putText(frame, s, (int(corners[0][3][0]),int(corners[0][3][1])+addedY), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-        #             addedY += 20
-        #         idx+=1
-
 
     def _isMarkerDetected(self,id:int)->bool:
         if self.__aprilTags is None or len(self.__aprilTags) == 0:
@@ -942,247 +956,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             return self.__april_size
 
 
-
-
-    # --- numbers ---
-
-    def NumberRecognizerInit(self):
-        if self.__numberDetectInitFlag is False:
-            self.__numberR = NumberRecognizer()
-            self.__numberDetectInitFlag = True
-        print("Number recognizer initialized")
-
-    def GetRecognizedNumbers(self)->str:
-        if self.__numberRecognizedStr:
-            return self.__numberRecognizedStr
-
-    def GetRecognizedNumberPoint(self)->list:
-        if self.__numberDetectedList is not None and len(self.__numberDetectedList) > 0:
-            x = int((self.__numberDetectedList[0][0][0] + self.__numberDetectedList[0][2][0]) / 2)
-            y = int((self.__numberDetectedList[0][0][1] + self.__numberDetectedList[0][2][1]) / 2)
-            return [x, y]
-        pass
-
-    def GetRecognizedNumberSize(self)->int:
-        if self.__numberDetectedList is not None and len(self.__numberDetectedList) > 0:
-            return abs(int(self.__numberDetectedList[0][2][0] - self.__numberDetectedList[0][0][0]))
-
-    def NumberRecognizerStart(self):
-        if self.__numberDetectInitFlag is False:
-            print("Number recognizer is not initialized")
-            return
-
-        if self.__numberDetectFlag == True:
-            print("Number recognizer is already working.")
-            return
-        self.__numberDetectFlag = True
-
-        th = threading.Thread(target=self.__numberdetect)
-        th.deamon = True
-        th.start()
-
-    def NumberRecognizerStop(self):
-        if self.__numberDetectFlag == False :
-            print("Number recognizer is already stopped.")
-            return
-
-        self.__numberDetectFlag = False
-        time.sleep(1)
-
-        print("Number recognizer off")
-
-    def __numberdetect(self):
-        while self.__numberDetectFlag:
-            if self.__raw_img is None:
-                time.sleep(0.1)
-                # print('no input frame yet')
-                continue
-            try:
-                self.__numberRecognizedStr,self.__numberDetectedList = self.__numberR(self.__raw_img)
-            except Exception as e:
-                # print("Number recognizer error : " , e)
-                continue
-
-            time.sleep(0.05)
-
-    def __overlay_number_boxes(self, frame):
-        color = (0, 255, 0)
-
-        # print(self.__numberDetectedList)
-        # print(" ")
-        for detected in self.__numberDetectedList:
-            addedY = 0
-            x = int((detected[0][0] + detected[2][0]) / 2)
-            y = int((detected[0][1] + detected[2][1]) / 2)
-            _x = int((self.__numberDetectedList[0][0][0] + self.__numberDetectedList[0][2][0]) / 2)
-            _y = int((self.__numberDetectedList[0][0][1] + self.__numberDetectedList[0][2][1]) / 2)
-
-            if self.__drawNumberAreaFlag == True:
-                cv2.polylines(frame, np.array([detected], np.int32), True, color, 3)
-            if self.__drawNumberFlag == True:
-                s = 'number='+str(self.__numberRecognizedStr)
-                cv2.putText(frame, s, (_x, _y+addedY), cv2.FONT_ITALIC,0.5, (0,255,0), 1)
-                addedY += 20
-            if self.__drawNumberPointFlag == True:
-                s = 'x=' + str(x) +' y='+str(y)
-                cv2.putText(frame, s, (_x, _y+addedY), cv2.FONT_ITALIC,0.5, (0,255,0), 1)
-                addedY += 20
-            if self.__drawNumberSizeFlag == True:
-                s = 'size=' + str( abs ( int ( detected[2][0] - detected[0][0])))
-                cv2.putText(frame, s, (_x, _y+addedY), cv2.FONT_ITALIC,0.5, (0,255,0), 1)
-                addedY += 20
-
-
-    # --- scketch ---
-    def SketchDetectorInit(self):
-        if self.__sketchDetectInitFlag is False:
-            self.__sketchR = SketchRecognizer()
-            self.__sketchDetectInitFlag = True
-
-        print("Sketch detector initialized")
-
-    def SketchDetectorStart(self):
-        if self.__sketchDetectInitFlag is False:
-            print("Sketch detector is not initialized")
-            return
-
-        if self.__sketchDetectFlag == True:
-            print("Sketch detector is already working.")
-            return
-        self.__sketchDetectFlag = True
-
-        th = threading.Thread(target=self.__sketchdetect)
-        th.deamon = True
-        th.start()
-
-
-    def SketchDetectorStop(self):
-        if self.__sketchDetectFlag == False :
-            print("Sketch detector is already stopped.")
-            return
-
-        self.__sketchDetectFlag = False
-        time.sleep(1)
-
-        print("Sketch detector off")
-
-    def __sketchdetect(self):
-        while self.__sketchDetectFlag:
-            if self.__raw_img is None:
-                time.sleep(0.1)
-                # print('no input frame yet')
-                continue
-            try:
-                self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
-                self.__sketchDataDict.clear()
-                for i in range(0, len(self.__sketchDetectedList)):
-                    self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i])
-
-                if len(self.__sketchRecognizedList) == 0:
-                    time.sleep(0.0)
-                    continue
-            except Exception as e:
-                # print("Sketch detector error : " , e)
-                continue
-
-            time.sleep(0.01)
-
-    def __overlay_sketch_boxes(self, frame):
-        color = (0, 255, 0)
-
-        for sketchKey, sketchData in self.__sketchDataDict.items():
-            addedY = 0
-            if self.__drawSketchAreaFlag:
-                cv2.polylines(frame, np.array([sketchData.box], np.int32), True, color, 3)
-            if self.__drawSketchNameFlag:
-                s = 'id='+str(sketchData.name)
-                cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-                # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-                addedY += 20
-            if self.__drawSketchPointFlag == True:
-                s = 'x=' + str(sketchData.centerX) +' y='+str(sketchData.centerY)
-                cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-                # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-                addedY += 20
-            if self.__drawSketchSizeFlag == True:
-                s = 'size=' + str(sketchData.size)
-                cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-                # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
-                addedY += 20
-
-    def SketchCapture(self, name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/sketch/")):
-        if bool(name) == False:
-            print("Name parameter is Empty.")
-            return
-
-        if os.path.isdir(path) is False:
-            os.mkdir(path)
-
-        if self.__sketchDetectFlag is False:
-            print("Sketchdetector did not run")
-            return
-
-        cnt = 0
-        while cnt < captureCount:
-            if len(self.__sketchRecognizedList) == 0:
-                print("Doesn't have a any sketch in Frame")
-                time.sleep(0.0)
-                continue
-
-            result = self.__sketchR.SaveSketch(self.__raw_img,name)
-            if result == 0:
-                cnt += 1
-                time.sleep(0.1)
-        print( name, " is saved")
-
-    def TrainSketchData(self, sketchPath:str = pkg_resources.resource_filename(__package__,"res/sketch/")):
-        if os.path.isdir(sketchPath) is False:
-            print(sketchPath +" is not directory.")
-            return
-
-        orbDescriptors = []
-        nameIndexList = []
-        nameIntList = []
-
-        sketchD = SketchRecognizer()
-        filenames = os.listdir(sketchPath)
-        for filename in filenames:
-            name = os.path.basename(filename)
-            image = cv2.imread(sketchPath+filename, cv2.IMREAD_GRAYSCALE)
-            image = cv2.resize(image, (150,150))
-            _, des = sketchD.orbDetector.detectAndCompute(image, None)
-            name = name.split('_')[0]
-
-            if not(name in nameIndexList):
-                nameIndexList.append(name)
-            nameIntList.append(nameIndexList.index(name))
-            orbDescriptors.append(des)
-
-        self.__sketchR.TrainModel(nameIndexList, nameIntList, orbDescriptors)
-
-    def DeleteSketchData(self, name:str, sketchPath:str=pkg_resources.resource_filename(__package__,"res/sketch/")):
-
-        if os.path.isdir(sketchPath) is False:
-            print(sketchPath +" is not directory.")
-            return
-
-        self.__sketchR.RemoveSketch(name, sketchPath)
-
-        print(name + ' is deleted')
-
-
-    def GetSketchExist(self,name:str="Sketch") ->bool:
-        return name in self.__sketchDataDict
-
-    def GetSketchCenterPoint(self, name:str) -> list:
-        if name in self.__sketchDataDict:
-            return [self.__sketchDataDict[name].centerX,self.__sketchDataDict[name].centerY]
-        pass
-
-
-
     # gesture
-
     def _GestureDetectorInit(self):
         if self.__gestureDetectInitFlag is False:
 
@@ -1218,7 +992,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         time.sleep(1)
 
         print("Gesture detector off")
-
 
     def __gesturedetect(self):
         while self.__gestureDetectFlag:
@@ -1331,7 +1104,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         return fingers
 
-
     def _GetGestureRecognize(self):
         if self.__gestureFingersStatus == [0, 0, 0, 0, 0]:
             return 'fist'
@@ -1351,23 +1123,191 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _GetGestureFinger(self):
         return self.__gestureFingersStatus
 
-
     def _GetGestureCenter(self):
         return self.__gestureCenter
 
     def _GetGestureSize(self):
         return self.__gestureSize
 
-    # def _GetGestureCenter(self) -> tuple[int, int] | None:
-    #     """현재 감지된 손 제스처의 중심점 좌표를 반환합니다."""
-    #     if self.__gestureLandmark and self.__gestureLandmark.landmark:
-    #         # MediaPipe 랜드마크는 0.0 ~ 1.0 정규화된 값
-    #         # 이미지 픽셀 값으로 변환
-    #         frame_height, frame_width, _ = self.current_frame_shape if hasattr(self, 'current_frame_shape') else (480, 640, 3) # 임시 프레임 크기
-    #         center_x = int(self.__gestureLandmark.landmark[0].x * frame_width) # 손목 랜드마크 0번 사용
-    #         center_y = int(self.__gestureLandmark.landmark[0].y * frame_height)
-    #         return (center_x, center_y)
-    #     return None
+
+    # yolo
+    def _YoloDetectorInit(self):
+        if self.__yoloDetectInitFlag is False:
+            self.__yoloDetectInitFlag = True
+            self.__drawYoloAreaFlag = True
+
+            self.__yoloModel = YOLO("yolov8n.pt")  # yolov8s.pt, yolov8m.pt 등으로 변경 가능
+
+        print("Yolo detector initialized")
+
+    def _YoloDetectorStart(self):
+        if self.__yoloDetectInitFlag is False:
+            print("Yolo detector is not initialized")
+            return
+        if self.__yoloDetectFlag == True:
+            print("Yolo detector is already working.")
+            return
+
+        # 인식할 대상 추가
+        self._YoloCheckAddObj("stop sign")
+
+        self.__yoloDetectFlag = True
+
+        th = threading.Thread(target=self.__yolodetect)
+        th.deamon = True
+        th.start()
+
+    def _YoloDetectorStop(self):
+        if self.__yoloDetectFlag == False :
+            print("Yolo detector is already stopped.")
+            return
+
+        self.__yoloDetectFlag = False
+        time.sleep(1)
+        print("Yolo detector off")
+
+    def __yolodetect(self):
+        while self.__yoloDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                print('no input frame yet')
+                continue
+            try:
+                self.__yoloResults = self.__yoloModel(self.__raw_img, verbose=False, imgsz=320, conf=0.6)  # 신뢰도(confidence) 설정
+
+            except Exception as e:
+                print("Yolo detector error : " , e)
+                continue
+
+            time.sleep(0.001)
+
+    def __overlay_yolo_boxes(self, frame):
+
+
+
+        if self.__yoloResults and len(self.__yoloResults) > 0:
+
+            boxes = self.__yoloResults[0].boxes
+            if boxes is not None and len(boxes) > 0:
+                    class_ids = boxes.cls.cpu().numpy().astype(int)
+                    names = [self.__yoloModel.names[c] for c in class_ids]
+
+                    for i, name in enumerate(names):
+                        if name in self.__yoloTarget_classes:
+
+                            x1, y1, x2, y2 = map(int, boxes.xyxy[0])
+
+                            color = (0, 255, 255) # 기본 노란색
+                            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                            #print(f"🎯 감지 대상 '{name}' 감지됨!")
+
+                            if name == "stop sign":
+                                self.__yoloStopSignDetect = True
+                                self.__yoloStopSignCenter[0] = (x1 + y1) // 2
+                                self.__yoloStopSignCenter[1] = (x2 + y2) // 2
+                                #print(self.__yoloStopSignCenter)
+
+                            # else:
+                            #     self.__yoloStopSignDetect = False
+                            #     self.__yoloStopSignCenter = [0, 0]
+
+
+                        #else:
+                        #    print(f"⏭ '{name}'은 감지 대상 아님")
+            else:
+                self.__yoloStopSignDetect = False
+                self.__yoloStopSignCenter = [0, 0]
+        else:
+            self.__yoloStopSignDetect = False
+            self.__yoloStopSignCenter = [0, 0]
+
+            # #frame = self.__yoloResults[0].plot()
+
+            # for box in self.__yoloResults[0].boxes:
+            #     class_id = int(box.cls[0])
+
+            #     if class_id == 9:  # 9 = traffic light (COCO 클래스 ID)
+            #         #print("traffic!!")
+            #         # 좌표 추출 및 정수형 변환
+            #         x1, y1, x2, y2 = map(int, box.xyxy[0])
+            #         traffic_light_roi = frame[y1:y2, x1:x2]
+
+            #         # HSV 변환
+            #         hsv = cv2.cvtColor(traffic_light_roi, cv2.COLOR_BGR2HSV)
+            #         # 빨강 범위 1 (0~10)
+            #         lower_red1 = (0, 70, 50)
+            #         upper_red1 = (10, 255, 255)
+
+            #         # 빨강 범위 2 (170~180)
+            #         lower_red2 = (170, 70, 50)
+            #         upper_red2 = (180, 255, 255)
+
+            #         # 색상 마스크 정의 (범위는 조정 가능)
+            #         mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
+            #         mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
+            #         mask_red = cv2.bitwise_or(mask_red1, mask_red2)
+            #         mask_yellow = cv2.inRange(hsv, (15, 70, 70), (35, 255, 255))
+            #         mask_green  = cv2.inRange(hsv, (40, 50, 50),  (90, 255, 255))
+
+            #         # 픽셀 개수 기준 판단
+            #         red_count    = cv2.countNonZero(mask_red)
+            #         yellow_count = cv2.countNonZero(mask_yellow)
+            #         green_count  = cv2.countNonZero(mask_green)
+
+            #         # 결과 출력
+            #         if red_count > 50:
+            #             print("🔴 빨간불 감지")
+            #         elif yellow_count > 50:
+            #             print("🟡 노란불 감지")
+            #         elif green_count > 50:
+            #             print("🟢 초록불 감지")
+            #         else:
+            #             print("❓ 신호등 감지됨, 색상 불분명")
+
+            #         print(red_count,yellow_count,green_count)
+            #         color = (0, 255, 255) # 기본 노란색
+            #         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+            #     elif class_id == 11:  # 9 = traffic light (COCO 클래스 ID)
+            #         x1, y1, x2, y2 = map(int, box.xyxy[0])
+            #         print("stop sign")
+            #         color = (0, 255, 255) # 기본 노란색
+            #         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+
+    def _isStopSignDetected(self):
+        return self.__yoloStopSignDetect
+
+
+    def _GetStopSignCenter(self):
+        return self.__yoloStopSignCenter
+
+
+
+    # 감지 대상에 객체 추가
+    def _YoloCheckAddObj(self,obj_name=""):
+        if obj_name:
+            self.__yoloTarget_classes.add(obj_name)
+            print(f"✅ '{obj_name}' 추가됨")
+
+    # 감지 대상에서 객체 제거
+    def _YoloCheckDelObj(self,obj_name=""):
+        if obj_name in self.__yoloTarget_classes:
+            self.__yoloTarget_classes.remove(obj_name)
+            print(f"❌ '{obj_name}' 제거됨")
+
+    # 전체 클래스 추가
+    def _YoloCheckAllAddObj(self):
+        self.__yoloTarget_classes.update(self.__yoloModel.names.values())
+        print("📋 모든 클래스가 감지 대상으로 등록됨")
+
+    # 감지 대상 전체 제거
+    def _YoloCheckAllDelObj(self):
+        self.__yoloTarget_classes.clear()
+        print("🧹 감지 대상 전체 제거됨")
+
+
+
 
     # --- sensor ---
     def _sensorInit(self):
@@ -1551,18 +1491,25 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _setLeftRightFlipMode(self, flag:bool):
         self.__flipLRFlag = flag
 
-    def _start_display(self):
-        self._display_thread = threading.Thread(target=self._video_display)
+    def _camera_stream(self):
+
+        if self.__cameraStreamFlag == True :
+            print("The camera is already working.")
+            return
+
+        self.__cameraStreamFlag = True
+
+        self._ws.send("stream")
+
+        self._display_thread = threading.Thread(target=self.__camera_display)
         # 스레드를 데몬 스레드로 설정하면 메인 프로그램 종료 시 함께 종료됩니다. 필요에 따라 설정하세요.
         # self._display_thread.daemon = True
         # 스레드 시작
         self._display_thread.start()
 
-    def _video_display(self):
+    def __camera_display(self):
         print("start_display")
         """영상 디스플레이 메인 루프"""
-        self._ws.send("stream")
-
 
         # print("\n---------------------------------------------------------")
         # print("웹캠을 시작합니다. 'q' 키를 눌러 종료하세요.")
@@ -1573,7 +1520,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         #-------------------------------------------------------------------------
 
-        while self.connected:
+        #while self.connected:
+        while self.__cameraStreamFlag:
             try:
                 frame = self.frame_queue.get(timeout=2.0)
                 self.__raw_img = frame.copy()
@@ -1594,21 +1542,32 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         #print("ap")
                         self.__overlay_april_boxes(frame)
 
-                # 숫자 인식 화면 오버레이
-                if self.__numberDetectFlag == True:
-                    if self.__drawNumberAreaFlag == True:
-                        self.__overlay_number_boxes(frame)
-
-                # 스케치 인식 화면 오버레이
-                if self.__sketchDetectFlag == True:
-                    if self.__drawSketchAreaFlag == True:
-                        self.__overlay_sketch_boxes(frame)
-
                 # 제스처 인식 화면 오버레이
                 if self.__gestureDetectFlag == True:
                     if self.__drawGestureAreaFlag == True:
                         self.__overlay_gesture_boxes(frame)
 
+                # yolo 인식 화면 오버레이
+                if self.__yoloDetectFlag == True:
+                    if self.__drawYoloAreaFlag == True:
+                        # if self.__yoloResults and len(self.__yoloResults) > 0:
+                        #     frame = self.__yoloResults[0].plot()
+                        self.__overlay_yolo_boxes(frame)
+
+                # # 스케치 인식 화면 오버레이
+                # if self.__sketchDetectFlag == True:
+                #     if self.__drawSketchAreaFlag == True:
+                #         self.__overlay_sketch_boxes(frame)
+
+
+                # # 숫자 인식 화면 오버레이
+                # if self.__numberDetectFlag == True:
+                #     if self.__drawNumberAreaFlag == True:
+                #         self.__overlay_number_boxes(frame)
+
+                # if self.__signDetectFlag == True:
+                #    for (x, y, w, h) in self.__signDetectedRegions:
+                #        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # 초록색 사각형
 
                 if self.__faceTrainFlag == True:
                     #r키를 눌러 연속 캡쳐, e키를 눌러 종료
@@ -3935,11 +3894,11 @@ class ZumiAI:
 
     ##--------------------------------------------------------------------#
     # 소켓 영상 제어 명령어
-    def start_video_viewer(self):
+    def camera_stream_start(self):
         """
         영상출력을 시작합니다.
         """
-        self._connection_handler._start_display()
+        self._connection_handler._camera_stream()
 
     # --- vision ---
     def setLeftRightFlipMode(self, flag:bool):
@@ -4102,12 +4061,21 @@ class ZumiAI:
     # gesture
 
     def gesture_detector_init(self):
+        """""
+        제스처 인식 기능을 초기화
+        """""
         self._connection_handler._GestureDetectorInit()
 
     def gesture_detector_start(self):
+        """""
+        제스처 인식 기능을 시작
+        """""
         self._connection_handler._GestureDetectorStart()
 
     def gesture_detector_stop(self):
+        """""
+        제스처 인식 기능을 종료
+        """""
         self._connection_handler._GestureDetectorStop()
 
     def get_gesture_finger(self):
@@ -4122,44 +4090,64 @@ class ZumiAI:
         return self._connection_handler._GetGestureFinger()
 
     def get_gesture_recognize(self):
+        """""
+        손가락의 특정 상태에 따른 모션 값 반환
+        Returns:
+            'fist', 'point', 'open', 'peace', 'standby', 'thumbs_up','None'
+        """""
         return self._connection_handler._GetGestureRecognize()
 
     def get_gesture_center(self):
+        """""
+        카메라에 인식된 손의 중심 좌표를 반환
+        """""
         return self._connection_handler._GetGestureCenter()
 
     def get_gesture_size(self):
+        """""
+        카메라에 인식된 손의 크기를 반환
+        """""
         return self._connection_handler._GetGestureSize()
 
-
-    ##--------------------------------------------------------------------#]
-    # scketch
-    def SketchDetectorInit(self):
-        self._connection_handler.SketchDetectorInit()
-
-    def SketchDetectorStart(self):
-        self._connection_handler.SketchDetectorStart()
-
-    def SketchDetectorStop(self):
-        self._connection_handler.SketchDetectorStop()
-
-    def SketchCapture(self, name:str, captureCount:int=5, path:str=pkg_resources.resource_filename(__package__,"res/sketch/")):
-        self._connection_handler.SketchCapture(name,captureCount,path)
-
-    def TrainSketchData(self, sketchPath:str = pkg_resources.resource_filename(__package__,"res/sketch/")):
-        self._connection_handler.TrainSketchData(sketchPath)
-
-    def GetSketchExist(self,name:str="Sketch"):
-        return self._connection_handler.GetSketchExist(name)
-
-    def GetSketchCenterPoint(self,name:str="Sketch"):
-        return self._connection_handler.GetSketchCenterPoint(name)
-
-
     ##--------------------------------------------------------------------#
-    # number
-    def NumberRecognizerInit(self):
-        self._connection_handler.NumberRecognizerInit()
-    def NumberRecognizerStart(self):
-        self._connection_handler.NumberRecognizerStart()
-    def NumberRecognizerStop(self):
-        self._connection_handler.NumberRecognizerStop()
+    # yolo
+    def yolo_detector_init(self):
+        """""
+        yolo 인식 기능을 초기화
+        """""
+        self._connection_handler._YoloDetectorInit()
+
+    def yolo_detector_start(self):
+        """""
+        yolo 인식 기능을 시작
+        """""
+        self._connection_handler._YoloDetectorStart()
+
+    def yolo_detector_stop(self):
+        """""
+        yolo 인식 기능을 시작
+        """""
+        self._connection_handler._YoloDetectorStop()
+
+
+
+
+    def yolo_check_add_obj(self, obj_name=""):
+        """""
+        yolo 인식 기능을 시작
+        """""
+        self._connection_handler._YoloCheckAddObj(obj_name)
+
+    def is_stopsign_detected(self):
+        """""
+        카메라에 stop sign 이 감지되었는지 확인
+        """""
+        return self._connection_handler._isStopSignDetected()
+
+    def get_stopsign_center(self):
+        """""
+        카메라에 감지된 stop sign의 중심 좌표
+        """""
+        return self._connection_handler._GetStopSignCenter()
+
+
