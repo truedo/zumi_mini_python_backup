@@ -17,19 +17,16 @@ zumi.camera_stream_start()
 
 
 
-
-zumi.sensor_init()
-zumi.sensor_start()
+##
+##zumi.sensor_init()
+##zumi.sensor_start()
 #zumi.sensor_stop()
 
 #zumi.yolo_check_add_obj("stop sign")
 
-zumi.yolo_detector_init()
-zumi.yolo_detector_start()
-
-
-##zumi.sign_detector_init()
-##zumi.sign_detector_start()
+##zumi.object_detector_init()
+##zumi.object_detector_start()
+#zumi.object_detector_stop()
 
 
 ##
@@ -38,6 +35,7 @@ zumi.yolo_detector_start()
 ##zumi.marker_detector_stop()
 
 
+##
 ##zumi.gesture_detector_init()
 ##zumi.gesture_detector_start()
 #zumi.gesture_detector_stop()
@@ -46,8 +44,10 @@ zumi.yolo_detector_start()
 
 
 ##
-##zumi.FaceDetectorInit()
-##zumi.FaceDetectorStart()
+zumi.face_detector_init()
+zumi.face_detector_start()
+#zumi.face_detector_stop()
+
 ##
 ##time.sleep(1)
 ##
@@ -56,10 +56,6 @@ zumi.yolo_detector_start()
 ##
 ###zumi.FaceTrain("girl")
 
-
-##
-##zumi.GestureDetectorInit()
-##zumi.GestureDetectorStart()
 ##
 ##time.sleep(3)
 
@@ -98,22 +94,22 @@ zumi.yolo_detector_start()
 #zumi.TrainSketchData()
 
 
-
-time.sleep(1)
-
-try:
-    while True:
-        count1 = zumi.is_stopsign_detected()
-        print(count1)        
-        
-        time.sleep(0.5)
-        
-except KeyboardInterrupt:
-
-    zumi.stop()
-    zumi.close()
-    print("Done")
-
+##
+##time.sleep(1)
+##
+##try:
+##    while True:
+##        count1 = zumi.get_traffic_light_color()
+##        print(count1)        
+##        
+##        time.sleep(0.5)
+##        
+##except KeyboardInterrupt:
+##
+##    zumi.stop()
+##    zumi.disconnect()
+##    print("Done")
+##
 
 
 

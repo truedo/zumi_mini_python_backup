@@ -1,3 +1,26 @@
+# 1. GTSRB 클래스 라벨 정의 (제공해주신 모델 학습 코드 기반)
+
+
+num_classes = 43 # GTSRB는 총 43개의 클래스
+
+# Speed Class 0-9
+speed_class = ['Speed Limit ' + item for item in ['20', '30', '50', '60', '70', '80']] + \
+              ['End of Speed Limit 80 kmph']
+speed_class += ['Speed Limit ' + item for item in ['100', '120']]
+
+# 10, 11 No Passing
+no_pass = ['No Passing' + item for item in ['', ' vehicle over 3.5 ton']]
+
+# 12-42 (총 31개)
+rest = ['Right-of-way at intersection', 'Priority road', 'Yield', 'Stop', 'No vehicles', 'Veh > 3.5 tons prohibited',
+        'No entry', 'General caution', 'Dangerous curve left', 'Dangerous curve right', 'Double curve', 'Bumpy road',
+        'Slippery road', 'Road narrows on the right', 'Road work', 'Traffic signals', 'Pedestrians', 'Children crossing',
+        'Bicycles crossing', 'Beware of ice/snow','Wild animals crossing', 'End speed + passing limits', 'Turn right ahead',
+        'Turn left ahead', 'Ahead only', 'Go straight or right', 'Go straight or left', 'Keep right', 'Keep left',
+        'Roundabout mandatory', 'End of no passing', 'End no passing vehicle > 3.5 tons'] # GTSRB는 42번이 마지막 클래스입니다.
+
+gtsrb_labels = speed_class + no_pass + rest
+
 
 
 
