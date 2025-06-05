@@ -52,37 +52,7 @@ def convertByteArrayToString(dataArray):
     return string
 
 
-class FaceData:
-    def __init__(self):
-        self.name = ''
-        self.box = []
-        self.landMarks = None
-        self.centerX = 0
-        self.centerY = 0
-        self.size = 0
 
-    def SetData(self, name:str, box, landmarks):
-        self.name = name
-        self.box = box
-        self.landMarks = landmarks
-        self.centerX = int((box[0] + box[2]) / 2)
-        self.centerY = int((box[1] + box[3]) / 2)
-        self.size = self.landMarks[16][0] - self.landMarks[0][0]
-
-class SketchData:
-    def __init__(self, name:str, box:list):
-        self.name = name
-        self.box = box
-        self.centerX = int((self.box[0][0] + self.box[2][0]) / 2)
-        self.centerY = int((self.box[0][1] + self.box[2][1]) / 2)
-        self.size = abs(int(self.box[2][0] - self.box[0][0]))
-        self.textX = 0
-        self.textY = 20000
-        for i in range(4):
-            if self.textX < self.box[i][0]:
-                self.textX = self.box[i][0]
-            if self.textY > self.box[i][1]:
-                self.textY = self.box[i][1]
 
 class DebugOutput:
     def __init__(self, show_log=True, show_error=True, show_transfer=False, show_receive=False):
@@ -1804,24 +1774,31 @@ class ZumiAI:
 
     ##--------------------------------------------------------------------#]
     # sensor
-    def sensor_init(self):
-        """
-        센서 값을 가져오기를 준비합니다.
-        """
-        self._connection_handler._sensorInit()
+    # def sensor_init(self):
+    #     """
+    #     센서 값을 가져옵니다.
+    #     """
+    #     self._connection_handler._sensorInit()
+
 
     def sensor_start(self):
         """
-        센서 값을 가져오기를 시작합니다.
+        센서 값을 가져옵니다.
         """
         self._connection_handler._sensorStart()
 
-    def sensor_stop(self):
+    def sensor_visible(self, flag):
         """
-        센서 값을 가져오기를 중지합니다.
+        센서 값을 화면에 출력합니다.
         """
-        self._connection_handler._sensorStop()
+        self._connection_handler._sensorVisible(flag)
 
+    # fps
+    def frame_rate_visible(self, flag):
+        """
+        프레임 지연 값을 화면에 출력합니다.
+        """
+        self._connection_handler._frameRateVisible(flag)
 
     ##--------------------------------------------------------------------#
 
@@ -2096,3 +2073,54 @@ class ZumiAI:
         return : "RED","GREEN","YELLOW","UNKNOW"
         """""
         return self._connection_handler._getTrafficLightColor()
+
+    ##--------------------------------------------------------------------#]
+    # scketch
+    def sketch_detector_init(self):
+        """""
+        스케치 인식 기능을 초기화
+        """""
+        self._connection_handler._sketchDetectorInit()
+
+    def sketch_detector_start(self):
+        """""
+        스케치 인식 기능을 시작
+        """""
+        self._connection_handler._sketchDetectorStart()
+
+    def sketch_detector_stop(self):
+        """""
+        스케치 인식 기능을 종료
+        """""
+        self._connection_handler._sketchDetectorStop()
+
+    def is_sketch_detected(self,name:str="Sketch"):
+        """""
+        카메라에 입력한 스케치가 있는지 반환
+        """""
+        return self._connection_handler._isSketchDetected(name)
+
+    def sketch_train(self,name:str=""):
+        """""
+        스케치 인식 기능을 학습
+        """""
+        self._connection_handler._sketchTrain(name)
+
+    def delete_sketch_data(self,name:str=""):
+        """""
+        스케치 인식 기능을 학습
+        """""
+        self._connection_handler._deleteSketchData(name)
+
+    def get_sketch_center(self,name:str="Sketch"):
+        """""
+        카메라에 인식된 스케치의 중심 좌표를 반환
+        """""
+        return self._connection_handler._getSketchCenter(name)
+
+    def get_sketch_size(self,name:str="Sketch"):
+        """""
+        카메라에 인식된 스케치의 중심 좌표를 반환
+        """""
+        return self._connection_handler._getSketchSize(name)
+

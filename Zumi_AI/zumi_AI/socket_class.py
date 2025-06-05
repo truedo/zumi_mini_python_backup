@@ -32,6 +32,21 @@ from .sketch_recognizer import SketchRecognizer
 
 
 
+class SketchData:
+    def __init__(self, name:str, box:list):
+        self.name = name
+        self.box = box
+        self.centerX = int((self.box[0][0] + self.box[2][0]) / 2)
+        self.centerY = int((self.box[0][1] + self.box[2][1]) / 2)
+        self.size = abs(int(self.box[2][0] - self.box[0][0])) * abs(int(self.box[2][1] - self.box[0][1])) #w*h
+        # self.textX = 0
+        # self.textY = 20000
+        # for i in range(4):
+        #     if self.textX < self.box[i][0]:
+        #         self.textX = self.box[i][0]
+        #     if self.textY > self.box[i][1]:
+        #         self.textY = self.box[i][1]
+
 class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     """
     Handles communication with a robot via WebSocket.
@@ -120,9 +135,12 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__raw_img = None
         self.__cameraStreamFlag = False
 
-        self.__text_offset = 18
+        self.__text_offset = 18 #putText
 
+        self.sensor_values = None
 
+        # FPS frame rate
+        self.__drawFPSFlag = True
 
         # sensor
         self.__sensorInitFlag = False
@@ -136,12 +154,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__drawFaceAreaFlag = True
 
 
-
         self.__drawFaceMeshFlag = False
         self.__drawFaceContoursFlag = False
-
         self.__drawFaceLandmarkFlag = False
-
 
 
         self.__faceSize = 0
@@ -245,6 +260,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__sketchRecognizedList = []
         self.__sketchDetectedList = []
         self.__sketchDataDict = dict()
+
+        self.__sketchTrainFlag = False
+        self.__sketchTrainName = None
+
 
 
         # sign detector
@@ -442,11 +461,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # 텍스트 그리기
         cv2.putText(frame, text, org, font, font_scale, text_color, thickness, lineType=cv2.LINE_AA)
 
-
-
-
-
-
     # --- face ---
     def _faceDetectorInit(self, face_recognize_threshold = 0.8):#0.2~2.0
 
@@ -572,8 +586,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     face_height = self.__current_face_bbox[3] - self.__current_face_bbox[1]
                     self.__faceSize = face_width * face_height
 
-
-
                      # --- 이름 체크
                     recognized_array = self.__face_recognizer(self.__raw_img, [self.__current_face_bbox])
                     if len(recognized_array) > 0:
@@ -686,10 +698,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
     def _faceTrain(self, name:str):
+        if self.__faceDetectFlag == False:
+            print("먼저 얼굴 인식 기능을 시작해주세요.")
+            return
+
         if self.__faceTrainFlag == False:
-            #print("FaceTrain")
             self.__faceTrainFlag = True
             self.__faceTrainName = name
+            print("얼굴 학습 모드를 시작합니다.")
 
     def _deleteFaceData(self, name:str):
         self.__face_recognizer.RemoveFace(name)
@@ -1167,8 +1183,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         else:
             return 'None'
 
-
-
     def _isGestureDetected(self):
         return self.__gestureDetect
 
@@ -1180,7 +1194,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     def _getGestureSize(self):
         return self.__gestureSize
-
 
     # yolo
     def _yoloDetectorInit(self):
@@ -1203,6 +1216,26 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # 인식할 대상 추가
         self._yoloCheckAddObj("stop sign")
         self._yoloCheckAddObj("traffic light")
+
+        # self._yoloCheckAddObj("person")
+        # self._yoloCheckAddObj("bicycle")
+        # self._yoloCheckAddObj("car")
+        # self._yoloCheckAddObj("motorcycle")
+        # self._yoloCheckAddObj("bus")
+        # self._yoloCheckAddObj("truck")
+
+        # #self._yoloCheckAddObj("parking meter")
+
+        # self._yoloCheckAddObj("bench")
+        # self._yoloCheckAddObj("dog")
+        # self._yoloCheckAddObj("cat")
+
+
+        # self._yoloCheckAddObj("fire hydrant")
+
+
+
+
 
         self.__yoloDetectFlag = True
 
@@ -1336,10 +1369,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 x2 = self.__yoloCorner[2]
                 y2 = self.__yoloCorner[3]
 
+                color = (255, 0, 0)        # 파란 배경 (BGR)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
                 if self.__yoloStopSignDetect == True:
 
-                    color = (255, 0, 0)        # 파란 배경 (BGR)
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                    #color = (255, 0, 0)        # 파란 배경 (BGR)
+                    #cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
                     s0 = "stop sign"
                     s1 = 'x=' + str(self.__yoloStopSignCenter[0]) +' y='+str(self.__yoloStopSignCenter[1])
@@ -1365,7 +1401,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
                 elif self.__yoloTrafficLightDetect == True:
 
-                    color = (255, 0, 0)        # 파란 배경 (기본)
+                    #color = (255, 0, 0)        # 파란 배경 (기본)
 
                     if self.__yoloTrafficLightColor == 'RED':
                         color = (0, 0, 255)        # 빨강
@@ -1374,7 +1410,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     elif self.__yoloTrafficLightColor == 'GREEN':
                         color = (0, 255, 0)        # 녹색
 
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                    #cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
                     s0 = self.__yoloTrafficLightColor
                     s1 = 'x=' + str(self.__yoloTrafficLightCenter[0]) +' y='+str(self.__yoloTrafficLightCenter[1])
@@ -1383,12 +1419,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     new_color = (color[0], color[1], color[2])
                     y_offset = 0
                     if self.__drawYoloNameFlag == True:
-
                         self._drawPutTextBox(frame, s0, x1, y1, y_offset, new_color)
                         y_offset = y_offset + self.__text_offset
                         new_color = (30, color[1], color[2])
-                    if self.__drawYoloCenterFlag == True:
 
+                    if self.__drawYoloCenterFlag == True:
                         self._drawPutTextBox(frame, s1, x1, y1, y_offset, new_color)
                         y_offset = y_offset + self.__text_offset
                         new_color = (60, color[1], color[2])
@@ -1397,6 +1432,17 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         self._drawPutTextBox(frame, s2, x1, y1, y_offset, new_color)
                         y_offset = y_offset + self.__text_offset
                         new_color = (90, color[1], color[2])
+
+                else:
+                    s0 = self.__drawYoloName
+
+                    y_offset = 0
+                    color = (255, 0, 0)        # 파랑
+
+                    if self.__drawYoloNameFlag == True:
+                        self._drawPutTextBox(frame,s0,x1,y1,y_offset,color)
+                        y_offset = y_offset + self.__text_offset  # 다음 위치 지정
+                        color = (255, 30, 0) # 다음 색상 지정
 
 
     def _isStopSignDetected(self):
@@ -1490,39 +1536,205 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
 
-    # --- sensor ---
-    def _sensorInit(self):
+
+
+    # --- scketch ---
+    def _sketchDetectorInit(self):
+        if self.__sketchDetectInitFlag is False:
+            self.__sketchR = SketchRecognizer()
+            self.__sketchDetectInitFlag = True
+
+        print("Sketch detector initialized")
+
+    def _sketchDetectorStart(self):
+        if self.__sketchDetectInitFlag is False:
+            print("Sketch detector is not initialized")
+            return
+
+        if self.__sketchDetectFlag == True:
+            print("Sketch detector is already working.")
+            return
+        self.__sketchDetectFlag = True
+
+        th = threading.Thread(target=self.__sketchdetect)
+        th.deamon = True
+        th.start()
+
+    def _sketchDetectorStop(self):
+        if self.__sketchDetectFlag == False :
+            print("Sketch detector is already stopped.")
+            return
+
+        self.__sketchDetectFlag = False
+        time.sleep(1)
+
+        print("Sketch detector off")
+
+    def __sketchdetect(self):
+        while self.__sketchDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                # print('no input frame yet')
+                continue
+            try:
+                self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
+
+                self.__sketchDataDict.clear()
+                for i in range(0, len(self.__sketchDetectedList)):
+                    self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i])
+
+                # 인식된 스케치 표시
+                if len(self.__sketchDetectedList) > 0:
+
+                    for i, rect in enumerate(self.__sketchDetectedList):
+                        # rect는 (4,2) 형태의 꼭지점 배열
+                        # 다각형을 그리기 위해 reshape 필요 (OpenCV drawing functions expect specific formats)
+                        pts = rect.reshape((-1, 1, 2))
+                        #cv2.polylines(self.__raw_img, [pts], True, (0, 255, 0), 2) # 초록색으로 사각형 그리기
+
+                        # 인식된 이름 표시
+                        if i < len(self.__sketchRecognizedList):
+                            name = self.__sketchRecognizedList[i]
+                            # 사각형의 첫 번째 꼭지점 근처에 이름 표시
+                            text_pos = (int(rect[0][0]), int(rect[0][1]) - 10)
+                            #cv2.putText(self.__raw_img, name, text_pos, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+
+
+
+
+                # self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
+                # self.__sketchDataDict.clear()
+                # for i in range(0, len(self.__sketchDetectedList)):
+                #     self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i])
+
+                # if len(self.__sketchRecognizedList) == 0:
+                #     time.sleep(0.0)
+                #     continue
+            except Exception as e:
+                print("Sketch detector error : " , e)
+                continue
+
+            time.sleep(0.01)
+
+    def __overlay_sketch_boxes(self, frame):
+
+        for sketchKey, sketchData in self.__sketchDataDict.items():
+
+            color = (255, 0, 255) # 기본 보라색
+            if self.__drawSketchAreaFlag:
+                cv2.polylines(frame, np.array([sketchData.box], np.int32), True, color, 3)
+
+            y_offset = 0
+
+            s0 = 'id='+str(sketchData.name)
+            s1 = 'x=' + str(sketchData.centerX) +' y='+str(sketchData.centerY)
+            s2 = 'size=' + str(sketchData.size)
+
+            color = (255, 0, 255) # 기본 보라색
+            if self.__drawSketchNameFlag:
+                # cv2.putText(frame, s, (int(sketchData.textX), int(sketchData.textY+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                # # cv2.putText(frame, s, (int(sketchData.box[1][0]), int(sketchData.box[1][1]+addedY)), cv2.FONT_HERSHEY_COMPLEX,0.8, (0,255,0), 1)
+                # addedY += 20
+                self._drawPutTextBox(frame, s0, int(sketchData.box[1][0]), int(sketchData.box[1][1]), y_offset,color)
+                y_offset = y_offset + self.__text_offset  # 다음 위치 지정
+                color = (255, 15, 255) # 다음 색상 지정
+
+            if self.__drawSketchPointFlag == True:
+
+                self._drawPutTextBox(frame, s1, int(sketchData.box[1][0]), int(sketchData.box[1][1]), y_offset,color)
+                y_offset = y_offset + self.__text_offset  # 다음 위치 지정
+                color = (255, 30, 255) # 다음 색상 지정
+
+            if self.__drawSketchSizeFlag == True:
+                self._drawPutTextBox(frame, s2, int(sketchData.box[1][0]), int(sketchData.box[1][1]), y_offset,color)
+                y_offset = y_offset + self.__text_offset  # 다음 위치 지정
+                color = (255, 45, 255) # 다음 색상 지정
+
+
+
+    def _sketchTrain(self, name:str):
+        if self.__sketchDetectFlag == False:
+            print("먼저 스케치 인식 기능을 시작해주세요. 취소합니다.")
+            return
+        if name == "":
+            print("이름을 입력해주세요. 취소합니다.")
+            return
+
+        if self.__sketchTrainFlag == False:
+            self.__sketchTrainFlag = True
+            self.__sketchTrainName = name
+            print("스케치 학습 모드를 시작합니다.")
+
+    def _deleteSketchData(self, name:str):
+        self.__sketchR.delete_model_by_name(name)
+
+
+    def _isSketchDetected(self,name:str="Sketch") ->bool:
+        return name in self.__sketchDataDict
+
+    def _getSketchCenter(self, name:str) -> list:
+        if name in self.__sketchDataDict:
+            return [self.__sketchDataDict[name].centerX,self.__sketchDataDict[name].centerY]
+        pass
+
+
+    def _getSketchSize(self, name:str):
+        if name in self.__sketchDataDict:
+            return self.__sketchDataDict[name].size
+        pass
+
+     # --- sensor ---
+    def _sensorStart(self):
         if self.__sensorInitFlag is False:
-            self._ws.send("sensor")
+            self._ws.send("sensor") # start
 
             self.__sensorInitFlag = True
             self.__drawSensorAreaFlag = True
+            self.__sensorFlag = True
         print("Sensor initialized")
 
+    # def _sensorStart(self):
+    #     self.__sensorFlag = True
+    #     # if self.__sensorInitFlag is False:
+    #     #     self._ws.send("sensor") # start
+    #     #     self.__sensorInitFlag = True
+    #     #     self.__drawSensorAreaFlag = True
+    #     #     self.__sensorFlag = True
+    #     print("Sensor start")
 
-    def _sensorStart(self):
-        if self.__sensorInitFlag is False:
-            print("Sensor is not initialized")
-            return
+    def _sensorVisible(self, flag):
+        if flag == True:
+            if self.__drawSensorAreaFlag == True:
+                print("Sensor visible is already working.")
+                return
+            self.__drawSensorAreaFlag = True
 
-        if self.__sensorFlag == True:
-            print("Sensor is already working.")
-            return
-        self.__sensorFlag = True
+        else:
+            if self.__drawSensorAreaFlag == False :
+                print("Sensor visible is already stopped.")
+                return
 
+            self.__drawSensorAreaFlag = False
+            #time.sleep(0.5)
+            #print("Sensor visible off")
 
-    def _sensorStop(self):
-        if self.__sensorFlag == False :
-            print("Sensor is already stopped.")
-            return
+    def _frameRateVisible(self, flag):
+        if flag == True:
+            if self.__drawFPSFlag == True:
+                print("FPS visible is already working.")
+                return
+            self.__drawFPSFlag = True
 
-        self.__sensorFlag = False
-        time.sleep(1)
+        else:
+            if self.__drawFPSFlag == False :
+                print("FPS visible is already stopped.")
+                return
 
-        print("Sensor off")
+            self.__drawFPSFlag = False
+            time.sleep(1)
 
-
-
+            print("FPS visible off")
 
 
     def _process_sensor_packet(self, data):
@@ -1535,7 +1747,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if data[8] > 100 :
             bat_offset = 3
 
-        sensor_values = {
+        self.sensor_values = {
             'FR': data[2],
             'FL': data[3],
             'BR': data[4],
@@ -1547,7 +1759,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         }
 
         try:
-            self._sensor_queue.put_nowait(sensor_values)
+            self._sensor_queue.put_nowait(self.sensor_values)
             #self.last_sensor_time = time.time()
         except queue.Full:
             self._debugger._printLog("Sensor queue overflow")
@@ -1572,22 +1784,22 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         else:
             sensors = self._last_sensors.copy()
 
-        # 센서 값 표시
         if sensors:
             y = 30
             for key, value in sensors.items():
-                text = f"{key}: {value}"
-                cv2.putText(frame, text, (10, y),
-                           cv2.FONT_ITALIC, 0.5, (0, 255, 255), 2)
-                y += 20
+                if key != 'STAT' and key != 'BAT' and key != 'BTN':
+                    text = f"{key}: {value}"
+                    cv2.putText(frame, text, (10, y),
+                            cv2.FONT_ITALIC, 0.5, (0, 255, 255), 2)
+                    y += 20
 
+    # 프레임 표시
+    def _FPS_overlay(self, frame):
         # FPS 표시 (기존 코드 유지)
         elapsed = time.time() - self._start_time
         fps = self._frame_count / elapsed if elapsed > 0 else 0
-        cv2.putText(frame, f"FPS: {fps:.1f}", (10, frame.shape[0]-20),
+        cv2.putText(frame, f"FPS: {fps:.1f}", (10, frame.shape[0]-10),
                    cv2.FONT_ITALIC, 0.5, (255, 255, 0), 2)
-
-
 
     def send(self, data):
         """
@@ -1671,6 +1883,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _cameraLeftRightFlip(self, flag:bool):
         self.__flipLRFlag = flag
 
+    def _getCameraFrame(self):
+        return self.__raw_img
+
     def _cameraStream(self):
 
         if self.__cameraStreamFlag == True :
@@ -1691,13 +1906,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         print("start_display")
         """영상 디스플레이 메인 루프"""
 
-        # print("\n---------------------------------------------------------")
-        # print("웹캠을 시작합니다. 'q' 키를 눌러 종료하세요.")
-        # print("  - 'r' 키: 얼굴 등록 모드 시작 (이름 입력 후 여러 번 등록 가능)")
-        # print("  - 'e' 키: 얼굴 등록 모드 종료")
-        # print("  - 'c' 키: 등록된 모든 얼굴 데이터 삭제")
-        # print("---------------------------------------------------------\n")
-
         #-------------------------------------------------------------------------
 
         #while self._connected:
@@ -1706,21 +1914,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 frame = self._frame_queue.get(timeout=2.0)
                 self.__raw_img = frame.copy()
 
-                # 센서 값 화면 오버레이
-                if self.__sensorFlag == True:
-                    if self.__drawSensorAreaFlag == True:
-                        sensors = self._get_latest_sensors()
-                        self._sensor_overlay(frame, sensors)
-
                 # 얼굴 인식 화면 오버레이
                 if self.__faceDetectFlag == True:
                     self.__overlay_face_boxes(frame)
-
-                # apriltag 인식 화면 오버레이
-                if self.__aprilDetectFlag == True:
-                    if self.__drawAprilAreaFlag == True:
-                        #print("ap")
-                        self.__overlay_april_boxes(frame)
 
                 # 제스처 인식 화면 오버레이
                 if self.__gestureDetectFlag == True:
@@ -1734,10 +1930,25 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         #      frame = self.__yoloResults[0].plot()
                         self.__overlay_yolo_boxes(frame)
 
-                # # 스케치 인식 화면 오버레이
-                # if self.__sketchDetectFlag == True:
-                #     if self.__drawSketchAreaFlag == True:
-                #         self.__overlay_sketch_boxes(frame)
+                # apriltag 인식 화면 오버레이
+                if self.__aprilDetectFlag == True:
+                    if self.__drawAprilAreaFlag == True:
+                        self.__overlay_april_boxes(frame)
+
+                # 센서 값 화면 오버레이
+                if self.__sensorFlag == True:
+                    sensors = self._get_latest_sensors()
+                    if self.__drawSensorAreaFlag == True:
+                        self._sensor_overlay(frame, sensors)
+
+                # 센서 값 화면 오버레이
+                if self.__drawFPSFlag == True:
+                    self._FPS_overlay(frame)
+
+                # 스케치 인식 화면 오버레이
+                if self.__sketchDetectFlag == True:
+                    if self.__drawSketchAreaFlag == True:
+                        self.__overlay_sketch_boxes(frame)
 
 
                 # # 숫자 인식 화면 오버레이
@@ -1749,148 +1960,64 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 #    for (x, y, w, h) in self.__signDetectedRegions:
                 #        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # 초록색 사각형
 
-                if self.__faceTrainFlag == True:
+                if self.__faceTrainFlag == True or self.__sketchTrainFlag == True:
                     #r키를 눌러 연속 캡쳐, e키를 눌러 종료
-                    cv2.putText(frame, "-press r : capture", (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50,50,250), 2)
-                    cv2.putText(frame, "-press e : end", (10, 230), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50,50,250), 2)
+                    self._drawPutTextBox(frame, "-press r : capture", 0, 202, 0,(50,50,250))
+                    self._drawPutTextBox(frame, "-press e : end", 0, 220, 0,(50,50,250))
+
 
                 cv2.imshow("ZumiAI Stream", frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
                     self.__faceDetectFlag = False
                     self.__aprilDetectFlag = False
-                    self.__numberDetectFlag = False
                     self.__sketchDetectFlag = False
                     self.__gestureDetectFlag = True
                     break
 
+
                 elif key == ord('s') and frame is not None:
-                    # 's' 키를 누르면 현재 프레임 저장
+                    # 's' 키를 누르면 현재 프레임 저장 (frame)
                     cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
                     print("img save")
 
-                elif key == ord('r'): # 'r' 키를 누르면 현재 얼굴 등록
-                    if self.__faceTrainFlag == True:
+                elif key == ord('d') and frame is not None:
+                    # 's' 키를 누르면 현재 프레임 저장 (self.__raw_img)
+                    cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", self.__raw_img)
+                    print("img save")
+
+
+                # 스케치 학습 모드
+                if self.__sketchTrainFlag == True:
+                    if key == ord('r'):
+                        add_result = self.__sketchR.add_sketch_for_training(self.__raw_img, self.__sketchTrainName)
+                        if add_result != 0:
+                            print(f"스케치 추가 실패.")
+
+                    elif key == ord('e'):
+                        self.__sketchTrainFlag = False
+                        self.__sketchR.train_from_captured_data()
+                        print("---------------------------------------------------------")
+
+                # 얼굴 학습 모드
+                if self.__faceTrainFlag == True:
+                    if key == ord('r'): # 'r' 키를 누르면 현재 얼굴 학습
                         if self.__facecurrentResults == True and self.__faceResults != None:
-                            # if current_registration_name is None:
-                            #     # 등록할 이름이 아직 정해지지 않았다면 입력받기
-                            #     print("\n--- 얼굴 등록 모드 ---")
-                            #     name_input = input("등록할 얼굴의 이름을 입력하세요 (영문/숫자): ")
-                            #     if not name_input.strip():
-                            #         print("이름이 입력되지 않았습니다. 등록을 취소합니다.")
-                            #         continue
-                            #     current_registration_name = name_input.strip()
-                            #     print(f"'{current_registration_name}' 등록 모드를 시작합니다. 이 상태에서 'r' 키를 여러 번 눌러 얼굴을 추가 등록하세요.")
-                            #     print("등록 모드 종료는 'e' 키를 누르세요.")
-
-                            # 현재 감지된 첫 번째 얼굴을 등록
-                            face_landmarks = self.__faceResults.multi_face_landmarks[0]
-                            h, w, c = frame.shape # 이미지 높이, 너비
-                            x_coords = [landmark.x for landmark in face_landmarks.landmark]
-                            y_coords = [landmark.y for landmark in face_landmarks.landmark]
-                            x_min, x_max = min(x_coords), max(x_coords)
-                            y_min, y_max = min(y_coords), max(y_coords)
-
-                            bbox_x1 = int(x_min * w)
-                            bbox_y1 = int(y_min * h)
-                            bbox_x2 = int(x_max * w)
-                            bbox_y2 = int(y_max * h)
-
-                            # 등록 시에도 여백 추가 (일관된 전처리)
-                            padding_ratio = 0.1
-                            bbox_width = bbox_x2 - bbox_x1
-                            bbox_height = bbox_y2 - bbox_y1
-                            pad_x = int(bbox_width * padding_ratio)
-                            pad_y = int(bbox_height * padding_ratio)
-                            bbox_x1 = max(0, bbox_x1 - pad_x)
-                            bbox_y1 = max(0, bbox_y1 - pad_y)
-                            bbox_x2 = min(w, bbox_x2 + pad_x)
-                            bbox_y2 = min(h, bbox_y2 + pad_y)
-
-                            self.__face_recognizer.TrainModel(frame, [bbox_x1, bbox_y1, bbox_x2, bbox_y2], self.__faceTrainName)
+                            self.__face_recognizer.TrainModel(frame, self.__current_face_bbox, self.__faceTrainName)
                         else:
                             print("얼굴이 감지되지 않아 등록할 수 없습니다.")
 
-                elif key == ord('e'): # 'e' 키를 눌러 등록 모드 종료
-                    if self.__faceTrainFlag == True:
-                        self.__faceTrainFlag = False
-                        if self.__faceTrainName is not None:
-                            if self.__faceTrainName in self.__face_recognizer.registerd:
-                                print(f"'{self.__faceTrainName}' 등록 모드를 종료합니다. 등록된 얼굴 수: {self.__face_recognizer.registerd[self.__faceTrainName].extra.shape[0]}개.")
-                            else:
-                                print(f"'{self.__faceTrainName}' 등록 모드를 종료합니다. 등록된 얼굴이 없습니다.")
-                            self.__faceTrainName = None
-                            self.__face_recognizer._save_registered_faces() # 등록 모드 종료 시 데이터 저장
-                            print("---------------------------------------------------------")
-                        else:
-                            print("현재 등록 모드가 아닙니다.")
-
-                #-------------------------------------------------------------------------
-                # elif key == ord('r'): # 'r' 키를 누르면 현재 얼굴 등록
-                #     if results.multi_face_landmarks:
-                #         if current_registration_name is None:
-                #             # 등록할 이름이 아직 정해지지 않았다면 입력받기
-                #             print("\n--- 얼굴 등록 모드 ---")
-                #             name_input = input("등록할 얼굴의 이름을 입력하세요 (영문/숫자): ")
-                #             if not name_input.strip():
-                #                 print("이름이 입력되지 않았습니다. 등록을 취소합니다.")
-                #                 continue
-                #             current_registration_name = name_input.strip()
-                #             print(f"'{current_registration_name}' 등록 모드를 시작합니다. 이 상태에서 'r' 키를 여러 번 눌러 얼굴을 추가 등록하세요.")
-                #             print("등록 모드 종료는 'e' 키를 누르세요.")
-
-                #         # 현재 감지된 첫 번째 얼굴을 등록
-                #         face_landmarks = results.multi_face_landmarks[0]
-
-                #         x_coords = [landmark.x for landmark in face_landmarks.landmark]
-                #         y_coords = [landmark.y for landmark in face_landmarks.landmark]
-                #         x_min, x_max = min(x_coords), max(x_coords)
-                #         y_min, y_max = min(y_coords), max(y_coords)
-
-                #         bbox_x1 = int(x_min * w)
-                #         bbox_y1 = int(y_min * h)
-                #         bbox_x2 = int(x_max * w)
-                #         bbox_y2 = int(y_max * h)
-
-                #         # 등록 시에도 여백 추가 (일관된 전처리)
-                #         bbox_width = bbox_x2 - bbox_x1
-                #         bbox_height = bbox_y2 - bbox_y1
-                #         pad_x = int(bbox_width * padding_ratio)
-                #         pad_y = int(bbox_height * padding_ratio)
-                #         bbox_x1 = max(0, bbox_x1 - pad_x)
-                #         bbox_y1 = max(0, bbox_y1 - pad_y)
-                #         bbox_x2 = min(w, bbox_x2 + pad_x)
-                #         bbox_y2 = min(h, bbox_y2 + pad_y)
-
-                #         face_recognizer.TrainModel(frame, [bbox_x1, bbox_y1, bbox_x2, bbox_y2], current_registration_name)
-                #     else:
-                #         print("얼굴이 감지되지 않아 등록할 수 없습니다.")
-
-                # elif key == ord('e'): # 'e' 키를 눌러 등록 모드 종료
-                #     if current_registration_name is not None:
-                #         if current_registration_name in face_recognizer.registerd:
-                #             print(f"'{current_registration_name}' 등록 모드를 종료합니다. 등록된 얼굴 수: {face_recognizer.registerd[current_registration_name].extra.shape[0]}개.")
-                #         else:
-                #             print(f"'{current_registration_name}' 등록 모드를 종료합니다. 등록된 얼굴이 없습니다.")
-                #         current_registration_name = None
-                #         face_recognizer._save_registered_faces() # 등록 모드 종료 시 데이터 저장
-                #         print("---------------------------------------------------------")
-                #     else:
-                #         print("현재 등록 모드가 아닙니다.")
-
-                # elif key == ord('c'): # 'c' 키를 누르면 모든 등록된 얼굴 지우기
-                #     if input("정말로 모든 등록된 얼굴을 지우시겠습니까? (y/n): ").lower() == 'y':
-                #         face_recognizer.RemoveAllFace() # 파일 시스템에서 이미지 및 .pkl 삭제
-                #         face_recognizer.registerd = {} # 메모리에서도 등록 정보 지우기
-                #         current_registration_name = None # 등록 모드도 초기화
-                #         print("모든 등록된 얼굴이 지워졌습니다.")
-                #     else:
-                #         print("모든 얼굴 삭제를 취소했습니다.")
-
-
-                #-------------------------------------------------------------------------
-
-
+                    elif key == ord('e'): # 'e' 키를 눌러 학습 모드 종료
+                        if self.__faceTrainFlag == True:
+                            self.__faceTrainFlag = False
+                            if self.__faceTrainName is not None:
+                                if self.__faceTrainName in self.__face_recognizer.registerd:
+                                    print(f"'{self.__faceTrainName}' 학습 모드를 종료합니다. 등록된 얼굴 수: {self.__face_recognizer.registerd[self.__faceTrainName].extra.shape[0]}개.")
+                                else:
+                                    print(f"'{self.__faceTrainName}' 학습 모드를 종료합니다. 등록된 얼굴이 없습니다.")
+                                self.__faceTrainName = None
+                                self.__face_recognizer._save_registered_faces() # 학습 모드 종료 시 데이터 저장
+                                print("---------------------------------------------------------")
 
 
             except queue.Empty:

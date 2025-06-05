@@ -18,15 +18,17 @@ zumi.camera_stream_start()
 
 
 ##
-##zumi.sensor_init()
-##zumi.sensor_start()
-#zumi.sensor_stop()
+
+zumi.sensor_start()
+zumi.sensor_visible(True)
+zumi.frame_rate_visible(True)
+
 
 #zumi.yolo_check_add_obj("stop sign")
 
-##zumi.object_detector_init()
-##zumi.object_detector_start()
-#zumi.object_detector_stop()
+zumi.object_detector_init()
+zumi.object_detector_start()
+##zumi.object_detector_stop()
 
 
 ##
@@ -41,27 +43,24 @@ zumi.camera_stream_start()
 #zumi.gesture_detector_stop()
 
 
+##
+##zumi.face_detector_init()
+##zumi.face_detector_start()
+######zumi.face_detector_stop()
+####
+#####zumi.face_train("child")
+####zumi.delete_face_data("child")
 
 
 ##
-zumi.face_detector_init()
-zumi.face_detector_start()
-#zumi.face_detector_stop()
+##zumi.sketch_detector_init()
+##zumi.sketch_detector_start()
+#zumi.sketch_train("school")
 
-##
-##time.sleep(1)
-##
-###zumi.DeleteAllFaceData()
-###zumi.DeleteFaceData("aa")
-##
-###zumi.FaceTrain("girl")
-
-##
-##time.sleep(3)
-
-
-
-
+#zumi.delete_sketch_data("school")
+                        
+#zumi.sketch_capture("tower",captureCount=5)
+#zumi.sketch_train()
 ##
 ##time.sleep(3)
 ##zumi.LeftRightFlipMode(True)
@@ -99,7 +98,7 @@ zumi.face_detector_start()
 ##
 ##try:
 ##    while True:
-##        count1 = zumi.get_traffic_light_color()
+##        count1 = zumi.get_sketch_size("school")
 ##        print(count1)        
 ##        
 ##        time.sleep(0.5)
@@ -110,8 +109,8 @@ zumi.face_detector_start()
 ##    zumi.disconnect()
 ##    print("Done")
 ##
-
-
+##
+##
 
 
 

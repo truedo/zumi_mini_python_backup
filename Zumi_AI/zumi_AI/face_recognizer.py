@@ -21,7 +21,7 @@ class FaceRecognizer:
     def __init__(self, face_recognaze_threshold=0.8) -> None: # 기본 임계값 0.8로 조정
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self.model_path = os.path.join(current_dir, "res", "model", "face_recognizer.tflite")
-        self.data_dir = os.path.join(current_dir, "res", "face") # 등록된 얼굴 데이터 저장 경로
+        self.data_dir = os.path.join(current_dir, "res", "face") # 학습된 얼굴 데이터 저장 경로
         self.registered_data_file = os.path.join(self.data_dir, "registered_faces.pkl") # pickle 파일 경로
 
         # 데이터 저장 디렉토리 생성
@@ -42,7 +42,7 @@ class FaceRecognizer:
 
         self.input_details = self.model.get_input_details()
         self.output_details = self.model.get_output_details()
-        self.registerd = {} # 등록된 얼굴 데이터 (이름: RecognitionData 객체)
+        self.registerd = {} # 학습된 얼굴 데이터 (이름: RecognitionData 객체)
         self.min_face = 20 # 최소 얼굴 크기 (픽셀)
 
         self.face_recognaze_threshold = face_recognaze_threshold # 얼굴 인식 임계값 (유사도)
@@ -53,7 +53,7 @@ class FaceRecognizer:
         # print(f"출력 텐서 모양: {self.output_details[0]['shape']}")
         # print("------------------------------------------\n")
 
-        # 초기화 시 등록된 얼굴 데이터 불러오기
+        # 초기화 시 학습된 얼굴 데이터 불러오기
         self._load_registered_faces()
 
 
@@ -68,17 +68,27 @@ class FaceRecognizer:
 
                 registered_info = []
                 for name, data in self.registerd.items():
-                    # 각 이름별 등록된 데이터 수 (data.extra.shape[0])를 추가
+                    # 각 이름별 학습된 데이터 수 (data.extra.shape[0])를 추가
                     count = data.extra.shape[0] if hasattr(data, 'extra') else 0
                     registered_info.append(f"{name} ({count}개)")
 
                 if registered_info:
-                    print(f"'{self.registered_data_file}'에서 등록된 얼굴 데이터 {len(self.registerd)}명 불러오기 완료.")
-                    print(f"  - 상세: {', '.join(registered_info)}")
+                    print(f"✔️ '{self.registered_data_file}'에서 학습된 얼굴 데이터 {len(self.registerd)}명 불러오기 완료.")
+                    #print(f"  - 상세: {', '.join(registered_info)}")
+                    for item in registered_info:
+                        # Split the string to separate the name from the parenthesized count
+                        parts = item.split(' (')
+                        name = parts[0]
+
+                        # Extract the count and remove the closing parenthesis
+                        count = parts[1].replace(')', '')
+
+                        print(f"    - {name}: {count}")
+
                 else:
-                    print(f"'{self.registered_data_file}'에서 등록된 얼굴 데이터 {len(self.registerd)}개 불러오기 완료. (등록된 이름 없음)")
+                    print(f"✔️ '{self.registered_data_file}'에서 학습된 얼굴 데이터 {len(self.registerd)}개 불러오기 완료. (학습된 이름 없음)")
             except Exception as e:
-                print(f"오류: 등록된 얼굴 데이터 불러오기 실패: {e}")
+                print(f"오류: 학습된 얼굴 데이터 불러오기 실패: {e}")
                 print(f"  - 오류 내용: {e}") # 상세 오류 내용 추가
                 self.registerd = {} # 실패 시 빈 딕셔너리로 초기화
         else:
@@ -86,14 +96,14 @@ class FaceRecognizer:
 
     def _save_registered_faces(self):
         """
-        현재 등록된 얼굴 인식 데이터를 파일에 저장합니다.
+        현재 학습된 얼굴 인식 데이터를 파일에 저장합니다.
         """
         try:
             with open(self.registered_data_file, 'wb') as f:
                 pickle.dump(self.registerd, f)
-            print(f"등록된 얼굴 데이터 {len(self.registerd)}개 '{self.registered_data_file}'에 저장 완료.")
+            print(f"학습된 얼굴 데이터 {len(self.registerd)}개 '{self.registered_data_file}'에 저장 완료.")
         except Exception as e:
-            print(f"오류: 등록된 얼굴 데이터 저장 실패: {e}")
+            print(f"오류: 학습된 얼굴 데이터 저장 실패: {e}")
 
 
     def __call__(self, image: np.ndarray, bboxes: list) -> np.ndarray:
@@ -230,16 +240,16 @@ class FaceRecognizer:
                     print(f"Failed to delete file: {file_to_delete} - {e}")
         print(f"{deleted_count} files for '{name}' have been deleted.")
 
-        # 해당 이름의 등록 데이터도 메모리에서 삭제
+        # 해당 이름의 학습 데이터도 메모리에서 삭제
         if name in self.registerd:
             del self.registerd[name]
             self._save_registered_faces() # 변경 사항 저장
-            print(f"'{name}'의 등록 정보가 메모리 및 파일에서 삭제되었습니다.")
+            print(f"'{name}'의 학습 정보가 메모리 및 파일에서 삭제되었습니다.")
 
 
     def RemoveAllFace(self, facePath: str = None):
         """
-        해당 디렉토리의 모든 등록된 얼굴 파일과 저장된 .pkl 파일을 삭제합니다.
+        해당 디렉토리의 모든 학습된 얼굴 파일과 저장된 .pkl 파일을 삭제합니다.
         서브디렉토리는 삭제하지 않습니다.
         """
         if facePath is None:
@@ -261,22 +271,22 @@ class FaceRecognizer:
 
         print(f"{deleted_files} files have been deleted from {facePath}.")
 
-        # 메모리의 등록 정보도 초기화
+        # 메모리의 학습 정보도 초기화
         self.registerd = {}
         # 저장된 .pkl 파일도 삭제
         if os.path.exists(self.registered_data_file):
             try:
                 os.remove(self.registered_data_file)
-                print(f"등록 데이터 파일 '{self.registered_data_file}'도 삭제되었습니다.")
+                print(f"학습 데이터 파일 '{self.registered_data_file}'도 삭제되었습니다.")
             except Exception as e:
-                print(f"오류: 등록 데이터 파일 삭제 실패: {e}")
+                print(f"오류: 학습 데이터 파일 삭제 실패: {e}")
 
 
     def TrainModel(self, image: np.ndarray, bbox: list, name: str):
         processed_face_img = self.__preprocess(image, (0, bbox))
 
         if processed_face_img is None:
-            print(f"얼굴 전처리 실패: {name}의 얼굴을 훈련(등록)할 수 없습니다.")
+            print(f"얼굴 전처리 실패: {name}의 얼굴을 훈련(학습)할 수 없습니다.")
             return
 
         image_fornet = np.expand_dims(processed_face_img, 0).astype(np.float32)
@@ -292,12 +302,12 @@ class FaceRecognizer:
 
         if name not in self.registerd:
             self.registerd[name] = RecognitionData(name)
-            print(f"새로운 이름 '{name}' 등록 시작.")
+            print(f"새로운 이름 '{name}' 학습 시작.")
 
         self.registerd[name].distance = np.append(self.registerd[name].distance, np.array([[0.0]]), axis=0)
         self.registerd[name].extra = np.append(self.registerd[name].extra, np.array([embeedings_flat]), axis=0)
 
-        print(f"'{name}' 얼굴 데이터 {self.registerd[name].extra.shape[0]}개 등록 완료.")
+        print(f"'{name}' 얼굴 데이터 {self.registerd[name].extra.shape[0]}개 학습 완료.")
         # self._save_registered_faces() # 'r' 키 누를 때마다 저장하는 대신, 'e' 키 누를 때 저장하도록 변경
         # 이 줄은 제거되었습니다.
 
@@ -310,7 +320,7 @@ class FaceRecognizer:
 
         for name, data in self.registerd.items():
             if data.extra.shape[0] > 0:
-                mean_known_emb = np.mean(data.extra, axis=0) # 등록된 모든 임베딩들의 평균 사용
+                mean_known_emb = np.mean(data.extra, axis=0) # 학습된 모든 임베딩들의 평균 사용
                 distance = np.linalg.norm(query_emb - mean_known_emb)
             else:
                 continue
