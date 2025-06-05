@@ -223,7 +223,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__drawYoloCenterFlag = True
         self.__drawYoloSizeFlag = True
 
-        self.__drawYoloName = None
+        self.__yoloName = None
+        self.__yoloCenter = [0, 0]
+        self.__yoloSize = 0
 
 
         self.__yoloModel = None
@@ -365,68 +367,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # BGR → 밝기 추정 (가중 평균)
         brightness = 0.299 * bg_color[2] + 0.587 * bg_color[1] + 0.114 * bg_color[0]
         return (0, 0, 0) if brightness > 128 else (255, 255, 255)
-
-    # --- for putText ---
-    def _drawPutTextBox(self, frame, text, x1, y1, y_offset, bg_color):
-        # 텍스트 정보
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.5
-        thickness = 1
-
-        # 텍스트 크기 계산
-        (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
-
-        # 텍스트를 그릴 시작점 (좌측 하단)
-        # 텍스트는 x1에 맞춰지고, y1에서 y_offset만큼 위로 이동한 후, baseline과 텍스트 높이를 고려합니다.
-        # YOLO 스타일은 보통 박스 위에 텍스트가 위치하므로,
-        # 박스 상단 y1에서 text_height + baseline 만큼 위로 이동하고, y_offset을 추가로 적용합니다.
-        # 즉, 텍스트가 시작될 y좌표는 y1 - text_height - baseline - y_offset 입니다.
-        # 이 함수에서는 사각형을 먼저 그리고 그 안에 텍스트를 넣는 방식이므로,
-        # 텍스트의 실제 시작점 (org)을 사각형 기준으로 계산해야 합니다.
-
-        # 텍스트 박스의 좌측 상단 모서리 (rect_x1, rect_y1)
-        # x1: 감지 박스의 x1 시작점
-        # y1: 감지 박스의 y1 시작점
-        # y_offset: y1으로부터 추가적으로 얼마나 떨어뜨릴지 (음수 값으로 위로 이동)
-
-        # 텍스트 박스 시작점 (x, y) = (감지 박스 x1, 감지 박스 y1 - 텍스트 박스 높이 - y_offset)
-        # padding을 줘서 사각형과 텍스트 사이에 여백을 둡니다.
-        padding_x = 5 # X축 패딩
-        padding_y = 5 # Y축 패딩
-
-        # 텍스트 박스의 실제 좌상단 좌표
-        text_box_x1 = x1 + padding_x
-        # 텍스트 박스의 실제 좌상단 y 좌표는 감지 박스의 y1에서 위로 그려질 공간을 확보합니다.
-        # 즉, y1 - (text_height + 2 * padding_y) - y_offset
-        text_box_y1 = y1 - (text_height + 2 * padding_y) - y_offset # 사각형의 맨 위 Y 좌표
-
-        # 텍스트 박스의 실제 우하단 좌표
-        text_box_x2 = text_box_x1 + text_width + padding_x * 2
-        text_box_y2 = y1 - y_offset # 사각형의 맨 아래 Y 좌표 (감지 박스의 상단 y1에 근접)
-
-
-        # 텍스트 그릴 위치 (org)는 텍스트 박스 내부의 좌하단입니다.
-        # 텍스트 박스 좌상단 x1 + padding_x
-        # 텍스트 박스 좌상단 y1 + padding_y + text_height
-        org = (text_box_x1 + padding_x, text_box_y1 + padding_y + text_height)
-
-
-        # 색상 지정
-        text_color = self._get_text_color_for_bg(bg_color)
-
-        # 배경 사각형 그리기
-        cv2.rectangle(
-            frame,
-            (text_box_x1, text_box_y1),  # 좌측 상단
-            (text_box_x2, text_box_y2),  # 우측 하단
-            bg_color,
-            thickness=cv2.FILLED
-        )
-
-        # 텍스트 그리기
-        cv2.putText(frame, text, org, font, font_scale, text_color, thickness, lineType=cv2.LINE_AA)
-
-
 
    # --- for putText  ---
     def _drawPutTextBox(self,frame, text, x1, y1, y_offset, bg_color):
@@ -1213,25 +1153,107 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             print("Yolo detector is already working.")
             return
 
+        # Classes
+        # names:
+        #   0: person
+        #   1: bicycle
+        #   2: car
+        #   3: motorcycle
+        #   4: airplane
+        #   5: bus
+        #   6: train
+        #   7: truck
+        #   8: boat
+        #   9: traffic light
+        #   10: fire hydrant
+        #   11: stop sign
+        #   12: parking meter
+        #   13: bench
+        #   14: bird
+        #   15: cat
+        #   16: dog
+        #   17: horse
+        #   18: sheep
+        #   19: cow
+        #   20: elephant
+        #   21: bear
+        #   22: zebra
+        #   23: giraffe
+        #   24: backpack
+        #   25: umbrella
+        #   26: handbag
+        #   27: tie
+        #   28: suitcase
+        #   29: frisbee
+        #   30: skis
+        #   31: snowboard
+        #   32: sports ball
+        #   33: kite
+        #   34: baseball bat
+        #   35: baseball glove
+        #   36: skateboard
+        #   37: surfboard
+        #   38: tennis racket
+        #   39: bottle
+        #   40: wine glass
+        #   41: cup
+        #   42: fork
+        #   43: knife
+        #   44: spoon
+        #   45: bowl
+        #   46: banana
+        #   47: apple
+        #   48: sandwich
+        #   49: orange
+        #   50: broccoli
+        #   51: carrot
+        #   52: hot dog
+        #   53: pizza
+        #   54: donut
+        #   55: cake
+        #   56: chair
+        #   57: couch
+        #   58: potted plant
+        #   59: bed
+        #   60: dining table
+        #   61: toilet
+        #   62: tv
+        #   63: laptop
+        #   64: mouse
+        #   65: remote
+        #   66: keyboard
+        #   67: cell phone
+        #   68: microwave
+        #   69: oven
+        #   70: toaster
+        #   71: sink
+        #   72: refrigerator
+        #   73: book
+        #   74: clock
+        #   75: vase
+        #   76: scissors
+        #   77: teddy bear
+        #   78: hair drier
+        #   79: toothbrush
+
         # 인식할 대상 추가
         self._yoloCheckAddObj("stop sign")
         self._yoloCheckAddObj("traffic light")
 
         # self._yoloCheckAddObj("person")
+        # self._yoloCheckAddObj("dog")
+        # self._yoloCheckAddObj("cat")
+
         # self._yoloCheckAddObj("bicycle")
         # self._yoloCheckAddObj("car")
         # self._yoloCheckAddObj("motorcycle")
         # self._yoloCheckAddObj("bus")
         # self._yoloCheckAddObj("truck")
 
+
         # #self._yoloCheckAddObj("parking meter")
-
-        # self._yoloCheckAddObj("bench")
-        # self._yoloCheckAddObj("dog")
-        # self._yoloCheckAddObj("cat")
-
-
-        # self._yoloCheckAddObj("fire hydrant")
+        # #self._yoloCheckAddObj("bench")
+        # #self._yoloCheckAddObj("fire hydrant")
 
 
 
@@ -1281,7 +1303,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                                 self.__yoloCorner[2] = x2
                                 self.__yoloCorner[3] = y2
 
-                                self.__drawYoloName = name
+
+                                self.__yoloName = name
+                                self.__yoloCenter[0] = (x1 + y1) // 2
+                                self.__yoloCenter[1] = (x2 + y2) // 2
+                                self.__yoloSize = width * height
+
+                                #print(self.__yoloName)
+
 
                                 if name == "stop sign":
                                     self.__yoloStopSignDetect = True
@@ -1337,12 +1366,28 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                                     else:
                                         self.__yoloTrafficLightColor = "UNKNOW"
 
+
+                            # else:
+                            #     self.__yoloStopSignDetect = False
+                            #     self.__yoloStopSignCenter = [0, 0]
+                            #     self.__yoloTrafficLightDetect = False
+                            #     self.__yoloTrafficLightCenter = [0, 0]
+                            #     self.__yoloTrafficLightColor = "UNKNOW"
+
+                            #     self.__yoloName = None
+                            #     self.__yoloCenter = [0, 0]
+                            #     self.__yoloSize = 0
+
                     else:
                         self.__yoloStopSignDetect = False
                         self.__yoloStopSignCenter = [0, 0]
                         self.__yoloTrafficLightDetect = False
                         self.__yoloTrafficLightCenter = [0, 0]
                         self.__yoloTrafficLightColor = "UNKNOW"
+
+                        self.__yoloName = None
+                        self.__yoloCenter = [0, 0]
+                        self.__yoloSize = 0
 
                 else:
                     self.__yoloStopSignDetect = False
@@ -1351,6 +1396,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     self.__yoloTrafficLightCenter = [0, 0]
                     self.__yoloTrafficLightColor = "UNKNOW"
 
+                    self.__yoloName = None
+                    self.__yoloCenter = [0, 0]
+                    self.__yoloSize = 0
 
             except Exception as e:
                 print("Yolo detector error : " , e)
@@ -1361,6 +1409,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def __overlay_yolo_boxes(self, frame):
 
         if self.__yoloResults and len(self.__yoloResults) > 0:
+
+            #frame = self.__yoloResults[0].plot()
+
             boxes = self.__yoloResults[0].boxes
             if boxes is not None and len(boxes) > 0:
 
@@ -1434,7 +1485,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         new_color = (90, color[1], color[2])
 
                 else:
-                    s0 = self.__drawYoloName
+                    s0 = self.__yoloName
+                    s1 = 'x=' + str(self.__yoloCenter[0]) +' y='+str(self.__yoloCenter[1])
+                    s2 = 'size=' + str(self.__yoloSize)
 
                     y_offset = 0
                     color = (255, 0, 0)        # 파랑
@@ -1444,14 +1497,46 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         y_offset = y_offset + self.__text_offset  # 다음 위치 지정
                         color = (255, 30, 0) # 다음 색상 지정
 
+                    if self.__drawYoloCenterFlag == True:
+                        self._drawPutTextBox(frame,s1,x1,y1,y_offset,color)
+                        y_offset = y_offset + self.__text_offset  # 다음 위치 지정
+                        color = (255, 60, 0) # 다음 색상 지정
+
+                    if self.__drawYoloSizeFlag == True:
+                        self._drawPutTextBox(frame,s2,x1,y1,y_offset,color)
+                        y_offset = y_offset + 18  # 다음 위치 지정
+                        color = (255, 90, 0) # 다음 색상 지정
+
+
+    def _isObjDetected(self, name:str):
+        if self.__yoloName == name:
+            return True
+        else:
+            return False
+
+    def _getObjSize(self, name:str):
+        if self.__yoloName == name:
+            return self.__yoloSize
+        else:
+            return 0
+
+    def _getObjCenter(self,name:str):
+        if self.__yoloName == name:
+            return self.__yoloCenter
+        else:
+            return [0,0]
 
     def _isStopSignDetected(self):
-        return self.__yoloStopSignDetect
+        #return self.__yoloStopSignDetect
+        if self.__yoloName == "stop sign":
+            return True
+        else:
+            return False
 
     def _getStopSignCenter(self):
         return self.__yoloStopSignCenter
 
-    def get_stop_sign_size(self):
+    def _getStopSignSize(self):
         return self.__yoloStopSignSize
 
     def _isTrafficLightDetected(self):
@@ -1785,13 +1870,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             sensors = self._last_sensors.copy()
 
         if sensors:
-            y = 30
+            y = 20
             for key, value in sensors.items():
                 if key != 'STAT' and key != 'BAT' and key != 'BTN':
                     text = f"{key}: {value}"
-                    cv2.putText(frame, text, (10, y),
-                            cv2.FONT_ITALIC, 0.5, (0, 255, 255), 2)
-                    y += 20
+                    #self._drawPutTextBox(frame, text, 10, y, 0,(0, 255, 255))
+                    cv2.putText(frame, text, (5, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2, lineType=cv2.LINE_AA)
+                    y += 18
 
     # 프레임 표시
     def _FPS_overlay(self, frame):
@@ -1926,9 +2012,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 # yolo 인식 화면 오버레이
                 if self.__yoloDetectFlag == True:
                     if self.__drawYoloAreaFlag == True:
-                        # if self.__yoloResults and len(self.__yoloResults) > 0:
-                        #      frame = self.__yoloResults[0].plot()
                         self.__overlay_yolo_boxes(frame)
+                        # if self.__yoloResults and len(self.__yoloResults) > 0:
+                        #     frame = self.__yoloResults[0].plot()
+
 
                 # apriltag 인식 화면 오버레이
                 if self.__aprilDetectFlag == True:

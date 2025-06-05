@@ -1780,7 +1780,6 @@ class ZumiAI:
     #     """
     #     self._connection_handler._sensorInit()
 
-
     def sensor_start(self):
         """
         센서 값을 가져옵니다.
@@ -1953,14 +1952,11 @@ class ZumiAI:
         """""
         self._connection_handler._gestureDetectorStop()
 
-
     def is_gesture_detected(self):
         """""
         카메라에 손이 감지되었는지 확인
         """""
         return self._connection_handler._isGestureDetected()
-
-
 
     def get_gesture_finger(self):
         """""
@@ -2033,19 +2029,21 @@ class ZumiAI:
         """""
         카메라에 stop sign 이 감지되었는지 확인
         """""
-        return self._connection_handler._isStopSignDetected()
+        #return self._connection_handler._isStopSignDetected()
+        return self._connection_handler._isObjDetected("stop sign")
 
     def get_stop_sign_center(self):
         """""
         카메라에 감지된 stop sign의 중심 좌표
         """""
-        return self._connection_handler._getStopSignCenter()
+        return self._connection_handler._getObjCenter("stop sign")
 
     def get_stop_sign_size(self):
         """""
         카메라에 감지된 stop sign의 크기
         """""
-        return self._connection_handler._getStopSignSize()
+        return self._connection_handler._getObjSize("stop sign")
+
 
 
 
@@ -2053,19 +2051,20 @@ class ZumiAI:
         """""
         카메라에 신호등이 감지되었는지 확인
         """""
-        return self._connection_handler._isTrafficLightDetected()
+       # return self._connection_handler._isTrafficLightDetected()
+        return self._connection_handler._isObjDetected("traffic light")
 
     def get_traffic_light_center(self):
         """""
         카메라에 감지된 신호등의 중심 좌표
         """""
-        return self._connection_handler._getTrafficLightCenter()
+        return self._connection_handler._getObjCenter("traffic light")
 
     def get_traffic_light_size(self):
         """""
         카메라에 감지된 신호등의 크기
         """""
-        return self._connection_handler._getTrafficLightSize()
+        return self._connection_handler._getObjSize("traffic light")
 
     def get_traffic_light_color(self):
         """""
@@ -2073,6 +2072,29 @@ class ZumiAI:
         return : "RED","GREEN","YELLOW","UNKNOW"
         """""
         return self._connection_handler._getTrafficLightColor()
+
+
+
+
+    def is_obj_detected(self, name:str):
+        """""
+        카메라에 오브젝트가 감지되었는지 확인
+        """""
+        return self._connection_handler._isObjDetected(name)
+
+    def get_obj_size(self, name:str):
+        """""
+        카메라에 감지된 오브젝트의 크기
+        """""
+        return self._connection_handler._getObjSize(name)
+
+    def get_obj_center(self, name:str):
+        """""
+        카메라에 감지된 오브젝트의 중심 좌표
+        """""
+        return self._connection_handler._getObjCenter(name)
+
+
 
     ##--------------------------------------------------------------------#]
     # scketch

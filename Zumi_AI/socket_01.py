@@ -98,7 +98,7 @@ zumi.object_detector_start()
 ##
 ##try:
 ##    while True:
-##        count1 = zumi.get_sketch_size("school")
+##        count1 = zumi.get_stop_sign_size()
 ##        print(count1)        
 ##        
 ##        time.sleep(0.5)
@@ -109,8 +109,8 @@ zumi.object_detector_start()
 ##    zumi.disconnect()
 ##    print("Done")
 ##
-##
-##
+
+
 
 
 
