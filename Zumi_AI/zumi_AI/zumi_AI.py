@@ -2146,3 +2146,8 @@ class ZumiAI:
         """""
         return self._connection_handler._getSketchSize(name)
 
+    ##--------------------------------------------------------------------#]
+    # teachablemachine
+    # https://teachablemachine.withgoogle.com/
+
+

@@ -26,8 +26,8 @@ zumi.frame_rate_visible(True)
 
 #zumi.yolo_check_add_obj("stop sign")
 
-zumi.object_detector_init()
-zumi.object_detector_start()
+##zumi.object_detector_init()
+##zumi.object_detector_start()
 ##zumi.object_detector_stop()
 
 

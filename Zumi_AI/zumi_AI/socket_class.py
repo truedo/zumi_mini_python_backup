@@ -20,7 +20,8 @@ import os
 import mediapipe as mp
 from pupil_apriltags import Detector
 from ultralytics import YOLO
-# import tensorflow as tf
+
+import tensorflow as tf
 # from tensorflow import keras
 
 from .receiver import *
@@ -286,6 +287,20 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         self.__numberRecognizedStr = ''
         self.__numberDetectedList = []
+
+        #teachable machine
+        self.__teachableInitFlag = False
+        self.__teachableDetectFlag = False
+
+        self.__teachableInterpreter = None
+
+        self.__teachableInputDetails = None
+        self.__teachableOutputDetails = None
+
+        self.__teachableLabels = []
+
+        self.teachableModelPath = None
+        self.teachableLabelPath = None
 
 
 
@@ -692,6 +707,54 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 return [0, 0]
         else :
                 return [0, 0]
+
+    def get_face_landmark_coordinates(self, face_landmarks_result, landmark_enum: face_landmark, image_width, image_height): # FaceLandmark -> face_landmark
+        """
+        MediaPipe FaceMesh 결과에서 특정 얼굴 랜드마크의 좌표를 추출합니다.
+
+        Args:
+            face_landmarks_result: MediaPipe `results.multi_face_landmarks` 리스트의 단일 얼굴 랜드마크 객체 (예: results.multi_face_landmarks[0]).
+            landmark_enum (face_landmark): 추출할 랜드마크 유형 (face_landmark Enum). # FaceLandmark -> face_landmark
+            image_width (int): 원본 이미지의 너비.
+            image_height (int): 원본 이미지의 높이.
+
+        Returns:
+            tuple[int, int] or None: 지정된 랜드마크의 (x, y) 픽셀 좌표.
+                                    여러 랜드마크가 정의된 경우 평균 좌표를 반환합니다.
+                                    감지되지 않거나 유효하지 않은 경우 None.
+        """
+        if not face_landmarks_result:
+            return None
+
+        landmark_indices = MEDIAPIPE_LANDMARK_MAP.get(landmark_enum)
+        if not landmark_indices:
+            print(f"오류: 알 수 없는 랜드마크 유형입니다: {landmark_enum.name}")
+            return None
+
+        points = []
+        for idx in landmark_indices:
+            # 랜드마크 인덱스가 유효한지 확인
+            if 0 <= idx < len(face_landmarks_result.landmark):
+                landmark = face_landmarks_result.landmark[idx]
+                # 랜드마크 좌표는 0.0 ~ 1.0 범위의 정규화된 값입니다. 픽셀 단위로 변환합니다.
+                x = int(landmark.x * image_width)
+                y = int(landmark.y * image_height)
+                points.append((x, y))
+            else:
+                print(f"경고: 랜드마크 인덱스 {idx}가 범위를 벗어납니다. (총 {len(face_landmarks_result.landmark)}개)")
+                # 하나의 중요한 랜드마크라도 없으면 이 부위의 좌표는 얻을 수 없다고 판단
+                return None
+
+        if not points:
+            return None
+
+        # 여러 점이 정의된 경우 평균 좌표를 반환하여 해당 부위의 중심점을 나타냅니다.
+        if len(points) > 1:
+            avg_x = sum([p[0] for p in points]) / len(points)
+            avg_y = sum([p[1] for p in points]) / len(points)
+            return int(avg_x), int(avg_y)
+        else:
+            return points[0] # 한 점만 정의된 경우 그 점을 반환
 
     # april
     def _aprilDetectorInit(self):
@@ -1255,10 +1318,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # #self._yoloCheckAddObj("bench")
         # #self._yoloCheckAddObj("fire hydrant")
 
-
-
-
-
         self.__yoloDetectFlag = True
 
         th = threading.Thread(target=self.__yolodetect)
@@ -1769,7 +1828,131 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             return self.__sketchDataDict[name].size
         pass
 
-     # --- sensor ---
+    # teachable machine
+    def _teachableInit(self, ModelPath = 'model_unquant.tflite', LabelPath = 'labels.txt'):
+        if self.__teachableInitFlag is False:
+            self.__teachableInitFlag = True
+            self.teachableModelPath = ModelPath
+            self.teachableLabelPath = LabelPath
+            print(self.teachableModelPath)
+            print(self.teachableLabelPath)
+
+    def _teachableStart(self):
+        if self.__teachableInitFlag is False:
+            print("Facedetector is not initialized")
+            return
+
+        if self.__teachableDetectFlag == True:
+            print("Facedetector is already working.")
+            return
+        self.__teachableDetectFlag = True
+
+        # --- 2. 모델 및 레이블 로드 ---
+        print(f"TensorFlow Lite 모델 로딩 중: {self.teachableModelPath}")
+        try:
+            # TFLite 인터프리터 로드
+            self.__teachableInterpreter = tf.lite.Interpreter(model_path=self.teachableModelPath)
+            self.__teachableInterpreter.allocate_tensors() # 텐서 할당
+
+            # 입력 및 출력 텐서 가져오기
+            self.__teachableInputDetails = self.__teachableInterpreter.get_input_details()
+            self.__teachableOutputDetails = self.__teachableInterpreter.get_output_details()
+
+            print("TensorFlow Lite 모델 로드 완료.")
+        except Exception as e:
+            print(f"TensorFlow Lite 모델 로드 중 오류 발생: {e}")
+            return
+
+        print(f"레이블 로딩 중: {self.teachableLabelPath}")
+
+        try:
+            with open(self.teachableLabelPath, 'r', encoding='utf-8') as f:
+                self.__teachableLabels = [line.strip() for line in f.readlines()]
+            print("레이블 로드 완료.")
+            print(f"로딩된 레이블: {self.__teachableLabels}")
+        except Exception as e:
+            print(f"레이블 로드 중 오류 발생: {e}")
+            return
+
+        th = threading.Thread(target=self.__teachable)
+        th.deamon = True
+        th.start()
+
+
+    def __teachable(self):
+
+        while self.__teachableDetectFlag:
+            if self.__raw_img is None:
+                time.sleep(0.1)
+                print('no input frame yet')
+                continue
+            try:
+
+                IMAGE_WIDTH = 224
+                IMAGE_HEIGHT = 224
+                img_np = np.array(self.__raw_img)
+                img_rgb = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
+
+                # 이미지 전처리: 크기 조정 및 정규화
+                img_resized = cv2.resize(img_rgb, (IMAGE_WIDTH, IMAGE_HEIGHT))
+                normalized_image_array = (img_resized.astype(np.float32) / 255.0)
+
+                # TFLite 모델 입력 형태에 맞추기: (1, HEIGHT, WIDTH, 3)
+                input_data = np.expand_dims(normalized_image_array, axis=0)
+
+                # --- 4. 모델 추론 (TFLite) ---
+                self.__teachableInterpreter.set_tensor(self.__teachableInputDetails[0]['index'], input_data)
+                self.__teachableInterpreter.invoke() # 추론 실행
+
+                # 결과 가져오기
+                output_data = self.__teachableInterpreter.get_tensor(self.__teachableOutputDetails[0]['index'])
+
+                prediction = output_data[0] # 배치 차원 제거
+                index = np.argmax(prediction)
+                class_name = self.__teachableLabels[index]
+                confidence_score = prediction[index]
+
+                # --- 5. 결과 출력 ---
+                print(f"클래스: {class_name[2:]}, 확률: {confidence_score:.2f}")
+
+            except Exception as e:
+                print("Detect : " , e)
+                continue
+
+            time.sleep(0.001)
+
+    # def __overlay_teachable(self, frame):
+
+    #     IMAGE_WIDTH = 224
+    #     IMAGE_HEIGHT = 224
+    #     img_np = np.array(frame)
+    #     img_rgb = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
+
+    #     # 이미지 전처리: 크기 조정 및 정규화
+    #     img_resized = cv2.resize(img_rgb, (IMAGE_WIDTH, IMAGE_HEIGHT))
+    #     normalized_image_array = (img_resized.astype(np.float32) / 255.0)
+
+    #     # TFLite 모델 입력 형태에 맞추기: (1, HEIGHT, WIDTH, 3)
+    #     input_data = np.expand_dims(normalized_image_array, axis=0)
+
+    #     # --- 4. 모델 추론 (TFLite) ---
+    #     self.__teachableInterpreter.set_tensor(self.__teachableInputDetails[0]['index'], input_data)
+    #     self.__teachableInterpreter.invoke() # 추론 실행
+
+    #     # 결과 가져오기
+    #     output_data = self.__teachableInterpreter.get_tensor(self.__teachableOutputDetails[0]['index'])
+
+    #     prediction = output_data[0] # 배치 차원 제거
+    #     index = np.argmax(prediction)
+    #     class_name = self.__teachableLabels[index]
+    #     confidence_score = prediction[index]
+
+    #     # --- 5. 결과 출력 ---
+    #     print(f"클래스: {class_name[2:]}, 확률: {confidence_score:.2f}")
+
+
+
+    # --- sensor ---
     def _sensorStart(self):
         if self.__sensorInitFlag is False:
             self._ws.send("sensor") # start
@@ -1916,53 +2099,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
 
-    def get_face_landmark_coordinates(self, face_landmarks_result, landmark_enum: face_landmark, image_width, image_height): # FaceLandmark -> face_landmark
-        """
-        MediaPipe FaceMesh 결과에서 특정 얼굴 랜드마크의 좌표를 추출합니다.
 
-        Args:
-            face_landmarks_result: MediaPipe `results.multi_face_landmarks` 리스트의 단일 얼굴 랜드마크 객체 (예: results.multi_face_landmarks[0]).
-            landmark_enum (face_landmark): 추출할 랜드마크 유형 (face_landmark Enum). # FaceLandmark -> face_landmark
-            image_width (int): 원본 이미지의 너비.
-            image_height (int): 원본 이미지의 높이.
 
-        Returns:
-            tuple[int, int] or None: 지정된 랜드마크의 (x, y) 픽셀 좌표.
-                                    여러 랜드마크가 정의된 경우 평균 좌표를 반환합니다.
-                                    감지되지 않거나 유효하지 않은 경우 None.
-        """
-        if not face_landmarks_result:
-            return None
 
-        landmark_indices = MEDIAPIPE_LANDMARK_MAP.get(landmark_enum)
-        if not landmark_indices:
-            print(f"오류: 알 수 없는 랜드마크 유형입니다: {landmark_enum.name}")
-            return None
 
-        points = []
-        for idx in landmark_indices:
-            # 랜드마크 인덱스가 유효한지 확인
-            if 0 <= idx < len(face_landmarks_result.landmark):
-                landmark = face_landmarks_result.landmark[idx]
-                # 랜드마크 좌표는 0.0 ~ 1.0 범위의 정규화된 값입니다. 픽셀 단위로 변환합니다.
-                x = int(landmark.x * image_width)
-                y = int(landmark.y * image_height)
-                points.append((x, y))
-            else:
-                print(f"경고: 랜드마크 인덱스 {idx}가 범위를 벗어납니다. (총 {len(face_landmarks_result.landmark)}개)")
-                # 하나의 중요한 랜드마크라도 없으면 이 부위의 좌표는 얻을 수 없다고 판단
-                return None
-
-        if not points:
-            return None
-
-        # 여러 점이 정의된 경우 평균 좌표를 반환하여 해당 부위의 중심점을 나타냅니다.
-        if len(points) > 1:
-            avg_x = sum([p[0] for p in points]) / len(points)
-            avg_y = sum([p[1] for p in points]) / len(points)
-            return int(avg_x), int(avg_y)
-        else:
-            return points[0] # 한 점만 정의된 경우 그 점을 반환
 
     # --- vision ---
 
@@ -1992,13 +2132,49 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         print("start_display")
         """영상 디스플레이 메인 루프"""
 
+
         #-------------------------------------------------------------------------
+        # MODEL_PATH = 'model_unquant.tflite' # Teachable Machine에서 내보낸 .tflite 파일 이름
+        # LABELS_PATH = 'labels.txt'
+        # IMAGE_WIDTH = 224
+        # IMAGE_HEIGHT = 224
+
+        # # --- 2. 모델 및 레이블 로드 ---
+        # print(f"TensorFlow Lite 모델 로딩 중: {MODEL_PATH}")
+        # try:
+        #     # TFLite 인터프리터 로드
+        #     interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+        #     interpreter.allocate_tensors() # 텐서 할당
+
+        #     # 입력 및 출력 텐서 가져오기
+        #     input_details = interpreter.get_input_details()
+        #     output_details = interpreter.get_output_details()
+
+        #     print("TensorFlow Lite 모델 로드 완료.")
+        # except Exception as e:
+        #     print(f"TensorFlow Lite 모델 로드 중 오류 발생: {e}")
+        #     exit()
+
+        # print(f"레이블 로딩 중: {LABELS_PATH}")
+        # try:
+        #     with open(LABELS_PATH, 'r', encoding='utf-8') as f:
+        #         labels = [line.strip() for line in f.readlines()]
+        #     print("레이블 로드 완료.")
+        #     print(f"로딩된 레이블: {labels}")
+        # except Exception as e:
+        #     print(f"레이블 로드 중 오류 발생: {e}")
+        #     exit()
+        #-------------------------------------------------------------------------
+
+        #self._teachableInit()
+        #self._teachableStart()
 
         #while self._connected:
         while self.__cameraStreamFlag:
             try:
                 frame = self._frame_queue.get(timeout=2.0)
                 self.__raw_img = frame.copy()
+
 
                 # 얼굴 인식 화면 오버레이
                 if self.__faceDetectFlag == True:
@@ -2036,6 +2212,12 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 if self.__sketchDetectFlag == True:
                     if self.__drawSketchAreaFlag == True:
                         self.__overlay_sketch_boxes(frame)
+
+
+                # teachable machine
+                # if self.__teachableInitFlag == True:
+                #     #if self.__drawSketchAreaFlag == True:
+                #         self.__overlay_sketch_boxes(frame)
 
 
                 # # 숫자 인식 화면 오버레이
