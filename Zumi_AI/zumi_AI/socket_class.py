@@ -291,6 +291,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         #teachable machine
         self.__teachableInitFlag = False
         self.__teachableDetectFlag = False
+        self.__drawTeachablAreaFlag  = True
 
         self.__teachableInterpreter = None
 
@@ -301,6 +302,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         self.teachableModelPath = None
         self.teachableLabelPath = None
+
+        self.teachableClassName = None
+        self.teachableConfidence_Score = None
+
 
 
 
@@ -1878,16 +1883,22 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         th.deamon = True
         th.start()
 
+    def _teachableStop(self):
+        if self.__teachableInitFlag == False :
+            print("Teachable detector is already stopped.")
+            return
+
+        self.__teachableInitFlag = False
+        time.sleep(1)
+        print("Teachable detector off")
 
     def __teachable(self):
-
         while self.__teachableDetectFlag:
             if self.__raw_img is None:
                 time.sleep(0.1)
                 print('no input frame yet')
                 continue
             try:
-
                 IMAGE_WIDTH = 224
                 IMAGE_HEIGHT = 224
                 img_np = np.array(self.__raw_img)
@@ -1909,11 +1920,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
                 prediction = output_data[0] # 배치 차원 제거
                 index = np.argmax(prediction)
-                class_name = self.__teachableLabels[index]
-                confidence_score = prediction[index]
+                self.teachableClassName = self.__teachableLabels[index]
+                self.teachableConfidence_Score = prediction[index]
 
                 # --- 5. 결과 출력 ---
-                print(f"클래스: {class_name[2:]}, 확률: {confidence_score:.2f}")
+                #print(f"클래스: {self.teachableClassName[2:]}, 확률: {self.teachableConfidence_Score:.2f}")
 
             except Exception as e:
                 print("Detect : " , e)
@@ -1921,35 +1932,34 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
             time.sleep(0.001)
 
-    # def __overlay_teachable(self, frame):
+    def __overlay_teachable(self, frame):
+        if self.teachableClassName != None or self.teachableConfidence_Score != None:
+            #print(f"클래스: {self.teachableClassName[2:]}, 확률: {self.teachableConfidence_Score:.2f}")
+            s0 = f"{self.teachableClassName[2:]}{self.teachableConfidence_Score:.2f}"
 
-    #     IMAGE_WIDTH = 224
-    #     IMAGE_HEIGHT = 224
-    #     img_np = np.array(frame)
-    #     img_rgb = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
+            self._drawPutTextBox(frame, s0, 125, frame.shape[0]-25, 0, (255, 100, 100))
 
-    #     # 이미지 전처리: 크기 조정 및 정규화
-    #     img_resized = cv2.resize(img_rgb, (IMAGE_WIDTH, IMAGE_HEIGHT))
-    #     normalized_image_array = (img_resized.astype(np.float32) / 255.0)
 
-    #     # TFLite 모델 입력 형태에 맞추기: (1, HEIGHT, WIDTH, 3)
-    #     input_data = np.expand_dims(normalized_image_array, axis=0)
 
-    #     # --- 4. 모델 추론 (TFLite) ---
-    #     self.__teachableInterpreter.set_tensor(self.__teachableInputDetails[0]['index'], input_data)
-    #     self.__teachableInterpreter.invoke() # 추론 실행
+    def _getTeachableResult(self):
+        """
+        Teachable Machine 모델의 예측 결과 (클래스 이름과 신뢰도 점수)를 반환합니다.
 
-    #     # 결과 가져오기
-    #     output_data = self.__teachableInterpreter.get_tensor(self.__teachableOutputDetails[0]['index'])
+        Returns:
+            tuple: (클래스 이름: str, 신뢰도 점수: float)
+        """
+        if self.teachableClassName == None or self.teachableConfidence_Score == None:
+            # 이전에 run_inference()가 호출되지 않았거나 결과가 없을 경우
+            print("경고: 아직 모델 추론이 실행되지 않았거나 결과가 없습니다. teachable_detector_init()를 먼저 실행하세요.")
+            return None, None
 
-    #     prediction = output_data[0] # 배치 차원 제거
-    #     index = np.argmax(prediction)
-    #     class_name = self.__teachableLabels[index]
-    #     confidence_score = prediction[index]
 
-    #     # --- 5. 결과 출력 ---
-    #     print(f"클래스: {class_name[2:]}, 확률: {confidence_score:.2f}")
+        # 클래스 이름은 인덱스 2부터 반환 (인덱스 번호 제거)
+        processed_class_name = self.teachableClassName[2:]
+        # 신뢰도 점수는 소수점 두 자리까지 포맷팅 (float 형태로 유지)
+        processed_confidence_score = round(self.teachableConfidence_Score, 2)
 
+        return processed_class_name, processed_confidence_score
 
 
     # --- sensor ---
@@ -1979,13 +1989,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__drawSensorAreaFlag = True
 
         else:
-            if self.__drawSensorAreaFlag == False :
+            if self.__drawSensorAreaFlag == False:
                 print("Sensor visible is already stopped.")
                 return
-
             self.__drawSensorAreaFlag = False
-            #time.sleep(0.5)
-            #print("Sensor visible off")
+
 
     def _frameRateVisible(self, flag):
         if flag == True:
@@ -1995,15 +2003,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__drawFPSFlag = True
 
         else:
-            if self.__drawFPSFlag == False :
+            if self.__drawFPSFlag == False:
                 print("FPS visible is already stopped.")
                 return
-
             self.__drawFPSFlag = False
-            time.sleep(1)
-
-            print("FPS visible off")
-
 
     def _process_sensor_packet(self, data):
         """센서 데이터 처리"""
@@ -2175,7 +2178,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 frame = self._frame_queue.get(timeout=2.0)
                 self.__raw_img = frame.copy()
 
-
                 # 얼굴 인식 화면 오버레이
                 if self.__faceDetectFlag == True:
                     self.__overlay_face_boxes(frame)
@@ -2191,7 +2193,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         self.__overlay_yolo_boxes(frame)
                         # if self.__yoloResults and len(self.__yoloResults) > 0:
                         #     frame = self.__yoloResults[0].plot()
-
 
                 # apriltag 인식 화면 오버레이
                 if self.__aprilDetectFlag == True:
@@ -2215,9 +2216,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
                 # teachable machine
-                # if self.__teachableInitFlag == True:
-                #     #if self.__drawSketchAreaFlag == True:
-                #         self.__overlay_sketch_boxes(frame)
+                if self.__teachableInitFlag == True:
+                    if self.__drawTeachablAreaFlag == True:
+                        self.__overlay_teachable(frame)
 
 
                 # # 숫자 인식 화면 오버레이
@@ -2241,7 +2242,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     self.__faceDetectFlag = False
                     self.__aprilDetectFlag = False
                     self.__sketchDetectFlag = False
-                    self.__gestureDetectFlag = True
+                    self.__gestureDetectFlag = False
+                    self.__teachableDetectFlag = False
                     break
 
 

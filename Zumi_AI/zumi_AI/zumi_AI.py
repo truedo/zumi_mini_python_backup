@@ -2150,4 +2150,26 @@ class ZumiAI:
     # teachablemachine
     # https://teachablemachine.withgoogle.com/
 
+    def teachable_detector_init(self, model_path = 'model_unquant.tflite', lable_path = 'labels.txt'):
+        """""
+        티처블 머신 인식 기능을 초기화
+        """""
+        self._connection_handler._teachableInit(model_path, lable_path)
 
+    def teachable_detector_start(self):
+        """""
+        티처블 머신 인식 기능을 시작
+        """""
+        self._connection_handler._teachableStart()
+
+    def teachable_detector_stop(self):
+        """""
+        티처블 머신 인식 기능을 종료
+        """""
+        self._connection_handler._teachableStop()
+
+    def get_teachable_result(self):
+        """""
+        티처블 모델의 예측 결과 (클래스 이름과 신뢰도 점수)를 반환
+        """""
+        return self._connection_handler._getTeachableResult()

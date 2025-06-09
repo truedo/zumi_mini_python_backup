@@ -25,7 +25,7 @@ zumi.frame_rate_visible(True)
 
 
 #zumi.yolo_check_add_obj("stop sign")
-
+##
 ##zumi.object_detector_init()
 ##zumi.object_detector_start()
 ##zumi.object_detector_stop()
@@ -41,6 +41,16 @@ zumi.frame_rate_visible(True)
 ##zumi.gesture_detector_init()
 ##zumi.gesture_detector_start()
 #zumi.gesture_detector_stop()
+
+
+
+
+zumi.teachable_detector_init(model_path = 'model_unquant.tflite', lable_path = 'labels.txt')
+zumi.teachable_detector_start()
+#zumi.teachable_detector_stop()
+
+
+
 
 
 ##
@@ -93,13 +103,23 @@ zumi.frame_rate_visible(True)
 #zumi.TrainSketchData()
 
 
-##
+
 ##time.sleep(1)
 ##
 ##try:
 ##    while True:
-##        count1 = zumi.get_stop_sign_size()
-##        print(count1)        
+####        count1 = zumi.get_teachable_result()
+####        print(count1)        
+##
+##        class_name, confidence_score = zumi.get_teachable_result()
+##        print(class_name, confidence_score)
+##        if class_name == "monkey":
+##            print("ukikiki")
+##            zumi.forward_infinite(2)
+##        else:
+##            zumi.stop()
+##            
+##
 ##        
 ##        time.sleep(0.5)
 ##        
