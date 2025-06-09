@@ -106,17 +106,17 @@ class FaceRecognizer:
             print(f"오류: 학습된 얼굴 데이터 저장 실패: {e}")
 
 
-    def __call__(self, image: np.ndarray, bboxes: list) -> np.ndarray:
-        ret_names = []
+    def __call__(self, image: np.ndarray, bboxes: list) -> list[tuple[str, float]]: # 반환 타입을 수정
+        ret_results = [] # (이름, 신뢰도) 튜플을 저장할 리스트
 
         if len(bboxes) == 0:
-            return np.array(ret_names)
+            return ret_results
 
         for idx, bbox_tuple in enumerate(bboxes):
             processed_face_img = self.__preprocess(image, (idx, bbox_tuple))
 
             if processed_face_img is None:
-                ret_names.append('Too Small')
+                ret_results.append(('Too Small', 0.0)) # 너무 작은 경우 신뢰도 0으로 반환
                 continue
 
             image_fornet = np.expand_dims(processed_face_img, 0).astype(np.float32)
@@ -127,24 +127,45 @@ class FaceRecognizer:
                 embeedings = self.model.get_tensor(self.output_details[0]['index'])
             except Exception as e:
                 print(f"RECOGNITION ERROR in FaceRecognizer: {e}")
-                ret_names.append('Error')
+                ret_results.append(('Error', 0.0)) # 오류 발생 시 신뢰도 0으로 반환
                 continue
 
             if len(self.registerd) > 0:
                 nearest_result = self.__findNearest(embeedings)
                 if nearest_result is not None:
                     name, distance = nearest_result
-                    #print(distance)
-                    if distance < self.face_recognaze_threshold:
-                        ret_names.append(name)
-                    else:
-                        ret_names.append(f'Unknown') # 임계값 초과
-                else:
-                    ret_names.append(f'Unknown')
-            else:
-                ret_names.append(f'Unknown')
+                    # 거리(distance)를 신뢰도(0.0 ~ 1.0)로 변환하는 로직 추가
+                    # 예를 들어, (1 - distance / 임계값_최대_거리) 같은 형태로 변환 가능
+                    # 여기서는 간단하게 임계값에 대한 상대적인 값으로 표현하거나, distance 자체를 신뢰도로 해석
 
-        return np.array(ret_names)
+                    # distance가 낮을수록 신뢰도가 높으므로, 간단하게 1 - (distance / (최대_거리_가정))
+                    # 혹은 그냥 distance 값을 신뢰도로 보고 사용자에게 임계값과의 비교를 맡길 수도 있습니다.
+
+                    # 여기서는 distance를 그대로 반환하고, 외부에서 임계값과 비교하여 해석하도록 합니다.
+                    # 또는 다음과 같이 신뢰도를 '역거리' 개념으로 맵핑할 수 있습니다.
+                    # threshold = self.face_recognaze_threshold
+                    # confidence = max(0, 1 - (distance / threshold)) # 임계값 내에서는 0~1 사이 값
+                    # 이 방법은 threshold를 넘어서면 음수가 될 수 있으므로, 아래와 같이 조정합니다.
+
+                    # 좀 더 직관적인 신뢰도 점수 (threshold 값에 기반)
+                    if distance < self.face_recognaze_threshold:
+                        # 임계값 이내일 경우, 거리가 짧을수록 높은 신뢰도
+                        # 예를 들어, 0 ~ self.face_recognaze_threshold 범위의 거리를 1 ~ 0 범위의 신뢰도로 변환
+                        # 0.0 (최소 거리) -> 1.0 (최고 신뢰도)
+                        # self.face_recognaze_threshold (최대 허용 거리) -> 0.0 (최저 허용 신뢰도)
+                        # confidence = 1 - (distance / self.face_recognaze_threshold)
+                        confidence = 1 - (distance / 2.0) # 최대 예상 거리를 2.0 정도로 가정하고 정규화
+                        # 만약 distance가 0이면 confidence는 1.0, distance가 2.0이면 confidence는 0.0
+                        confidence = max(0.0, min(1.0, confidence)) # 0~1 범위로 클리핑
+                        ret_results.append((name, confidence))
+                    else:
+                        ret_results.append(('Unknown', 0.0)) # 임계값 초과 시 신뢰도 0
+                else:
+                    ret_results.append(('Unknown', 0.0)) # 가장 가까운 얼굴을 찾지 못한 경우
+            else:
+                ret_results.append(('Unknown', 0.0)) # 등록된 얼굴이 없는 경우
+
+        return ret_results # np.array 대신 list 반환 (튜플 포함)
 
     def __preprocess(self, image: np.ndarray, bb: tuple) -> np.ndarray:
         bbox = bb[1]

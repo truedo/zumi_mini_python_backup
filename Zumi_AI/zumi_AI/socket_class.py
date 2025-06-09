@@ -34,12 +34,18 @@ from .sketch_recognizer import SketchRecognizer
 
 
 class SketchData:
-    def __init__(self, name:str, box:list):
+    def __init__(self, name:str, box:list, confidence:list):
         self.name = name
         self.box = box
+        self.confidence = confidence
+
         self.centerX = int((self.box[0][0] + self.box[2][0]) / 2)
         self.centerY = int((self.box[0][1] + self.box[2][1]) / 2)
+
+        #self.center = self.convert_center_pos(self.centerX, self.centerY)
+
         self.size = abs(int(self.box[2][0] - self.box[0][0])) * abs(int(self.box[2][1] - self.box[0][1])) #w*h
+
         # self.textX = 0
         # self.textY = 20000
         # for i in range(4):
@@ -136,7 +142,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__raw_img = None
         self.__cameraStreamFlag = False
 
+
         self.__text_offset = 18 #putText
+
+        self.__screen_width = 320 #putText
+        self.__screen_height = 240 #putText
 
         self.sensor_values = None
 
@@ -175,6 +185,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__faceTrainFlag = False
         self.__faceTrainName = None
         self.__faceRecognizedName = None
+        self.__faceRecognizedConfidenceScore = None
 
 
         # apriltag detector
@@ -210,8 +221,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__gestureDetect = False
 
         self.__gestureFingersRecognize = None
-        self.__palm_center = [0 ,0]
-        self.__gestureCenter = [0 ,0]
+        self.__palm_center = [0, 0]
+        self.__gestureCenter = [0, 0]
         self.__gestureSize = 0
 
 
@@ -242,6 +253,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__yoloStopSignCenter = [0, 0]
         self.__yoloStopSignSize = 0
 
+
         self.__yoloTrafficLightDetect = False
         self.__yoloTrafficLightCenter = [0, 0]
         self.__yoloTrafficLightSize = 0
@@ -250,6 +262,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
         self.__yoloCorner = [0, 0, 0, 0]
+
+        self.__yoloConfidence = 0
 
 
 
@@ -262,10 +276,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__drawSketchSizeFlag = True
         self.__sketchRecognizedList = []
         self.__sketchDetectedList = []
+        self.__sketchConfidenceList= []
+
         self.__sketchDataDict = dict()
 
         self.__sketchTrainFlag = False
         self.__sketchTrainName = None
+
 
 
 
@@ -304,9 +321,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.teachableLabelPath = None
 
         self.teachableClassName = None
-        self.teachableConfidence_Score = None
-
-
+        self.teachableConfidenceScore = None
 
 
         print("camera module ready")
@@ -388,7 +403,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         brightness = 0.299 * bg_color[2] + 0.587 * bg_color[1] + 0.114 * bg_color[0]
         return (0, 0, 0) if brightness > 128 else (255, 255, 255)
 
-   # --- for putText  ---
+    # --- for putText  ---
     def _drawPutTextBox(self,frame, text, x1, y1, y_offset, bg_color):
 
         # 텍스트 정보
@@ -420,6 +435,17 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         # 텍스트 그리기
         cv2.putText(frame, text, org, font, font_scale, text_color, thickness, lineType=cv2.LINE_AA)
+
+    # --- for putText  ---
+    def convert_center_pos(self, posX, posY):
+        center_x = self.__screen_width  / 2
+        center_y = self.__screen_height / 2
+
+        new_x = int(posX - center_x)
+        new_y =  int(-(posY - center_y)) # Y축은 위로 양수, 아래로 음수가 되도록 반전
+        return new_x, new_y
+
+
 
     # --- face ---
     def _faceDetectorInit(self, face_recognize_threshold = 0.8):#0.2~2.0
@@ -541,24 +567,48 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     self.__faceCenter[0] = (self.__current_face_bbox[0] + self.__current_face_bbox[2]) // 2
                     self.__faceCenter[1] = (self.__current_face_bbox[1] + self.__current_face_bbox[3]) // 2
 
+                    self.__faceCenter[0], self.__faceCenter[1] = self.convert_center_pos(self.__faceCenter[0], self.__faceCenter[1])
+
+
                     # --- 얼굴 사이즈 계산
                     face_width = self.__current_face_bbox[2] - self.__current_face_bbox[0]
                     face_height = self.__current_face_bbox[3] - self.__current_face_bbox[1]
                     self.__faceSize = face_width * face_height
 
                      # --- 이름 체크
-                    recognized_array = self.__face_recognizer(self.__raw_img, [self.__current_face_bbox])
-                    if len(recognized_array) > 0:
-                        self.__faceRecognizedName = recognized_array[0]
-                        # recognized_names_on_frame.append(self.__faceRecognizedName)
+                    # recognized_array = self.__face_recognizer(self.__raw_img, [self.__current_face_bbox])
 
-                        color = (0, 255, 255) # 기본 노란색
-                        if self.__faceRecognizedName != 'Unknown' and self.__faceRecognizedName != 'Too Small' and self.__faceRecognizedName != 'Error':
-                            color = (0, 255, 0) # 인식된 이름이면 초록색
+                    # if len(recognized_array) > 0:
+                    #     self.__faceRecognizedName = recognized_array[0]
+                    #     # recognized_names_on_frame.append(self.__faceRecognizedName)
+
+                    #     color = (0, 255, 255) # 기본 노란색
+                    #     if self.__faceRecognizedName != 'Unknown' and self.__faceRecognizedName != 'Too Small' and self.__faceRecognizedName != 'Error':
+                    #         color = (0, 255, 0) # 인식된 이름이면 초록색
+
+                    # --- 이름 및 신뢰도 체크 (수정된 부분) ---
+                    # recognized_array는 이제 [(이름, 신뢰도), ...] 형태의 리스트
+                    recognized_results = self.__face_recognizer(self.__raw_img, [self.__current_face_bbox])
+
+                    if len(recognized_results) > 0:
+                        recognized_name, confidence_score = recognized_results[0] # 첫 번째 얼굴 정보 추출
+                        self.__faceRecognizedName = recognized_name
+                        self.__faceRecognizedConfidenceScore = round(confidence_score, 2)
+
+                        # 신뢰도 점수 활용 (예: 출력 또는 특정 로직에 사용)
+                        #print(f"인식된 이름: {self.__faceRecognizedName}, 신뢰도: {confidence_score:.2f}")
+
+                        # color = (0, 255, 255) # 기본 노란색
+                        # if self.__faceRecognizedName != 'Unknown' and self.__faceRecognizedName != 'Too Small' and self.__faceRecognizedName != 'Error':
+                        #     color = (0, 255, 0) # 인식된 이름이면 초록색
+                        #     # 신뢰도 점수에 따라 색상 변경 등 추가 로직 가능
+                        #     if confidence_score < 0.5: # 예시: 낮은 신뢰도일 경우 다른 색상
+                        #         color = (0, 165, 255) # 주황색
 
                 else:
                     self.__facecurrentResults  = False
                     self.__faceRecognizedName = 'Unknown'
+                    self.__faceRecognizedConfidenceScore = 0
                     self.__faceCenter = [0, 0]
                     self.__faceDataDict = {}
                     self.__faceSize=0
@@ -632,7 +682,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             x1 = self.__current_face_bbox[0]
             y1 = self.__current_face_bbox[1]
 
-            s0 = str(self.__faceRecognizedName)
+            #s0 = str(self.__faceRecognizedName)
+            s0 = str(self.__faceRecognizedName) +" "+ str(self.__faceRecognizedConfidenceScore)
             s1 = 'x=' + str(self.__faceCenter[0]) +' y='+str(self.__faceCenter[1])
             s2 = 'size=' + str(int(self.__faceSize))
 
@@ -641,6 +692,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
             # 이름 표시
             if self.__drawFaceNameFlag == True:
+
                 self._drawPutTextBox(frame, s0, x1, y1, y_offset,color)
                 y_offset = y_offset + self.__text_offset  # 다음 위치 지정
                 color = (30, 255, 255) # 다음 색상 지정
@@ -692,22 +744,75 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _getFaceSize(self) -> int:
         return self.__faceSize
 
+    def _getDetectedFaceConfidenceScore(self):
+        return self.__faceRecognizedConfidenceScore
+
+    def _getDetectedFaceResult(self):
+        return self.__faceRecognizedName, self.__faceRecognizedConfidenceScore
+
+
+    def _faceLandmarkVisible(self, flag):
+        if flag == True:
+            if self.__drawFaceLandmarkFlag == True:
+                print("Face Landmark visible is already working.")
+                return
+            self.__drawFaceLandmarkFlag = True
+
+        else:
+            if self.__drawFaceLandmarkFlag == False:
+                print("Face Landmark visible is already stopped.")
+                return
+            self.__drawFaceLandmarkFlag = False
+
+
+    def _faceContoursVisible(self, flag):
+        if flag == True:
+            if self.__drawFaceContoursFlag == True:
+                print("Face Contours visible is already working.")
+                return
+            self.__drawFaceContoursFlag = True
+
+        else:
+            if self.__drawFaceContoursFlag == False:
+                print("Face Contours visible is already stopped.")
+                return
+            self.__drawFaceContoursFlag = False
+
+
+
+
     def _getFaceLandmark(self, landmark: face_landmark) -> list:
         if self.__facecurrentResults == True and self.__faceResults != None:
+
+            convertPos = []
             if landmark == face_landmark.LEFT_EYE:
-                return self.__faceDataDict[face_landmark.LEFT_EYE]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.LEFT_EYE][0], self.__faceDataDict[face_landmark.LEFT_EYE][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.LEFT_EYE]
             elif landmark == face_landmark.RIGHT_EYE:
-                return self.__faceDataDict[face_landmark.RIGHT_EYE]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.RIGHT_EYE][0], self.__faceDataDict[face_landmark.RIGHT_EYE][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.RIGHT_EYE]
             elif landmark == face_landmark.LEFT_EYEBROW:
-                return self.__faceDataDict[face_landmark.LEFT_EYEBROW]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.LEFT_EYEBROW][0], self.__faceDataDict[face_landmark.LEFT_EYEBROW][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.LEFT_EYEBROW]
             elif landmark == face_landmark.RIGHT_EYEBROW:
-                return self.__faceDataDict[face_landmark.RIGHT_EYEBROW]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.RIGHT_EYEBROW][0], self.__faceDataDict[face_landmark.RIGHT_EYEBROW][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.RIGHT_EYEBROW]
             elif landmark == face_landmark.NOSE:
-                return self.__faceDataDict[face_landmark.NOSE]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.NOSE][0], self.__faceDataDict[face_landmark.NOSE][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.NOSE]
             elif landmark == face_landmark.MOUTH:
-                return self.__faceDataDict[face_landmark.MOUTH]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.MOUTH][0], self.__faceDataDict[face_landmark.RMOUTHIGHT_EYE][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.MOUTH]
             elif landmark == face_landmark.JAW:
-                return self.__faceDataDict[face_landmark.JAW]
+                convertPos = self.convert_center_pos(self.__faceDataDict[face_landmark.JAW][0], self.__faceDataDict[face_landmark.JAW][1])
+                return convertPos
+                #return self.__faceDataDict[face_landmark.JAW]
             else :
                 return [0, 0]
         else :
@@ -757,6 +862,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if len(points) > 1:
             avg_x = sum([p[0] for p in points]) / len(points)
             avg_y = sum([p[1] for p in points]) / len(points)
+
+            #avg_x, avg_y = self.convert_center_pos(avg_x, avg_y)
+
             return int(avg_x), int(avg_y)
         else:
             return points[0] # 한 점만 정의된 경우 그 점을 반환
@@ -920,8 +1028,18 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             y1 = int(tag.corners[3][1])
 
             s0 = str(tag.tag_id)
-            s1 = 'x=' + str(int(self.__aprilTags[0].center[0])) +' y='+str(int(self.__aprilTags[0].center[1]))
-            s2 = 'size=' + str(int(self.__aprilSize))
+            convertPos =[]
+            convertPos = self.convert_center_pos(tag.center[0], tag.center[1])
+            s1 = 'x=' + str(convertPos[0]) +' y='+str(convertPos[1])
+
+
+
+            x = tag.corners[:, 0]
+            y = tag.corners[:, 1]
+            april_size = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
+
+            s2 = 'size=' + str(int(april_size))
+
 
             y_offset = 0
             color = (0, 255, 0) #녹색
@@ -962,7 +1080,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if self.__aprilTags is None or len(self.__aprilTags) == 0:
             pass
         else:
-            return self.__aprilTags[0].center
+            convertPos =[]
+            convertPos = self.convert_center_pos(self.__aprilTags[0].center[0], self.__aprilTags[0].center[1])
+            return convertPos
+
+
+
+
 
     def _getAprilSize(self):
         if self.__aprilTags is None or len(self.__aprilTags) == 0:
@@ -1066,7 +1190,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         y_coords = [lm.y for lm in self.__gestureLandmark.landmark]
                         avg_x = np.mean(x_coords)
                         avg_y = np.mean(y_coords)
-                        self.__gestureCenter = (int(avg_x * w), int(avg_y * h))
+                        #self.__gestureCenter = (int(avg_x * w), int(avg_y * h))
+                        self.__gestureCenter[0] = int(avg_x * w)
+                        self.__gestureCenter[1] = int(avg_y * h)
+
+                        self.__gestureCenter[0], self.__gestureCenter[1] = self.convert_center_pos(
+                            self.__gestureCenter[0], self.__gestureCenter[1])
+
                         #print(self.__current_hand_center)
 
                         # --- 손의 크기 계산 로직 시작 ---
@@ -1354,6 +1484,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     if boxes is not None and len(boxes) > 0:
                         class_ids = boxes.cls.cpu().numpy().astype(int)
                         names = [self.__yoloModel.names[c] for c in class_ids]
+                        confidences = boxes.conf.cpu().numpy() # 신뢰도 값 가져오기
 
                         for i, name in enumerate(names):
                             if name in self.__yoloTarget_classes:
@@ -1362,6 +1493,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                                 width = abs(x2 - x1)
                                 height = abs(y2 - y1)
 
+                                #self.__yoloConfidence = float(confidences[i]) # 현재 객체의 신뢰도
+                                self.__yoloConfidence = round(float(confidences[i]), 2)
+
                                 self.__yoloCorner[0] = x1
                                 self.__yoloCorner[1] = y1
                                 self.__yoloCorner[2] = x2
@@ -1369,8 +1503,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
                                 self.__yoloName = name
-                                self.__yoloCenter[0] = (x1 + y1) // 2
-                                self.__yoloCenter[1] = (x2 + y2) // 2
+
+                                self.__yoloCenter[0] = (x1 + x2) // 2
+                                self.__yoloCenter[1] = (y1 + y2) // 2
+                                self.__yoloCenter[0],self.__yoloCenter[1] = self.convert_center_pos(self.__yoloCenter[0], self.__yoloCenter[1])
+
                                 self.__yoloSize = width * height
 
                                 #print(self.__yoloName)
@@ -1378,14 +1515,20 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
                                 if name == "stop sign":
                                     self.__yoloStopSignDetect = True
-                                    self.__yoloStopSignCenter[0] = (x1 + y1) // 2
-                                    self.__yoloStopSignCenter[1] = (x2 + y2) // 2
+
+                                    self.__yoloStopSignCenter[0] = (x1 + x2) // 2
+                                    self.__yoloStopSignCenter[1] = (y1 + y2) // 2
+                                    self.__yoloStopSignCenter[0],self.__yoloStopSignCenter[1] = self.convert_center_pos(self.__yoloStopSignCenter[0], self.__yoloStopSignCenter[1])
+
                                     self.__yoloStopSignSize = width * height
 
                                 elif name == "traffic light":
                                     self.__yoloTrafficLightDetect = True
-                                    self.__yoloTrafficLightCenter[0] = (x1 + y1) // 2
-                                    self.__yoloTrafficLightCenter[1] = (x2 + y2) // 2
+
+                                    self.__yoloTrafficLightCenter[0] = (x1 + x2) // 2
+                                    self.__yoloTrafficLightCenter[1] = (y1 + y2) // 2
+                                    self.__yoloTrafficLightCenter[0],self.__yoloTrafficLightCenter[1] = self.convert_center_pos(self.__yoloTrafficLightCenter[0], self.__yoloTrafficLightCenter[1])
+
                                     self.__yoloTrafficLightSize = width * height
 
                                     traffic_light_roi = self.__raw_img[y1:y2, x1:x2]
@@ -1492,7 +1635,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     #color = (255, 0, 0)        # 파란 배경 (BGR)
                     #cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
-                    s0 = "stop sign"
+                    s0 = "stop sign" +" " + str(self.__yoloConfidence)
                     s1 = 'x=' + str(self.__yoloStopSignCenter[0]) +' y='+str(self.__yoloStopSignCenter[1])
                     s2 = 'size=' + str(self.__yoloStopSignSize)
 
@@ -1527,7 +1670,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
                     #cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
-                    s0 = self.__yoloTrafficLightColor
+                    s0 = self.__yoloTrafficLightColor +" " + str(self.__yoloConfidence)
                     s1 = 'x=' + str(self.__yoloTrafficLightCenter[0]) +' y='+str(self.__yoloTrafficLightCenter[1])
                     s2 = 'size=' + str(self.__yoloTrafficLightSize)
 
@@ -1549,7 +1692,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         new_color = (90, color[1], color[2])
 
                 else:
-                    s0 = self.__yoloName
+                    s0 = self.__yoloName +" " + str(self.__yoloConfidence)
                     s1 = 'x=' + str(self.__yoloCenter[0]) +' y='+str(self.__yoloCenter[1])
                     s2 = 'size=' + str(self.__yoloSize)
 
@@ -1589,6 +1732,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             return self.__yoloCenter
         else:
             return [0,0]
+
+
+    def _getObjConfidence(self, name:str):
+        if self.__yoloName == name:
+            return self.__yoloConfidence
+        else:
+            return 0
+
 
     def _isStopSignDetected(self):
         #return self.__yoloStopSignDetect
@@ -1726,27 +1877,42 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 # print('no input frame yet')
                 continue
             try:
-                self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
+                #self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
+                self.__sketchRecognizedList, self.__sketchDetectedList, self.__sketchConfidenceList = self.__sketchR(self.__raw_img)
 
                 self.__sketchDataDict.clear()
                 for i in range(0, len(self.__sketchDetectedList)):
-                    self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i])
+                    self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i], self.__sketchConfidenceList[i])
 
-                # 인식된 스케치 표시
-                if len(self.__sketchDetectedList) > 0:
+                # if len(self.__sketchDetectedList) > 0:
+                #     for i, rect in enumerate(self.__sketchDetectedList):
+                #         name = self.__sketchRecognizedList[i]
+                #         confidence = self.__sketchConfidenceList[i] # 신뢰도 값 가져오기
+                #         print(f"인식된 스케치: {name}, 신뢰도: {confidence}")
 
-                    for i, rect in enumerate(self.__sketchDetectedList):
-                        # rect는 (4,2) 형태의 꼭지점 배열
-                        # 다각형을 그리기 위해 reshape 필요 (OpenCV drawing functions expect specific formats)
-                        pts = rect.reshape((-1, 1, 2))
-                        #cv2.polylines(self.__raw_img, [pts], True, (0, 255, 0), 2) # 초록색으로 사각형 그리기
+                        # 이제 이 신뢰도 값을 활용하여 스케치 데이터 딕셔너리에 추가하거나
+                        # 화면에 표시하는 등 다양하게 활용할 수 있습니다.
+                        # self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData(
+                        #     self.__sketchRecognizedList[i],
+                        #     self.__sketchDetectedList[i],
+                        #     confidence # SketchData 클래스에 confidence를 추가해야 합니다.
+                        # )
 
-                        # 인식된 이름 표시
-                        if i < len(self.__sketchRecognizedList):
-                            name = self.__sketchRecognizedList[i]
-                            # 사각형의 첫 번째 꼭지점 근처에 이름 표시
-                            text_pos = (int(rect[0][0]), int(rect[0][1]) - 10)
-                            #cv2.putText(self.__raw_img, name, text_pos, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+# # 인식된 스케치 표시
+# if len(self.__sketchDetectedList) > 0:
+
+#     for i, rect in enumerate(self.__sketchDetectedList):
+#         # rect는 (4,2) 형태의 꼭지점 배열
+#         # 다각형을 그리기 위해 reshape 필요 (OpenCV drawing functions expect specific formats)
+#         pts = rect.reshape((-1, 1, 2))
+#         #cv2.polylines(self.__raw_img, [pts], True, (0, 255, 0), 2) # 초록색으로 사각형 그리기
+
+#         # 인식된 이름 표시
+#         if i < len(self.__sketchRecognizedList):
+#             name = self.__sketchRecognizedList[i]
+#             # 사각형의 첫 번째 꼭지점 근처에 이름 표시
+#             text_pos = (int(rect[0][0]), int(rect[0][1]) - 10)
+#             #cv2.putText(self.__raw_img, name, text_pos, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
 
 
@@ -1776,8 +1942,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
             y_offset = 0
 
-            s0 = 'id='+str(sketchData.name)
-            s1 = 'x=' + str(sketchData.centerX) +' y='+str(sketchData.centerY)
+            #s0 = str(sketchData.name) + " " + str(sketchData.confidence)
+            s0 = f"{sketchData.name} {sketchData.confidence:.2f}"
+
+
+            #s1 = 'x=' + str(sketchData.centerX) +' y='+str(sketchData.centerY)
+
+            convertPos = self.convert_center_pos(sketchData.centerX, sketchData.centerY)
+            s1 = 'x=' + str(convertPos[0]) +' y='+str(convertPos[1])
             s2 = 'size=' + str(sketchData.size)
 
             color = (255, 0, 255) # 기본 보라색
@@ -1816,7 +1988,19 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             print("스케치 학습 모드를 시작합니다.")
 
     def _deleteSketchData(self, name:str):
+        if self.__sketchDetectFlag == False:
+            print("먼저 스케치 인식 기능을 시작해주세요. 취소합니다.")
+            return
+        if name == "":
+            print("이름을 입력해주세요. 취소합니다.")
+            return
         self.__sketchR.delete_model_by_name(name)
+
+    def _deleteAllSketchData(self):
+        if self.__sketchDetectFlag == False:
+            print("먼저 스케치 인식 기능을 시작해주세요. 취소합니다.")
+            return
+        self.__sketchR.clear_all_models()
 
 
     def _isSketchDetected(self,name:str="Sketch") ->bool:
@@ -1824,13 +2008,27 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     def _getSketchCenter(self, name:str) -> list:
         if name in self.__sketchDataDict:
-            return [self.__sketchDataDict[name].centerX,self.__sketchDataDict[name].centerY]
-        pass
+            #return [self.__sketchDataDict[name].centerX,self.__sketchDataDict[name].centerY]
+            convertPos = self.convert_center_pos(self.__sketchDataDict[name].centerX, self.__sketchDataDict[name].centerY)
 
+            return convertPos
+
+        pass
 
     def _getSketchSize(self, name:str):
         if name in self.__sketchDataDict:
             return self.__sketchDataDict[name].size
+        pass
+
+    def _getSketchResult(self, name:str):
+        if name in self.__sketchDataDict:
+            return self.__sketchDataDict[name].name, self.__sketchDataDict[name].confidence
+        else:
+            return None, None # 또는 원하는 다른 기본값 (예: None)
+
+    def _getSketchConfidence(self, name:str):
+        if name in self.__sketchDataDict:
+            return self.__sketchDataDict[name].confidence
         pass
 
     # teachable machine
@@ -1921,10 +2119,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 prediction = output_data[0] # 배치 차원 제거
                 index = np.argmax(prediction)
                 self.teachableClassName = self.__teachableLabels[index]
-                self.teachableConfidence_Score = prediction[index]
+                self.teachableConfidenceScore = prediction[index]
 
                 # --- 5. 결과 출력 ---
-                #print(f"클래스: {self.teachableClassName[2:]}, 확률: {self.teachableConfidence_Score:.2f}")
+                #print(f"클래스: {self.teachableClassName[2:]}, 확률: {self.teachableConfidenceScore:.2f}")
 
             except Exception as e:
                 print("Detect : " , e)
@@ -1933,12 +2131,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             time.sleep(0.001)
 
     def __overlay_teachable(self, frame):
-        if self.teachableClassName != None or self.teachableConfidence_Score != None:
-            #print(f"클래스: {self.teachableClassName[2:]}, 확률: {self.teachableConfidence_Score:.2f}")
-            s0 = f"{self.teachableClassName[2:]}{self.teachableConfidence_Score:.2f}"
+        if self.teachableClassName != None or self.teachableConfidenceScore != None:
+            #print(f"클래스: {self.teachableClassName[2:]}, 확률: {self.teachableConfidenceScore:.2f}")
+            s0 = f"{self.teachableClassName[2:]} {self.teachableConfidenceScore:.2f}"
 
             self._drawPutTextBox(frame, s0, 125, frame.shape[0]-25, 0, (255, 100, 100))
-
 
 
     def _getTeachableResult(self):
@@ -1948,7 +2145,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         Returns:
             tuple: (클래스 이름: str, 신뢰도 점수: float)
         """
-        if self.teachableClassName == None or self.teachableConfidence_Score == None:
+        if self.teachableClassName == None or self.teachableConfidenceScore == None:
             # 이전에 run_inference()가 호출되지 않았거나 결과가 없을 경우
             print("경고: 아직 모델 추론이 실행되지 않았거나 결과가 없습니다. teachable_detector_init()를 먼저 실행하세요.")
             return None, None
@@ -1957,7 +2154,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         # 클래스 이름은 인덱스 2부터 반환 (인덱스 번호 제거)
         processed_class_name = self.teachableClassName[2:]
         # 신뢰도 점수는 소수점 두 자리까지 포맷팅 (float 형태로 유지)
-        processed_confidence_score = round(self.teachableConfidence_Score, 2)
+        processed_confidence_score = round(self.teachableConfidenceScore, 2)
 
         return processed_class_name, processed_confidence_score
 

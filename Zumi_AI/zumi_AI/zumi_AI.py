@@ -1827,12 +1827,24 @@ class ZumiAI:
         """""
         return self._connection_handler._isFaceDetected(name)
 
+    def get_detected_face_result(self):
+        """""
+        티처블 모델의 예측 결과 (클래스 이름과 신뢰도 점수)를 반환
+        """""
+        return self._connection_handler._getDetectedFaceResult()
+
     def get_detected_face_name(self):
         """""
         카메라에 확인된 얼굴의 이름을 반환
         현재 인식된 얼굴이 없다면 Unknown를 반환
         """""
         return self._connection_handler._getDetectedFaceName()
+
+    def get_detected_face_confidence_score(self):
+        """""
+        카메라에 인식된 얼굴의 신뢰도 점수를 반환
+        """""
+        return self._connection_handler._getDetectedFaceConfidenceScore()
 
     def get_face_center(self):
         """""
@@ -1845,6 +1857,13 @@ class ZumiAI:
         카메라에 인식된 얼굴의 크기를 반환
         """""
         return self._connection_handler._getFaceSize()
+
+    def face_landmark_visible(self, flag):
+        self._connection_handler._faceLandmarkVisible(flag)
+
+    def face_contours_visible(self, flag):
+        self._connection_handler._faceContoursVisible(flag)
+
 
     def get_face_landmark(self, landmark=1):
         """""
@@ -1913,7 +1932,8 @@ class ZumiAI:
         """""
         return self._connection_handler._isMarkerDetected(id)
 
-    def get_marker_Id(self):
+# 마커의 동시 인식에 따른 가져오는 값을 수정해야 함
+    def get_marker_id(self):
         """""
         카메라에 확인된 마커의 ID를 반환
         """""
@@ -2044,8 +2064,11 @@ class ZumiAI:
         """""
         return self._connection_handler._getObjSize("stop sign")
 
-
-
+    def get_stop_sign_confidence(self):
+        """""
+        카메라에 감지된 stop sign의 신뢰도 점수
+        """""
+        return self._connection_handler._getObjConfidence("stop sign")
 
     def is_traffic_light_detected(self):
         """""
@@ -2073,8 +2096,11 @@ class ZumiAI:
         """""
         return self._connection_handler._getTrafficLightColor()
 
-
-
+    def get_traffic_light_confidence(self):
+        """""
+        카메라에 감지된 신호등의 신뢰도 점수
+        """""
+        return self._connection_handler._getObjConfidence("traffic light")
 
     def is_obj_detected(self, name:str):
         """""
@@ -2094,6 +2120,11 @@ class ZumiAI:
         """""
         return self._connection_handler._getObjCenter(name)
 
+    def get_obj_confidence(self, name:str):
+        """""
+        카메라에 감지된 오브젝트의 신뢰도 점수
+        """""
+        return self._connection_handler._getObjConfidence(name)
 
 
     ##--------------------------------------------------------------------#]
@@ -2130,9 +2161,15 @@ class ZumiAI:
 
     def delete_sketch_data(self,name:str=""):
         """""
-        스케치 인식 기능을 학습
+        학습된 스케치 데이터를 제거
         """""
         self._connection_handler._deleteSketchData(name)
+
+    def delete_all_sketch_data(self):
+        """""
+        학습된 모든 스케치 데이터를 제거
+        """""
+        self._connection_handler._deleteAllSketchData()
 
     def get_sketch_center(self,name:str="Sketch"):
         """""
@@ -2145,6 +2182,19 @@ class ZumiAI:
         카메라에 인식된 스케치의 중심 좌표를 반환
         """""
         return self._connection_handler._getSketchSize(name)
+
+    def get_sketch_result(self,name:str="Sketch"):
+        """""
+        카메라에 인식된 스케치의 결과(스케치 이름과 신뢰도 점수)를 반환
+        """""
+        return self._connection_handler._getSketchResult(name)
+
+    def get_sketch_confidence(self,name:str="Sketch"):
+        """""
+        카메라에 인식된 스케치의 신뢰도 점수를 반환
+        """""
+        return self._connection_handler._getSketchConfidence(name)
+
 
     ##--------------------------------------------------------------------#]
     # teachablemachine

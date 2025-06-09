@@ -42,6 +42,8 @@ class SketchRecognizer:
     def __call__(self, image):
         retName = np.array([])
         retRect = np.empty((1,4,2), dtype=int)
+        retConfidence = np.array([]) # 신뢰도 반환을 위한 배열 추가
+
         h,w,c = image.shape
         sketchImage = None
 
@@ -78,17 +80,22 @@ class SketchRecognizer:
                 sketchImage = cv2.resize(sketchImage, (150,150))
                 _, des = self.orbDetector.detectAndCompute(sketchImage, None)
 
-                idx = self.__checkMatches(des)
+                #idx = self.__checkMatches(des)
+                idx, confidence = self.__checkMatches(des) # 신뢰도 값도 함께 받아옴
                 if idx != -1:
                     retName = np.append(retName, np.array([self.nameIndexList[idx]]), axis=0)
+                    retConfidence = np.append(retConfidence, np.array([confidence]), axis=0) # 신뢰도 추가
                 else:
                     retName = np.append(retName, np.array(['Sketch']), axis=0)
+                    retConfidence = np.append(retConfidence, np.array([0.0]), axis=0) # 인식 실패 시 신뢰도 0
 
             else:
                 retName = np.append(retName, np.array(['Sketch']), axis=0)
+                retConfidence = np.append(retConfidence, np.array([0.0]), axis=0) # 학습된 데이터 없을 시 신뢰도 0
 
         retRect = np.delete(retRect, [0, 0], axis=0)
-        return retName, retRect
+        #return retName, retRect
+        return retName, retRect, retConfidence # 신뢰도도 반환하도록 변경
 
     # 새롭게 추가되거나 변경된 메서드
     # ----------------------------------------------------------------------------------
@@ -220,56 +227,50 @@ class SketchRecognizer:
             print("학습할 특징점 데이터가 없어 학습할수 없습니다.")
 
     def __checkMatches(self, descriptor):
-        matchCnt = 0
-        max_dist = 0
-        min_dist = 100
-
         matchIdx = -1
-        matchMaxCnt = 0
+        best_confidence = 0.0
 
-        idx = 0
-
-        # 훈련된 디스크립터가 없으면 -1 반환
         if len(self.matcherHamming.getTrainDescriptors()) == 0:
-            return -1
+            return -1, 0.0
 
-        for trainDescriptor in self.matcherHamming.getTrainDescriptors():
-            matchCnt = 0
-            max_dist = 0
-            min_dist = 100
+        if descriptor is None or len(descriptor) == 0:
+            return -1, 0.0
 
-            # 매칭 시도 전에 descriptor가 None이 아닌지 확인 (입력 descriptor도 유효해야 함)
-            if descriptor is None or trainDescriptor is None or len(descriptor) == 0 or len(trainDescriptor) == 0:
-                idx += 1
-                continue # 다음 훈련 디스크립터로 넘어감
+        # 매칭 임계값. 이 값을 조절하여 매칭의 엄격도를 제어할 수 있습니다.
+        # ORB/Hamming 거리에서 50은 비교적 관대한 편입니다.
+        # 더 엄격하게 하려면 값을 낮추세요 (예: 40, 35)
+        MATCH_DISTANCE_THRESHOLD = 45 # 이전 논의에서 제안된 값 사용 (조정 가능)
 
-            # matches는 DMatch 객체 리스트
-            matches = self.matcherHamming.match(descriptor, trainDescriptor)
-
-            # 매치가 없는 경우 처리
-            if not matches:
-                idx += 1
+        for idx, trainDescriptor in enumerate(self.matcherHamming.getTrainDescriptors()):
+            if trainDescriptor is None or len(trainDescriptor) == 0:
                 continue
 
-            for dMatch in matches:
-                dist = dMatch.distance
-                if dist < min_dist:
-                    min_dist = dist
-                if dist > max_dist:
-                    max_dist = dist
+            matches = self.matcherHamming.match(descriptor, trainDescriptor)
 
-                if dist <= 30: # 매칭 임계값 (조절 가능)
-                    matchCnt += 1
+            if not matches:
+                continue
 
-            # 매칭 결과가 유효한지 확인
-            if min_dist < 30 and matchCnt > 0:
-                if matchMaxCnt < matchCnt:
-                    matchIdx = idx
-                    matchMaxCnt = matchCnt
+            # 좋은 매칭의 개수를 셉니다.
+            good_matches_count = sum(1 for dMatch in matches if dMatch.distance <= MATCH_DISTANCE_THRESHOLD)
 
-            idx += 1
+            # 신뢰도 계산:
+            # 쿼리 이미지의 특징점 수와 학습된 모델의 특징점 수 중 더 작은 값을 기준으로 합니다.
+            # 이렇게 하면 특징점 수가 크게 다른 경우에도 신뢰도가 합리적으로 계산됩니다.
+            max_possible_matches = min(len(descriptor), len(trainDescriptor))
 
-        return matchIdx
+            current_confidence = 0.0
+            if max_possible_matches > 0:
+                # 0.0 ~ 1.0 사이의 값으로 계산합니다.
+                current_confidence = good_matches_count / max_possible_matches
+                # 소수점 두 자리로 반올림
+                current_confidence = round(current_confidence, 2)
+
+            # 현재까지의 최고 신뢰도를 갱신합니다.
+            if current_confidence > best_confidence:
+                best_confidence = current_confidence
+                matchIdx = idx
+
+        return matchIdx, best_confidence
 
     def __angle(self, pt1:array, pt2:array, pt0:array):
         # 이 함수는 현재 스케치 인식 로직에서 직접 사용되지 않으므로 유지합니다.
