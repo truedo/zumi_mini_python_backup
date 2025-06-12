@@ -24,17 +24,17 @@ zumi.sensor_start()
 #zumi.sensor_visible(True)
 #zumi.frame_rate_visible(True)
 
-zumi.display_text_set(5,5)
-zumi.display_text("Motor",1)
-zumi.display_text_add("calibration",1)
-zumi.display_text_add("Start",1)
-zumi.display_text_pos(0,20)
+##zumi.display_text_set(5,5)
+##zumi.display_text("Motor",1)
+##zumi.display_text_add("calibration",1)
+##zumi.display_text_add("Start",1)
+##zumi.display_text_pos(0,20)
 
 
 #zumi.yolo_check_add_obj("stop sign")
 ##
-##zumi.object_detector_init()
-##zumi.object_detector_start()
+zumi.object_detector_init()
+zumi.object_detector_start()
 ##zumi.object_detector_stop()
 
 
@@ -74,8 +74,8 @@ zumi.display_text_pos(0,20)
 
 
 ##
-zumi.sketch_detector_init()
-zumi.sketch_detector_start()
+##zumi.sketch_detector_init()
+##zumi.sketch_detector_start()
 #zumi.sketch_train("school")
 
 #zumi.delete_sketch_data("school")
@@ -121,23 +121,23 @@ count1 = 0
 try:
     while True:
 
-        current_timestamp = time.time()
-
-        # datetime 객체로 변환
-        dt_object = datetime.fromtimestamp(current_timestamp)
-        formatted_time = dt_object.strftime("%H:%M:%S")
-        
-        zumi.display_text(formatted_time)
-
-        time.sleep(0.5)
+##        current_timestamp = time.time()
+##
+##        # datetime 객체로 변환
+##        dt_object = datetime.fromtimestamp(current_timestamp)
+##        formatted_time = dt_object.strftime("%H:%M:%S")
+##        
+##        zumi.display_text(formatted_time)
+##
+##        time.sleep(0.5)
 
 ##        ir = zumi.get_battery()
 ##        print(ir)
 ##
 ##
 ##        
-##        count1 = zumi.get_sketch_center("queen")
-##        print(count1)
+        count1 = zumi.is_obj_detected("cat")
+        print(count1)
         
 ####
 ##        class_name, confidence_score = zumi.get_sketch_result("queen")

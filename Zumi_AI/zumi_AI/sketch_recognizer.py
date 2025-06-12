@@ -8,7 +8,7 @@ import pkg_resources
 import pickle # pickle 모듈 임포트
 from collections import Counter # Counter 모듈 임포트
 
-class SketchRecognizer:
+class SketchProcessor:
 
     # 학습 데이터 저장 파일 이름
     # 이 파일은 self.sketchPath 내부에 저장됩니다.
@@ -199,7 +199,7 @@ class SketchRecognizer:
         # nameIntList를 `self.captured_names`와 `self.unique_names_map`을 기반으로 생성
         nameIntList = [self.unique_names_map[name] for name in self.captured_names]
 
-        # SketchRecognizer 내부의 TrainModel 메서드 호출
+        # SketchProcessor 내부의 TrainModel 메서드 호출
         self.TrainModel(self.captured_names, nameIntList, self.captured_descriptors)
         #print(f"전체 스케치 모델 학습 완료. 학습된 스케치 개수: {len(self.captured_descriptors)}")
         # -----------------------------------------------------------------------

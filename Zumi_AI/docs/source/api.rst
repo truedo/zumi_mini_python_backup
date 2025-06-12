@@ -323,47 +323,15 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    :toctree: _autosummary_generated/marker_recognition
    :template: function.rst
 
-
-   get_marker_center
-   get_marker_id
-   get_marker_size
-   is_marker_detected
    marker_detector_init
    marker_detector_start
    marker_detector_stop
 
+   is_marker_detected
+   get_marker_id
+   get_marker_center
+   get_marker_size
 
-------------------------------------------------------
-
-
-.. raw:: html
-
-   <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   11) 스케치 인식
-   </div>
-
-   <div style="font-size: 13px; margin-left: 10px;">
-     <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
-     <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
-   </div><br>
-
-
-.. currentmodule:: zumi_AI.ZumiAI
-.. autosummary::
-   :toctree: _autosummary_generated/sketch_recognition
-   :template: function.rst
-
-   delete_all_sketch_data
-   delete_sketch_data
-   get_sketch_center
-   get_sketch_confidence
-   get_sketch_result
-   get_sketch_size
-   is_sketch_detected
-   sketch_detector_init
-   sketch_detector_start
-   sketch_detector_stop
-   sketch_train
 
 ------------------------------------------------------
 
@@ -387,14 +355,49 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    gesture_detector_init
    gesture_detector_start
    gesture_detector_stop
+
+   is_gesture_detected
    get_gesture_center
+   get_gesture_size
+
    get_gesture_finger
    get_gesture_recognize
-   get_gesture_size
-   is_gesture_detected
 
 ------------------------------------------------------
 
+.. raw:: html
+
+   <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+   11) 스케치 인식
+   </div>
+
+   <div style="font-size: 13px; margin-left: 10px;">
+     <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+     <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+   </div><br>
+
+
+.. currentmodule:: zumi_AI.ZumiAI
+.. autosummary::
+   :toctree: _autosummary_generated/sketch_recognition
+   :template: function.rst
+
+   sketch_detector_init
+   sketch_detector_start
+   sketch_detector_stop
+
+   is_sketch_detected
+   get_sketch_center
+   get_sketch_size
+
+   sketch_train
+   delete_sketch_data
+   delete_all_sketch_data
+
+   get_sketch_result
+   get_sketch_name
+   get_sketch_confidence
+------------------------------------------------------
 
 .. raw:: html
 
@@ -412,6 +415,11 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    :toctree: _autosummary_generated/traffic_sign_recognition
    :template: function.rst
 
+
+
+   object_detector_init
+   object_detector_start
+   object_detector_stop
 
    get_traffic_light_center
    get_traffic_light_color
@@ -431,9 +439,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 
    object_check_add_obj
    object_check_all_add_obj
-   object_detector_init
-   object_detector_start
-   object_detector_stop
+
 
 ------------------------------------------------------
 
@@ -455,7 +461,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    :toctree: _autosummary_generated/teachable_machine
    :template: function.rst
 
-   get_teachable_result
    teachable_detector_init
    teachable_detector_start
    teachable_detector_stop
+   get_teachable_result

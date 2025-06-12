@@ -29,7 +29,7 @@ from .receiver import *
 #from .face_landmark import FaceLandmark
 from .face_recognizer import FaceRecognizer
 #from .number_recognizer import NumberRecognizer
-from .sketch_recognizer import SketchRecognizer
+from .sketch_recognizer import SketchProcessor
 
 
 
@@ -42,21 +42,7 @@ class SketchData:
         self.centerX = int((self.box[0][0] + self.box[2][0]) / 2)
         self.centerY = int((self.box[0][1] + self.box[2][1]) / 2)
 
-        #self.center = self.convert_center_pos(self.centerX, self.centerY)
-
         self.size = abs(int(self.box[2][0] - self.box[0][0])) * abs(int(self.box[2][1] - self.box[0][1])) #w*h
-
-        # self.textX = 0
-        # self.textY = 20000
-        # for i in range(4):
-        #     if self.textX < self.box[i][0]:
-        #         self.textX = self.box[i][0]
-        #     if self.textY > self.box[i][1]:
-        #         self.textY = self.box[i][1]
-
-
-
-
 
 # Define packet constants based on WebSocket test code and assumptions
 WS_SENSOR_HEADER = bytes([0x24, 0x52]) # $R
@@ -268,36 +254,12 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__drawYoloCenterFlag = True
         self.__drawYoloSizeFlag = True
 
-        self.__yoloName = None
-        self.__yoloCenter = [0, 0]
-        self.__yoloSize = 0
-
-
         self.__yoloModel = None
         self.__yoloResults = []
-
-        #self.__yoloTarget_classes = set()
         self.__yoloTarget_classes = set()
         self.__target_class_ids = [] # 감지할 클래스 ID를 저장할 리스트
-        #self.__coco_class_names = self.__yoloModel.names
-
-
-        self.__yoloStopSignDetect = False
-        self.__yoloStopSignCenter = [0, 0]
-        self.__yoloStopSignSize = 0
-
-
-        self.__yoloTrafficLightDetect = False
-        self.__yoloTrafficLightCenter = [0, 0]
-        self.__yoloTrafficLightSize = 0
-
+        self.__yoloDetections = []
         self.__yoloTrafficLightColor = "UNKNOW"
-
-
-        self.__yoloCorner = [0, 0, 0, 0]
-
-        self.__yoloConfidence = 0
-
 
 
         # sketch detector
@@ -310,33 +272,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__sketchRecognizedList = []
         self.__sketchDetectedList = []
         self.__sketchConfidenceList= []
-
         self.__sketchDataDict = dict()
-
         self.__sketchTrainFlag = False
         self.__sketchTrainName = None
 
-
-
-
-        # sign detector
-        self.__signDetectInitFlag = False
-        self.__signDetectFlag = False
-        self.__signModelPath = None
-
-        self.__signDetectedRegions=[]
-        self.__signModel = None
-
-        # number recognizer
-        self.__numberDetectInitFlag = False
-        self.__numberDetectFlag = False
-        self.__drawNumberAreaFlag = True
-        self.__drawNumberFlag = True
-        self.__drawNumberPointFlag = True
-        self.__drawNumberSizeFlag = True
-
-        self.__numberRecognizedStr = ''
-        self.__numberDetectedList = []
 
         #teachable machine
         self.__teachableInitFlag = False
@@ -391,17 +330,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     def on_message(self, ws, message):
         """Callback for when a message is received."""
-        # # self._debugger._printLog(f"Received message: {len(message)} bytes") # Optional: log raw message arrival
-        # if isinstance(message, bytes):
-        #     # Process binary data packets
-        #     #self._process_packet(message)
-        #     # print("_process_packet")
-        #     self._process_image_frame(message)
-        # else:
-        #     # Handle text messages or other types if necessary
-        #     self._debugger._printLog(f"Received non-byte message: {type(message)}")
-        #     # If text messages are part of the protocol, handle them here
-
         try:
             if isinstance(message, bytes):
                 #print(len(message))
@@ -1467,9 +1395,93 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         #   78: hair drier
         #   79: toothbrush
 
-        # 인식할 대상 추가
-        self._yoloCheckAddObj("stop sign")
+
+
+        self._yoloCheckAddObj("person")
+        # self._yoloCheckAddObj("bicycle")
+        self._yoloCheckAddObj("car")
+        # self._yoloCheckAddObj("motorcycle")
+        # self._yoloCheckAddObj("airplane")
+        self._yoloCheckAddObj("bus")
+        # self._yoloCheckAddObj("train")
+        self._yoloCheckAddObj("truck")
+        # self._yoloCheckAddObj("boat")
         self._yoloCheckAddObj("traffic light")
+        # self._yoloCheckAddObj("fire hydrant")
+        self._yoloCheckAddObj("stop sign")
+        # self._yoloCheckAddObj("parking meter")
+        # self._yoloCheckAddObj("bench")
+        # self._yoloCheckAddObj("bird")
+        self._yoloCheckAddObj("cat")
+        self._yoloCheckAddObj("dog")
+        # self._yoloCheckAddObj("horse")
+        # self._yoloCheckAddObj("sheep")
+        # self._yoloCheckAddObj("cow")
+        # self._yoloCheckAddObj("elephant")
+        # self._yoloCheckAddObj("bear")
+        # self._yoloCheckAddObj("zebra")
+        # self._yoloCheckAddObj("giraffe")
+        # self._yoloCheckAddObj("backpack")
+        # self._yoloCheckAddObj("umbrella")
+        # self._yoloCheckAddObj("handbag")
+        # self._yoloCheckAddObj("tie")
+        # self._yoloCheckAddObj("suitcase")
+        # self._yoloCheckAddObj("frisbee")
+        # self._yoloCheckAddObj("skis")
+        # self._yoloCheckAddObj("snowboard")
+        # self._yoloCheckAddObj("sports ball")
+        # self._yoloCheckAddObj("kite")
+        # self._yoloCheckAddObj("baseball bat")
+        # self._yoloCheckAddObj("baseball glove")
+        # self._yoloCheckAddObj("skateboard")
+        # self._yoloCheckAddObj("surfboard")
+        # self._yoloCheckAddObj("tennis racket")
+        # self._yoloCheckAddObj("bottle")
+        # self._yoloCheckAddObj("wine glass")
+        # self._yoloCheckAddObj("cup")
+        # self._yoloCheckAddObj("fork")
+        # self._yoloCheckAddObj("knife")
+        # self._yoloCheckAddObj("spoon")
+        # self._yoloCheckAddObj("bowl")
+        # self._yoloCheckAddObj("banana")
+        # self._yoloCheckAddObj("apple")
+        # self._yoloCheckAddObj("sandwich")
+        # self._yoloCheckAddObj("orange")
+        # self._yoloCheckAddObj("broccoli")
+        # self._yoloCheckAddObj("carrot")
+        # self._yoloCheckAddObj("hot dog")
+        # self._yoloCheckAddObj("pizza")
+        # self._yoloCheckAddObj("donut")
+        # self._yoloCheckAddObj("cake")
+        # self._yoloCheckAddObj("chair")
+        # self._yoloCheckAddObj("couch")
+        # self._yoloCheckAddObj("potted plant")
+        # self._yoloCheckAddObj("bed")
+        # self._yoloCheckAddObj("dining table")
+        # self._yoloCheckAddObj("toilet")
+        # self._yoloCheckAddObj("tv")
+        # self._yoloCheckAddObj("laptop")
+        # self._yoloCheckAddObj("mouse")
+        # self._yoloCheckAddObj("remote")
+        # self._yoloCheckAddObj("keyboard")
+        # self._yoloCheckAddObj("cell phone")
+        # self._yoloCheckAddObj("microwave")
+        # self._yoloCheckAddObj("oven")
+        # self._yoloCheckAddObj("toaster")
+        # self._yoloCheckAddObj("sink")
+        # self._yoloCheckAddObj("refrigerator")
+        # self._yoloCheckAddObj("book")
+        # self._yoloCheckAddObj("clock")
+        # self._yoloCheckAddObj("vase")
+        # self._yoloCheckAddObj("scissors")
+        # self._yoloCheckAddObj("teddy bear")
+        # self._yoloCheckAddObj("hair drier")
+        # self._yoloCheckAddObj("toothbrush")
+
+
+        # 인식할 대상 추가
+        # self._yoloCheckAddObj("stop sign")
+        # self._yoloCheckAddObj("traffic light")
 
         # self._yoloCheckAddObj("person")
         # self._yoloCheckAddObj("dog")
@@ -1511,134 +1523,50 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 #self.__yoloResults = self.__yoloModel(self.__raw_img, verbose=False, imgsz=320, conf=0.6)  # 신뢰도(confidence) 설정
                 self.__yoloResults = self.__yoloModel(self.__raw_img, verbose=False, imgsz=320, conf=0.6, classes=self.__target_class_ids)
 
-                if self.__yoloResults and len(self.__yoloResults) > 0:
+                self.__yoloDetections = []  # 감지된 객체들 리스트 초기화
 
+                if self.__yoloResults and len(self.__yoloResults) > 0:
                     boxes = self.__yoloResults[0].boxes
+
                     if boxes is not None and len(boxes) > 0:
                         class_ids = boxes.cls.cpu().numpy().astype(int)
                         names = [self.__yoloModel.names[c] for c in class_ids]
-                        confidences = boxes.conf.cpu().numpy() # 신뢰도 값 가져오기
+                        confidences = boxes.conf.cpu().numpy()
+                        xyxy = boxes.xyxy.cpu().numpy().astype(int)
 
                         for i, name in enumerate(names):
                             if name in self.__yoloTarget_classes:
+                                x1, y1, x2, y2 = xyxy[i]
 
-                                x1, y1, x2, y2 = map(int, boxes.xyxy[0])
+                                # ================================================
+                                # ▼▼▼ 신호등 색상 판별 로직 추가 ▼▼▼
+                                # ================================================
+                                if name == "traffic light":
+                                    # 신호등 영역(ROI) 이미지를 잘라냅니다.
+                                    traffic_light_roi = self.__raw_img[y1:y2, x1:x2]
+                                    # 새로 만든 헬퍼 함수로 색상을 판별합니다.
+                                    color = self._determine_traffic_color(traffic_light_roi)
+                                    self.__yoloTrafficLightColor = color
+                                # ================================================
+                                # ▲▲▲ 신호등 색상 판별 로직 끝 ▲▲▲
+                                # ================================================
+
+
                                 width = abs(x2 - x1)
                                 height = abs(y2 - y1)
+                                center_x = (x1 + x2) // 2
+                                center_y = (y1 + y2) // 2
+                                center_x, center_y = self.convert_center_pos(center_x, center_y)
 
-                                #self.__yoloConfidence = float(confidences[i]) # 현재 객체의 신뢰도
-                                self.__yoloConfidence = round(float(confidences[i]), 2)
+                                detection = {
+                                    "name": name,
+                                    "confidence": round(float(confidences[i]), 2),
+                                    "corner": (x1, y1, x2, y2),
+                                    "center": (center_x, center_y),
+                                    "size": width * height
+                                }
+                                self.__yoloDetections.append(detection)
 
-                                self.__yoloCorner[0] = x1
-                                self.__yoloCorner[1] = y1
-                                self.__yoloCorner[2] = x2
-                                self.__yoloCorner[3] = y2
-
-
-                                self.__yoloName = name
-
-                                self.__yoloCenter[0] = (x1 + x2) // 2
-                                self.__yoloCenter[1] = (y1 + y2) // 2
-                                self.__yoloCenter[0],self.__yoloCenter[1] = self.convert_center_pos(self.__yoloCenter[0], self.__yoloCenter[1])
-
-                                self.__yoloSize = width * height
-
-                                #print(self.__yoloName)
-
-
-                                if name == "stop sign":
-                                    self.__yoloStopSignDetect = True
-
-                                    self.__yoloStopSignCenter[0] = (x1 + x2) // 2
-                                    self.__yoloStopSignCenter[1] = (y1 + y2) // 2
-                                    self.__yoloStopSignCenter[0],self.__yoloStopSignCenter[1] = self.convert_center_pos(self.__yoloStopSignCenter[0], self.__yoloStopSignCenter[1])
-
-                                    self.__yoloStopSignSize = width * height
-
-                                elif name == "traffic light":
-                                    self.__yoloTrafficLightDetect = True
-
-                                    self.__yoloTrafficLightCenter[0] = (x1 + x2) // 2
-                                    self.__yoloTrafficLightCenter[1] = (y1 + y2) // 2
-                                    self.__yoloTrafficLightCenter[0],self.__yoloTrafficLightCenter[1] = self.convert_center_pos(self.__yoloTrafficLightCenter[0], self.__yoloTrafficLightCenter[1])
-
-                                    self.__yoloTrafficLightSize = width * height
-
-                                    traffic_light_roi = self.__raw_img[y1:y2, x1:x2]
-
-                                    # HSV 변환
-                                    hsv = cv2.cvtColor(traffic_light_roi, cv2.COLOR_BGR2HSV)
-                                    # 빨강 범위 1 (0~10)
-                                    lower_red1 = (0, 70, 50)
-                                    upper_red1 = (10, 255, 255)
-
-                                    # 빨강 범위 2 (170~180)
-                                    lower_red2 = (170, 70, 50)
-                                    upper_red2 = (180, 255, 255)
-
-                                    # 색상 마스크 정의 (범위는 조정 가능)
-                                    mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
-                                    mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
-                                    mask_red = cv2.bitwise_or(mask_red1, mask_red2)
-                                    mask_yellow = cv2.inRange(hsv, (15, 70, 70), (35, 255, 255))
-                                    mask_green  = cv2.inRange(hsv, (40, 50, 50),  (90, 255, 255))
-
-                                    # 픽셀 개수 기준 판단
-                                    red_count    = cv2.countNonZero(mask_red)
-                                    yellow_count = cv2.countNonZero(mask_yellow)
-                                    green_count  = cv2.countNonZero(mask_green)
-
-                                    counts = {
-                                        'RED': red_count,
-                                        'YELLOW': yellow_count,
-                                        'GREEN': green_count
-                                    }
-                                    max_color = max(counts, key=counts.get)
-                                    max_count = counts[max_color]
-
-                                    if max_count > 50:
-                                        if max_color == 'RED':
-                                            self.__yoloTrafficLightColor = "RED"
-                                        elif max_color == 'YELLOW':
-                                            self.__yoloTrafficLightColor = "YELLOW"
-                                        elif max_color == 'GREEN':
-                                            self.__yoloTrafficLightColor = "GREEN"
-                                    else:
-                                        self.__yoloTrafficLightColor = "UNKNOW"
-
-
-                            # else:
-                            #     self.__yoloStopSignDetect = False
-                            #     self.__yoloStopSignCenter = [0, 0]
-                            #     self.__yoloTrafficLightDetect = False
-                            #     self.__yoloTrafficLightCenter = [0, 0]
-                            #     self.__yoloTrafficLightColor = "UNKNOW"
-
-                            #     self.__yoloName = None
-                            #     self.__yoloCenter = [0, 0]
-                            #     self.__yoloSize = 0
-
-                    else:
-                        self.__yoloStopSignDetect = False
-                        self.__yoloStopSignCenter = [0, 0]
-                        self.__yoloTrafficLightDetect = False
-                        self.__yoloTrafficLightCenter = [0, 0]
-                        self.__yoloTrafficLightColor = "UNKNOW"
-
-                        self.__yoloName = None
-                        self.__yoloCenter = [0, 0]
-                        self.__yoloSize = 0
-
-                else:
-                    self.__yoloStopSignDetect = False
-                    self.__yoloStopSignCenter = [0, 0]
-                    self.__yoloTrafficLightDetect = False
-                    self.__yoloTrafficLightCenter = [0, 0]
-                    self.__yoloTrafficLightColor = "UNKNOW"
-
-                    self.__yoloName = None
-                    self.__yoloCenter = [0, 0]
-                    self.__yoloSize = 0
 
             except Exception as e:
                 print("Yolo detector error : " , e)
@@ -1646,54 +1574,25 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
             time.sleep(0.001)
 
+
     def __overlay_yolo_boxes(self, frame):
 
         if self.__yoloResults and len(self.__yoloResults) > 0:
 
-            #frame = self.__yoloResults[0].plot()
+            for detection in self.__yoloDetections:
+                x1, y1, x2, y2 = detection["corner"]
+                name = detection["name"]
+                confidence = detection["confidence"]
+                center_x, center_y = detection["center"]
+                size = detection["size"]
 
-            boxes = self.__yoloResults[0].boxes
-            if boxes is not None and len(boxes) > 0:
+                # 박스 그리기
+                color = (255, 0, 0)
+                # ================================================
+                # ▼▼▼ 신호등 색상 표시 로직 추가 ▼▼▼
+                # ================================================
 
-                x1 = self.__yoloCorner[0]
-                y1 = self.__yoloCorner[1]
-                x2 = self.__yoloCorner[2]
-                y2 = self.__yoloCorner[3]
-
-                color = (255, 0, 0)        # 파란 배경 (BGR)
-                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-
-                if self.__yoloStopSignDetect == True:
-
-                    #color = (255, 0, 0)        # 파란 배경 (BGR)
-                    #cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-
-                    s0 = "stop sign" +" " + str(self.__yoloConfidence)
-                    s1 = 'x=' + str(self.__yoloStopSignCenter[0]) +' y='+str(self.__yoloStopSignCenter[1])
-                    s2 = 'size=' + str(self.__yoloStopSignSize)
-
-                    y_offset = 0
-                    color = (255, 0, 0)        # 파랑
-
-                    if self.__drawYoloNameFlag == True:
-                        self._drawPutTextBox(frame,s0,x1,y1,y_offset,color)
-                        y_offset = y_offset + self.__text_offset  # 다음 위치 지정
-                        color = (255, 30, 0) # 다음 색상 지정
-
-                    if self.__drawYoloCenterFlag == True:
-                        self._drawPutTextBox(frame,s1,x1,y1,y_offset,color)
-                        y_offset = y_offset + self.__text_offset  # 다음 위치 지정
-                        color = (255, 60, 0) # 다음 색상 지정
-
-                    if self.__drawYoloSizeFlag == True:
-                        self._drawPutTextBox(frame,s2,x1,y1,y_offset,color)
-                        y_offset = y_offset + 18  # 다음 위치 지정
-                        color = (255, 90, 0) # 다음 색상 지정
-
-                elif self.__yoloTrafficLightDetect == True:
-
-                    #color = (255, 0, 0)        # 파란 배경 (기본)
-
+                if name == "traffic light":
                     if self.__yoloTrafficLightColor == 'RED':
                         color = (0, 0, 255)        # 빨강
                     elif self.__yoloTrafficLightColor == 'YELLOW':
@@ -1701,103 +1600,153 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     elif self.__yoloTrafficLightColor == 'GREEN':
                         color = (0, 255, 0)        # 녹색
 
-                    #cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                # ================================================
+                # ▲▲▲ 신호등 색상 표시 로직 끝 ▲▲▲
+                # ================================================
 
-                    s0 = self.__yoloTrafficLightColor +" " + str(self.__yoloConfidence)
-                    s1 = 'x=' + str(self.__yoloTrafficLightCenter[0]) +' y='+str(self.__yoloTrafficLightCenter[1])
-                    s2 = 'size=' + str(self.__yoloTrafficLightSize)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
-                    new_color = (color[0], color[1], color[2])
-                    y_offset = 0
-                    if self.__drawYoloNameFlag == True:
-                        self._drawPutTextBox(frame, s0, x1, y1, y_offset, new_color)
-                        y_offset = y_offset + self.__text_offset
-                        new_color = (30, color[1], color[2])
+                # 텍스트 정보
+                y_offset = 0
 
-                    if self.__drawYoloCenterFlag == True:
-                        self._drawPutTextBox(frame, s1, x1, y1, y_offset, new_color)
-                        y_offset = y_offset + self.__text_offset
-                        new_color = (60, color[1], color[2])
+                if self.__drawYoloNameFlag:
+                    s0 = f"{name} {confidence}"
+                    self._drawPutTextBox(frame, s0, x1, y1, y_offset, color)
+                    y_offset += self.__text_offset
 
-                    if self.__drawYoloSizeFlag == True:
-                        self._drawPutTextBox(frame, s2, x1, y1, y_offset, new_color)
-                        y_offset = y_offset + self.__text_offset
-                        new_color = (90, color[1], color[2])
+                if self.__drawYoloCenterFlag:
+                    s1 = f"x={center_x} y={center_y}"
+                    self._drawPutTextBox(frame, s1, x1, y1, y_offset, color)
+                    y_offset += self.__text_offset
 
-                else:
-                    s0 = self.__yoloName +" " + str(self.__yoloConfidence)
-                    s1 = 'x=' + str(self.__yoloCenter[0]) +' y='+str(self.__yoloCenter[1])
-                    s2 = 'size=' + str(self.__yoloSize)
-
-                    y_offset = 0
-                    color = (255, 0, 0)        # 파랑
-
-                    if self.__drawYoloNameFlag == True:
-                        self._drawPutTextBox(frame,s0,x1,y1,y_offset,color)
-                        y_offset = y_offset + self.__text_offset  # 다음 위치 지정
-                        color = (255, 30, 0) # 다음 색상 지정
-
-                    if self.__drawYoloCenterFlag == True:
-                        self._drawPutTextBox(frame,s1,x1,y1,y_offset,color)
-                        y_offset = y_offset + self.__text_offset  # 다음 위치 지정
-                        color = (255, 60, 0) # 다음 색상 지정
-
-                    if self.__drawYoloSizeFlag == True:
-                        self._drawPutTextBox(frame,s2,x1,y1,y_offset,color)
-                        y_offset = y_offset + 18  # 다음 위치 지정
-                        color = (255, 90, 0) # 다음 색상 지정
+                if self.__drawYoloSizeFlag:
+                    s2 = f"size={size}"
+                    self._drawPutTextBox(frame, s2, x1, y1, y_offset, color)
+                    y_offset += self.__text_offset
 
 
-    def _isObjDetected(self, name:str):
-        if self.__yoloName == name:
-            return True
+    def _determine_traffic_color(self, roi_image) -> str:
+        """
+        입력된 ROI 이미지에서 신호등 색상을 판별합니다.
+
+        Args:
+            roi_image: 신호등 영역만 잘라낸 이미지 (BGR)
+
+        Returns:
+            str: "RED", "YELLOW", "GREEN", "UNKNOWN" 중 하나
+        """
+        # ROI가 비어있거나 너무 작으면 바로 UNKNOWN 반환
+        if roi_image is None or roi_image.size == 0:
+            return "UNKNOWN"
+
+        # HSV로 변환
+        hsv = cv2.cvtColor(roi_image, cv2.COLOR_BGR2HSV)
+
+        # 색상 범위 정의
+        # 빨강 (두 개의 범위를 합쳐서 사용)
+        lower_red1 = (0, 70, 50)
+        upper_red1 = (10, 255, 255)
+        lower_red2 = (170, 70, 50)
+        upper_red2 = (180, 255, 255)
+        # 노랑
+        lower_yellow = (15, 70, 70)
+        upper_yellow = (35, 255, 255)
+        # 초록
+        lower_green = (40, 50, 50)
+        upper_green = (90, 255, 255)
+
+        # 각 색상에 대한 마스크 생성
+        mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
+        mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
+        mask_red = cv2.bitwise_or(mask_red1, mask_red2)
+        mask_yellow = cv2.inRange(hsv, lower_yellow, upper_yellow)
+        mask_green = cv2.inRange(hsv, lower_green, upper_green)
+
+        # 각 색상의 픽셀 수 계산
+        counts = {
+            "RED": cv2.countNonZero(mask_red),
+            "YELLOW": cv2.countNonZero(mask_yellow),
+            "GREEN": cv2.countNonZero(mask_green)
+        }
+
+        # 가장 많은 픽셀을 가진 색상 찾기
+        max_color = max(counts, key=counts.get)
+        max_count = counts[max_color]
+
+        # 최소 픽셀 개수 임계값 (노이즈 제거)
+        pixel_threshold = 50  # 이 값은 실제 환경에 맞게 조정이 필요할 수 있습니다.
+        if max_count > pixel_threshold:
+            return max_color
         else:
-            return False
+            return "UNKNOWN"
 
-    def _getObjSize(self, name:str):
-        if self.__yoloName == name:
-            return self.__yoloSize
-        else:
-            return 0
-
-    def _getObjCenter(self,name:str):
-        if self.__yoloName == name:
-            return self.__yoloCenter
-        else:
-            return [0,0]
-
-
-    def _getObjConfidence(self, name:str):
-        if self.__yoloName == name:
-            return self.__yoloConfidence
-        else:
-            return 0
-
-
-    def _isStopSignDetected(self):
-        #return self.__yoloStopSignDetect
-        if self.__yoloName == "stop sign":
-            return True
-        else:
-            return False
-
-    def _getStopSignCenter(self):
-        return self.__yoloStopSignCenter
-
-    def _getStopSignSize(self):
-        return self.__yoloStopSignSize
-
-    def _isTrafficLightDetected(self):
-        return self.__yoloTrafficLightDetect
-
-    def _getTrafficLightCenter(self):
-        return self.__yoloTrafficLightCenter
-
-    def _getTrafficLightSize(self):
-        return self.__yoloTrafficLightSize
 
     def _getTrafficLightColor(self):
         return self.__yoloTrafficLightColor
+
+
+    def _isObjDetected(self, name: str) -> bool:
+        """
+        특정 이름의 클래스가 감지되었는지 확인합니다.
+
+        Args:
+            name (str): 확인할 클래스의 이름 (예: "person", "car")
+
+        Returns:
+            bool: 해당 클래스가 감지되었으면 True, 아니면 False
+        """
+        for detection in self.__yoloDetections:
+            if detection["name"] == name:
+                return True
+        return False
+
+    def _getObjSize(self, name: str) -> int:
+        """
+        특정 이름의 클래스의 크기(면적)를 반환합니다.
+        동일한 클래스가 여러 개 감지된 경우, 첫 번째 객체의 크기를 반환합니다.
+
+        Args:
+            name (str): 크기를 조회할 클래스의 이름
+
+        Returns:
+            int: 객체의 크기(면적). 객체가 없으면 0을 반환합니다.
+        """
+        for detection in self.__yoloDetections:
+            if detection["name"] == name:
+                return detection["size"]
+        return 0
+
+    def _getObjCenter(self, name: str) -> tuple:
+        """
+        특정 이름의 클래스의 중심 좌표 (x, y)를 반환합니다.
+        동일한 클래스가 여러 개 감지된 경우, 첫 번째 객체의 좌표를 반환합니다.
+
+        Args:
+            name (str): 중심 좌표를 조회할 클래스의 이름
+
+        Returns:
+            tuple: 객체의 중심 좌표 (x, y). 객체가 없으면 빈 튜플 ()을 반환합니다.
+        """
+        for detection in self.__yoloDetections:
+            if detection["name"] == name:
+                return detection["center"]
+        return ()
+
+    def _getObjConfidence(self, name: str) -> float:
+        """
+        특정 이름의 클래스의 신뢰도(confidence)를 반환합니다.
+        동일한 클래스가 여러 개 감지된 경우, 첫 번째 객체의 신뢰도를 반환합니다.
+
+        Args:
+            name (str): 신뢰도를 조회할 클래스의 이름
+
+        Returns:
+            float: 객체의 신뢰도. 객체가 없으면 0.0을 반환합니다.
+        """
+        for detection in self.__yoloDetections:
+            if detection["name"] == name:
+                return detection["confidence"]
+        return 0.0
 
 
     # 감지 대상에 객체 추가
@@ -1874,7 +1823,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     # --- scketch ---
     def _sketchDetectorInit(self):
         if self.__sketchDetectInitFlag is False:
-            self.__sketchR = SketchRecognizer()
+            self.__sketchRecognizer = SketchProcessor()
             self.__sketchDetectInitFlag = True
 
         print("Sketch detector initialized")
@@ -1910,55 +1859,12 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 # print('no input frame yet')
                 continue
             try:
-                #self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
-                self.__sketchRecognizedList, self.__sketchDetectedList, self.__sketchConfidenceList = self.__sketchR(self.__raw_img)
+                self.__sketchRecognizedList, self.__sketchDetectedList, self.__sketchConfidenceList = self.__sketchRecognizer(self.__raw_img)
 
                 self.__sketchDataDict.clear()
                 for i in range(0, len(self.__sketchDetectedList)):
                     self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i], self.__sketchConfidenceList[i])
 
-                # if len(self.__sketchDetectedList) > 0:
-                #     for i, rect in enumerate(self.__sketchDetectedList):
-                #         name = self.__sketchRecognizedList[i]
-                #         confidence = self.__sketchConfidenceList[i] # 신뢰도 값 가져오기
-                #         print(f"인식된 스케치: {name}, 신뢰도: {confidence}")
-
-                        # 이제 이 신뢰도 값을 활용하여 스케치 데이터 딕셔너리에 추가하거나
-                        # 화면에 표시하는 등 다양하게 활용할 수 있습니다.
-                        # self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData(
-                        #     self.__sketchRecognizedList[i],
-                        #     self.__sketchDetectedList[i],
-                        #     confidence # SketchData 클래스에 confidence를 추가해야 합니다.
-                        # )
-
-# # 인식된 스케치 표시
-# if len(self.__sketchDetectedList) > 0:
-
-#     for i, rect in enumerate(self.__sketchDetectedList):
-#         # rect는 (4,2) 형태의 꼭지점 배열
-#         # 다각형을 그리기 위해 reshape 필요 (OpenCV drawing functions expect specific formats)
-#         pts = rect.reshape((-1, 1, 2))
-#         #cv2.polylines(self.__raw_img, [pts], True, (0, 255, 0), 2) # 초록색으로 사각형 그리기
-
-#         # 인식된 이름 표시
-#         if i < len(self.__sketchRecognizedList):
-#             name = self.__sketchRecognizedList[i]
-#             # 사각형의 첫 번째 꼭지점 근처에 이름 표시
-#             text_pos = (int(rect[0][0]), int(rect[0][1]) - 10)
-#             #cv2.putText(self.__raw_img, name, text_pos, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-
-
-
-
-                # self.__sketchRecognizedList, self.__sketchDetectedList = self.__sketchR(self.__raw_img)
-                # self.__sketchDataDict.clear()
-                # for i in range(0, len(self.__sketchDetectedList)):
-                #     self.__sketchDataDict[self.__sketchRecognizedList[i]] = SketchData( self.__sketchRecognizedList[i], self.__sketchDetectedList[i])
-
-                # if len(self.__sketchRecognizedList) == 0:
-                #     time.sleep(0.0)
-                #     continue
             except Exception as e:
                 print("Sketch detector error : " , e)
                 continue
@@ -2027,13 +1933,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if name == "":
             print("이름을 입력해주세요. 취소합니다.")
             return
-        self.__sketchR.delete_model_by_name(name)
+        self.__sketchRecognizer.delete_model_by_name(name)
 
     def _deleteAllSketchData(self):
         if self.__sketchDetectFlag == False:
             print("먼저 스케치 인식 기능을 시작해주세요. 취소합니다.")
             return
-        self.__sketchR.clear_all_models()
+        self.__sketchRecognizer.clear_all_models()
 
 
     def _isSketchDetected(self,name:str="Sketch") ->bool:
@@ -2062,6 +1968,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _getSketchConfidence(self, name:str):
         if name in self.__sketchDataDict:
             return self.__sketchDataDict[name].confidence
+        pass
+
+    def _getSketchName(self, name:str):
+        if name in self.__sketchDataDict:
+            return self.__sketchDataDict[name].name
         pass
 
     # teachable machine
@@ -2201,15 +2112,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__sensorFlag = True
         print("Sensor initialized")
 
-    # def _sensorStart(self):
-    #     self.__sensorFlag = True
-    #     # if self.__sensorInitFlag is False:
-    #     #     self._ws.send("sensor") # start
-    #     #     self.__sensorInitFlag = True
-    #     #     self.__drawSensorAreaFlag = True
-    #     #     self.__sensorFlag = True
-    #     print("Sensor start")
-
     def _sensorVisible(self, flag):
         if flag == True:
             if self.__drawSensorAreaFlag == True:
@@ -2222,8 +2124,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 print("Sensor visible is already stopped.")
                 return
             self.__drawSensorAreaFlag = False
-
-
 
 
     def _frameRateVisible(self, flag):
@@ -2361,14 +2261,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     print("패킷 전송 실패:", e)
 
 
-
-
-
-
-
-
-
-
     # --- vision ---
 
     def _cameraLeftRightFlip(self, flag:bool):
@@ -2453,8 +2345,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 if self.__yoloDetectFlag == True:
                     if self.__drawYoloAreaFlag == True:
                         self.__overlay_yolo_boxes(frame)
-                        # if self.__yoloResults and len(self.__yoloResults) > 0:
-                        #     frame = self.__yoloResults[0].plot()
 
                 # apriltag 인식 화면 오버레이
                 if self.__aprilDetectFlag == True:
@@ -2476,12 +2366,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     if self.__drawSketchAreaFlag == True:
                         self.__overlay_sketch_boxes(frame)
 
-
                 # teachable machine
                 if self.__teachableInitFlag == True:
                     if self.__drawTeachablAreaFlag == True:
                         self.__overlay_teachable(frame)
-
 
                 # # 숫자 인식 화면 오버레이
                 # if self.__numberDetectFlag == True:
@@ -2497,7 +2385,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     self._drawPutTextBox(frame, "-press r : capture", 0, 202, 0,(50,50,250))
                     self._drawPutTextBox(frame, "-press e : end", 0, 220, 0,(50,50,250))
 
-
                 cv2.imshow("ZumiAI Stream", frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
@@ -2507,7 +2394,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     self.__gestureDetectFlag = False
                     self.__teachableDetectFlag = False
                     break
-
 
                 elif key == ord('s') and frame is not None:
                     # 's' 키를 누르면 현재 프레임 저장 (frame)
@@ -2523,13 +2409,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 # 스케치 학습 모드
                 if self.__sketchTrainFlag == True:
                     if key == ord('r'):
-                        add_result = self.__sketchR.add_sketch_for_training(self.__raw_img, self.__sketchTrainName)
+                        add_result = self.__sketchRecognizer.add_sketch_for_training(self.__raw_img, self.__sketchTrainName)
                         if add_result != 0:
                             print(f"스케치 추가 실패.")
 
                     elif key == ord('e'):
                         self.__sketchTrainFlag = False
-                        self.__sketchR.train_from_captured_data()
+                        self.__sketchRecognizer.train_from_captured_data()
                         print("---------------------------------------------------------")
 
                 # 얼굴 학습 모드
@@ -2551,7 +2437,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                                 self.__faceTrainName = None
                                 self.__face_recognizer._save_registered_faces() # 학습 모드 종료 시 데이터 저장
                                 print("---------------------------------------------------------")
-
 
             except queue.Empty:
                 if time.time() - self._last_frame_time > 5:
@@ -2576,7 +2461,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
     def _process_image_frame(self, data):
-
         """영상 프레임 처리"""
         try:
             # 비동기 디코딩을 위한 스레드 풀 사용
@@ -2617,60 +2501,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             if self._frames_dropped % 30 == 0:
                 self._error(f"Dropped frames: {self._frames_dropped}")
 
-    # --- Internal Data Processing ---
-
-
-    def _process_packet(self, data):
-        """Internal method to process received binary data packets."""
-        # self._debugger._printLog(f"Processing packet: {data.hex(' ')}") # Optional: log packet hex
-
-        with self._data_lock:
-            # Check for Sensor Data Packet (7 bytes, Header $R)
-            if data.startswith(WS_SENSOR_HEADER) and len(data) == WS_SENSOR_DATA_LENGTH:
-                # Process sensor data (5 bytes after header) - mapping from test code
-                try:
-                    # Test code mapping: FR, FL, BR, BL, BC
-                    self._packet_senFR = data[2]
-                    self._packet_senFL = data[3]
-                    self._packet_senBR = data[4]
-                    self._packet_senBL = data[5]
-                    self._packet_senBC = data[6]
-                    # self._debugger._printLog("Processed sensor packet") # Optional: log specific packet type
-                except IndexError:
-                    self._error(f"Received sensor packet with unexpected length: {len(data)} bytes")
-
-            # Check for Status/Detection Data Packet (assumed 24 bytes, Header $S)
-            # This is based on the serial handler's data fields
-            elif data.startswith(WS_STATUS_HEADER) and len(data) == WS_STATUS_DATA_LENGTH:
-                 try:
-                     # Process status/detection data based on assumed indices
-                     self._reqCOM = data[_STATUS_INDEX_REQ_COM]
-                     self._reqINFO = data[_STATUS_INDEX_REQ_INFO]
-                     self._reqREQ = data[_STATUS_INDEX_REQ_REQ]
-                     self._reqPSTAT = data[_STATUS_INDEX_REQ_PSTAT]
-
-                     # Assuming 3 bytes each for detection data
-                     self._detectFace = list(data[_STATUS_INDEX_DETECT_FACE : _STATUS_INDEX_DETECT_FACE + 3])
-                     self._detectColor = list(data[_STATUS_INDEX_DETECT_COLOR : _STATUS_INDEX_DETECT_COLOR + 3])
-                     self._detectMarker = list(data[_STATUS_INDEX_MARKER : _STATUS_INDEX_MARKER + 3])
-                     self._detectCat = list(data[_STATUS_INDEX_CAT : _STATUS_INDEX_CAT + 3])
-
-                     self._btn = data[_STATUS_INDEX_BTN]
-                     self._battery = data[_STATUS_INDEX_BATTERY]
-                     # self._debugger._printLog("Processed status packet") # Optional: log specific packet type
-
-                 except IndexError:
-                     self._error(f"Received status packet with unexpected length or index error: {len(data)} bytes")
-
-            # Add other packet types here if known (e.g., Image data header check)
-            # elif data.startswith(IMAGE_HEADER):
-            #     # If you needed to queue raw image data for external processing
-            #     pass
-
-            else:
-                 # Log packets that don't match known types or lengths
-                 header_hex = data[:2].hex(' ') if len(data) >= 2 else data.hex(' ')
-                 self._debugger._printLog(f"Received unknown packet type or length: {len(data)} bytes, Header: {header_hex}")
 
 
     # --- Connection Management ---
@@ -2821,9 +2651,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 self._connected = False # Assume connection issue
 
 
-    # --- Getting Received Data ---
-    # These methods provide access to the latest received data values.
-    # Access is thread-safe due to the self._data_lock in _process_packet.
+
 
     # --- Debug/Logging Helpers ---
 
