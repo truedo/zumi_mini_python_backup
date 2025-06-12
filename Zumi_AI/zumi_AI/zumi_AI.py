@@ -126,34 +126,6 @@ class DebugOutput:
 #     print("Warning: 웹소켓을 위한 라이브러리가 없습니다.")
 
 
-# Define packet constants based on WebSocket test code and assumptions
-WS_SENSOR_HEADER = bytes([0x24, 0x52]) # $R
-WS_SENSOR_DATA_LENGTH = 7 # Header (2) + Sensor Values (5: FR, FL, BR, BL, BC)
-# Assume a similar status packet exists over WebSocket
-WS_STATUS_HEADER = bytes([0x24, 0x53]) # $S (Assuming a different header for status)
-# Based on serial handler's data mapping (22 data bytes after 2 header bytes)
-WS_STATUS_DATA_LENGTH = 24 # Header (2) + Status Data (22)
-
-# Define data indices for the assumed status packet (relative to start of packet)
-# These map to the serial handler's PacketDataIndex values directly, assuming the header is 2 bytes
-# Using a dict or Enum would be better, but hardcoding based on serial code's _handler logic
-_STATUS_INDEX_REQ_COM = 2
-_STATUS_INDEX_REQ_INFO = 3
-_STATUS_INDEX_REQ_REQ = 4
-_STATUS_INDEX_REQ_PSTAT = 5
-_STATUS_INDEX_DETECT_FACE = 8 # Start of 3 bytes (assuming serial's index 8 is 1st byte)
-_STATUS_INDEX_DETECT_COLOR = 11 # Start of 3 bytes
-_STATUS_INDEX_DETECT_MARKER = 14 # Start of 3 bytes
-_STATUS_INDEX_DETECT_CAT = 17 # Start of 3 bytes
-_STATUS_INDEX_BTN = 20
-_STATUS_INDEX_BATTERY = 21
-# Note: This mapping assumes indices relative to the start of the 24-byte status packet.
-# Example: reqCOM is dataArray[PacketDataIndex.DATA_COM.vaFlue - self.headerLen] in serial.
-# If PacketDataIndex.DATA_COM.value is 4 and self.headerLen is 2, it reads dataArray[2].
-# So, in the 24-byte packet, this corresponds to index 2. This confirms the mapping.
-
-
-
 class ZumiAI:
     def __init__(self, usePosInterruptKey=False, usePosCheckBackground=True, usePosShowErrorMessage=True, usePosShowLogMessage=False,
                  usePosShowTransferData=True, usePosShowReceiveData=False):
@@ -1458,121 +1430,111 @@ class ZumiAI:
         # 튜플 슬라이싱을 사용하여 앞쪽 2개의 값만 선택
         return all_readings[2:5] # 또는 all_readings[2:]
 
-    def set_zumi_color_detection(self, enable:int = 0):
+    def set_zumi_color_detection(self, enable: bool = False): # int를 bool로 변경, 기본값도 False로 변경
         """
-        주미의 자체 색상 감지 기능을 켜거나 끕니다.
+        주미의 내장 색상 감지 기능을 켜거나 끕니다.
 
-        이 함수는 주미가 카메라를 통해 특정 색상을 인식하는
-        기능을 활성화하거나 비활성화하는 데 사용됩니다.
+        이 함수는 주미 AI 하드웨어 자체에서 색상을 인식하는 기능을
+        활성화하거나 비활성화하는 데 사용됩니다.
 
         Args:
-            enable (int, optional): 색상 감지 기능의 활성화 여부를 설정합니다.
-                                    기본값은 0 (비활성화)입니다.
-
-                                    - **0**: 색상 감지 기능을 비활성화합니다.
-
-                                    - **1**: 색상 감지 기능을 활성화합니다.
+            enable (bool, optional): 색상 감지 기능의 활성화 여부를 설정합니다.
+                                    기본값은 **False** (비활성화)입니다.
+                                    - **True**: 내장 색상 감지 기능을 활성화합니다.
+                                    - **False**: 내장 색상 감지 기능을 비활성화합니다.
 
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
         Examples:
-            >>> zumiAI.set_zumi_color_detection(1) # 색상 감지 기능 켜기
-            >>> zumiAI.set_zumi_color_detection(0) # 색상 감지 기능 끄기
-            >>> zumiAI.set_zumi_color_detection()  # 기본값인 끄기(비활성화)로 설정
+            >>> zumiAI.set_zumi_color_detection(True)  # 주미의 내장 색상 감지 기능 켜기
+            >>> zumiAI.set_zumi_color_detection(False) # 주미의 내장 색상 감지 기능 끄기
+            >>> zumiAI.set_zumi_color_detection()   # 기본값인 끄기(비활성화)로 설정
         """
-
-        if(enable == 1) :
+        if enable:
             self.set_request(RequestType.REQUEST_ENTRY_COLOR_DETECT)
         else:
             self.clear_request(RequestType.REQUEST_ENTRY_COLOR_DETECT)
 
-    def set_zumi_face_detection (self, enable:int = 0):
-        """
-        주미의 자체 얼굴 감지 기능을 켜거나 끕니다.
 
-        이 함수는 주미가 카메라를 통해 사람의 얼굴을 인식하는
-        기능을 활성화하거나 비활성화하는 데 사용됩니다.
+    def set_zumi_face_detection(self, enable: bool = False): # int를 bool로 변경, 기본값도 False로 변경
+        """
+        주미의 내장 카메라를 이용한 얼굴 감지 기능을 켜거나 끕니다.
+
+        이 함수는 주미 AI 하드웨어 자체에서 사람의 얼굴을 인식하는 기능을
+        활성화하거나 비활성화하는 데 사용됩니다.
 
         Args:
-            enable (int, optional): 얼굴 감지 기능의 활성화 여부를 설정합니다.
-                                    기본값은 0 (비활성화)입니다.
-
-                                    - **0**: 얼굴 감지 기능을 비활성화합니다.
-
-                                    - **1**: 얼굴 감지 기능을 활성화합니다.
+            enable (bool, optional): 얼굴 감지 기능의 활성화 여부를 설정합니다.
+                                    기본값은 **False** (비활성화)입니다.
+                                    - **True**: 온보드 얼굴 감지 기능을 활성화합니다.
+                                    - **False**: 온보드 얼굴 감지 기능을 비활성화합니다.
 
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
         Examples:
-            >>> zumiAI.set_zumi_face_detection (1) # 얼굴 감지 기능 켜기
-            >>> zumiAI.set_zumi_face_detection (0) # 얼굴 감지 기능 끄기
-            >>> zumiAI.set_zumi_face_detection ()  # 기본값인 끄기(비활성화)로 설정
+            >>> zumiAI.set_zumi_face_detection(True) # 주미의 내장 얼굴 감지 기능 켜기
+            >>> zumiAI.set_zumi_face_detection(False) # 주미의 내장 얼굴 감지 기능 끄기
+            >>> zumiAI.set_zumi_face_detection()  # 기본값인 끄기(비활성화)로 설정
         """
 
-        if(enable == 1) :
+        if enable:
             self.set_request(RequestType.REQUEST_ENTRY_FACE_DETECT)
         else:
             self.clear_request(RequestType.REQUEST_ENTRY_FACE_DETECT)
 
-    def set_zumi_cat_detection(self, enable:int = 0):
+    def set_zumi_cat_detection(self, enable: bool = False): # int를 bool로 변경, 기본값도 False로 변경
         """
-        주미의 자체 고양이 감지 기능을 켜거나 끕니다.
+        주미의 내장 고양이 감지 기능을 켜거나 끕니다.
 
-        이 함수는 주미가 카메라를 통해 고양이를 인식하는 기능을
+        이 함수는 주미 AI 하드웨어 자체에서 고양이를 인식하는 기능을
         활성화하거나 비활성화하는 데 사용됩니다.
 
         Args:
-            enable (int, optional): 고양이 감지 기능의 활성화 여부를 설정합니다.
-                                    기본값은 0 (비활성화)입니다.
-
-                                    - **0**: 고양이 감지 기능을 비활성화합니다.
-
-                                    - **1**: 고양이 감지 기능을 활성화합니다.
+            enable (bool, optional): 고양이 감지 기능의 활성화 여부를 설정합니다.
+                                    기본값은 **False** (비활성화)입니다.
+                                    - **True**: 온보드 고양이 감지 기능을 활성화합니다.
+                                    - **False**: 온보드 고양이 감지 기능을 비활성화합니다.
 
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
         Examples:
-            >>> zumiAI.set_zumi_cat_detection(1) # 고양이 감지 기능 켜기
-            >>> zumiAI.set_zumi_cat_detection(0) # 고양이 감지 기능 끄기
-            >>> zumiAI.set_zumi_cat_detection()  # 기본값인 끄기(비활성화)로 설정
+            >>> zumiAI.set_zumi_cat_detection(True)  # 주미의 내장 고양이 감지 기능 켜기
+            >>> zumiAI.set_zumi_cat_detection(False) # 주미의 내장 고양이 감지 기능 끄기
+            >>> zumiAI.set_zumi_cat_detection()   # 기본값인 끄기(비활성화)로 설정
         """
-
-        if(enable == 1) :
-            self.set_request(RequestType.REQUEST_ENTRY_CAT_DETECT)
+        if enable: # bool 타입이므로 바로 조건으로 사용 가능
+            self.set_request(RequestType.REQUEST_ENTRY_CAT_DETECT) # 실제 로직에 맞게 수정
         else:
-            self.clear_request(RequestType.REQUEST_ENTRY_CAT_DETECT)
+            self.clear_request(RequestType.REQUEST_ENTRY_CAT_DETECT) # 실제 로직에 맞게 수정
 
-    def set_zumi_marker_detection(self, enable:int = 0):
+    def set_zumi_marker_detection(self, enable: bool = False): # int를 bool로 변경, 기본값도 False로 변경
         """
-        주미의 자체 마커 감지 기능을 켜거나 끕니다.
+        주미의 내장 마커 감지 기능을 켜거나 끕니다.
 
-        이 함수를 사용하여 주미가 마커를 인식하는
-        기능을 활성화하거나 비활성화할 수 있습니다.
+        이 함수는 주미 AI 하드웨어 자체에서 마커를 인식하는 기능을
+        활성화하거나 비활성화하는 데 사용됩니다.
 
         Args:
-            enable (int, optional): 마커 감지 기능의 활성화 여부를 설정합니다.
-                                    기본값은 0 (비활성화)입니다.
-
-                                    - **0**: 마커 감지 기능을 비활성화합니다.
-
-                                    - **1**: 마커 감지 기능을 활성화합니다.
-
+            enable (bool, optional): 마커 감지 기능의 활성화 여부를 설정합니다.
+                                    기본값은 **False** (비활성화)입니다.
+                                    - **True**: 내장 마커 감지 기능을 활성화합니다.
+                                    - **False**: 내장 마커 감지 기능을 비활성화합니다.
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
         Examples:
-            >>> zumiAI.set_zumi_marker_detection(1) # 마커 감지 기능 켜기
-            >>> zumiAI.set_zumi_marker_detection(0) # 마커 감지 기능 끄기
-            >>> zumiAI.set_zumi_marker_detection()  # 기본값인 끄기(비활성화)로 설정
+            >>> zumiAI.set_zumi_marker_detection(True)  # 주미의 내장 마커 감지 기능 켜기
+            >>> zumiAI.set_zumi_marker_detection(False) # 주미의 내장 마커 감지 기능 끄기
+            >>> zumiAI.set_zumi_marker_detection()   # 기본값인 끄기(비활성화)로 설정
         """
-
-        if(enable == 1) :
+        if enable:
             self.set_request(RequestType.REQUEST_ENTRY_APRIL_DETECT)
         else:
             self.clear_request(RequestType.REQUEST_ENTRY_APRIL_DETECT)
+
 
     def change_screen(self, screen_type:int = 1):
         """
@@ -1857,121 +1819,240 @@ class ZumiAI:
 
 
 
-    # def _get_req_datas(self):
-    #     """
-    #     _get_req_datas
-    #     """
-    #     return self._connection_handler._get_req_datas()
-
-    def get_zumi_face_detection(self) -> list:
+    def is_zumi_face_detected(self) -> bool:
         """
-        주미가 자체 얼굴 감지 기능을 통해 감지된 얼굴 정보를 가져옵니다.
+        주미의 내장 얼굴 감지 기능을 통해 얼굴이 감지되었는지 확인합니다.
 
-        이 함수는 set_zumi_face_detection() 함수로 얼굴 감지 기능을 활성화했을 때
-        사용할 수 있습니다.
+        이 함수는 `set_zumi_face_detection()` 함수로 얼굴 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 얼굴이 감지되면 True를, 감지되지 않으면 False를 반환합니다.
 
         Args:
             없음
 
         Returns:
-            list: 다음 순서로 감지된 얼굴 정보를 포함하는 리스트를 반환합니다:
-                - **감지 여부 (int)**: 얼굴 감지 여부 (0: 미감지, 1: 감지됨)
-                - **x축 위치 (int)**: 감지된 얼굴의 중심 x 좌표 (감지된 경우에만 유효)
-                - **y축 위치 (int)**: 감지된 얼굴의 중심 y 좌표 (감지된 경우에만 유효)
+            bool: 얼굴이 감지되었는지 여부를 나타내는 불리언(True/False) 값.
+                - **True**: 주미의 시야에서 얼굴이 감지됨
+                - **False**: 주미의 시야에서 얼굴이 감지되지 않음
 
         Examples:
-            >>> face_info = zumiAI.get_zumi_face_detection()
-            >>> print(face_info)
-            [1, 60, 80] # 예시 출력: 얼굴이 감지되었고, 중심 x=60, y=80 위치
-            >>> print(face_info)
-            [0, 0, 0]   # 예시 출력: 얼굴이 감지되지 않음
+            >>> zumiAI.set_zumi_face_detection(True) # 얼굴 감지 기능 활성화
+            >>> face_detected = zumiAI.is_zumi_face_detected()
+            >>> print(f"얼굴 감지 여부: {face_detected}")
+            얼굴 감지 여부: True # 예시 출력: 얼굴이 감지된 경우
+            >>> print(f"얼굴 감지 여부: {face_detected}")
+            얼굴 감지 여부: False # 예시 출력: 얼굴이 감지되지 않은 경우
         """
+        return bool(self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_FACE))
 
-        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_FACE)
 
-    def get_zumi_color_detection(self) -> list:
+    def get_zumi_face_center(self) -> list:
         """
-        주미의 자체 색상 감지 기능을 통해 감지된 색상 정보를 가져옵니다.
+        주미의 내장 얼굴 감지 기능을 통해 감지된 얼굴의 중심 좌표를 가져옵니다.
 
-        이 함수는 set_zumi_color_detection() 함수로 색상 감지 기능을 활성화했을 때
-        사용할 수 있습니다.
+        이 함수는 `set_zumi_face_detection()` 함수로 얼굴 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 얼굴이 감지되면 해당 얼굴의 중심 x, y 좌표를 반환합니다.
 
         Args:
             없음
 
         Returns:
-            list: 다음 순서로 감지된 색상 정보를 포함하는 리스트를 반환합니다:
-                - **감지된 색상 ID (int)**: 감지된 색상의 고유 ID (0~7).
-                                        색상이 감지되지 않은 경우 254를 반환합니다.
-                                        (각 ID에 해당하는 색상 정보는 관련 문서를 참조하십시오.)
-                - **x축 위치 (int)**: 감지된 색상 영역의 중심 x 좌표 (감지된 경우에만 유효)
-                - **y축 위치 (int)**: 감지된 색상 영역의 중심 y 좌표 (감지된 경우에만 유효)
+            list: 다음 순서로 감지된 얼굴의 중심 좌표를 포함하는 리스트를 반환합니다:
+                - **x축 위치 (int)**: 감지된 얼굴의 중심 x 좌표. (얼굴이 감지되지 않았다면 0)
+                - **y축 위치 (int)**: 감지된 얼굴의 중심 y 좌표. (얼굴이 감지되지 않았다면 0)
 
         Examples:
-            >>> color_info = zumiAI.get_zumi_color_detection()
-            >>> print(color_info)
-            [1, 80, 100] # 예시 출력: ID 1번 색상(예: 빨강)이 감지되었고, 중심 x=80, y=100 위치
-            >>> print(color_info)
-            [254, 0, 0] # 예시 출력: 색상이 감지되지 않음
+            >>> zumiAI.set_zumi_face_detection(True) # 얼굴 감지 기능 활성화
+            >>> face_center = zumiAI.get_zumi_face_center()
+            >>> print(f"감지된 얼굴 중심 좌표: {face_center}")
+            감지된 얼굴 중심 좌표: [60, 80] # 예시 출력: x=60, y=80 위치에서 얼굴 감지됨
+            >>> print(f"감지된 얼굴 중심 좌표: {face_center}")
+            감지된 얼굴 중심 좌표: [0, 0] # 예시 출력: 얼굴이 감지되지 않음
+        """
+
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_FACE_X)
+
+
+
+    def is_zumi_cat_detected(self) -> bool:
+        """
+        주미의 내장 고양이 감지 기능을 통해 고양이가 감지되었는지 확인합니다.
+
+        이 함수는 `set_zumi_cat_detection()` 함수로 고양이 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 고양이가 감지되면 True를, 감지되지 않으면 False를 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            bool: 고양이가 감지되었는지 여부를 나타내는 불리언(True/False) 값.
+                - **True**: 주미의 시야에서 고양이가 감지됨
+                - **False**: 주미의 시야에서 고양이가 감지되지 않음
+
+        Examples:
+            >>> zumiAI.set_zumi_cat_detection(True) # 고양이 감지 기능 활성화
+            >>> cat_detected = zumiAI.is_zumi_cat_detected()
+            >>> print(f"고양이 감지 여부: {cat_detected}")
+            고양이 감지 여부: True # 예시 출력: 고양이가 감지된 경우
+            >>> print(f"고양이 감지 여부: {cat_detected}")
+            고양이 감지 여부: False # 예시 출력: 고양이가 감지되지 않은 경우
+        """
+        return bool(self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_CAT))
+
+
+    def get_zumi_cat_center(self) -> list:
+        """
+        주미의 내장 고양이 감지 기능을 통해 감지된 고양이의 중심 좌표를 가져옵니다.
+
+        이 함수는 `set_zumi_cat_detection()` 함수로 고양이 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 고양이가 감지되면 해당 고양이의 중심 x, y 좌표를 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            list: 다음 순서로 감지된 고양이의 중심 좌표를 포함하는 리스트를 반환합니다:
+                - **x축 위치 (int)**: 감지된 고양이의 중심 x 좌표. (고양이가 감지되지 않았다면 0)
+                - **y축 위치 (int)**: 감지된 고양이의 중심 y 좌표. (고양이가 감지되지 않았다면 0)
+
+        Examples:
+            >>> zumiAI.set_zumi_cat_detection(True) # 고양이 감지 기능 활성화
+            >>> cat_center = zumiAI.get_zumi_cat_center()
+            >>> print(f"감지된 고양이 중심 좌표: {cat_center}")
+            감지된 고양이 중심 좌표: [70, 90] # 예시 출력: x=70, y=90 위치에서 고양이 감지됨
+            >>> print(f"감지된 고양이 중심 좌표: {cat_center}")
+            감지된 고양이 중심 좌표: [0, 0] # 예시 출력: 고양이가 감지되지 않음
+        """
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_CAT_X)
+
+
+    def get_zumi_color_id(self) -> int:
+        """
+        주미의 내장 색상 감지 기능을 통해 현재 감지된 색상의 ID를 가져옵니다.
+
+        이 함수는 `set_zumi_color_detection()` 함수로 색상 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 주미의 카메라 시야에 특정 색상이 감지되면 해당 색상의 고유 ID를 반환하며,
+        감지된 색상이 없으면 특정 값을 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            int: 감지된 색상의 고유 ID를 나타내는 정수.
+                - **0~7**: 감지된 색상의 ID.
+                - **254**: 감지된 색상이 없는 경우.
+
+        Examples:
+            >>> zumiAI.set_zumi_color_detection(True) # 색상 감지 기능 활성화
+            >>> detected_id = zumiAI.get_zumi_color_id()
+            >>> print(f"감지된 색상 ID: {detected_id}")
+            감지된 색상 ID: 3 # 예시 출력: ID 3번 색상 감지됨
+            >>> print(f"감지된 색상 ID: {detected_id}")
+            감지된 색상 ID: 254 # 예시 출력: 감지된 색상 없음
 
         Note:
-            색상 ID 리스트 (추가 예정)
+            색상 ID 리스트
+
+            - 1 : 빨강
+            - 2 : 주황
+            - 3 : 노랑
+            - 4: 녹색
+            - 5: 하늘색
+            - 6: 파랑색
+            - 7 : 보라색
         """
+
         return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_COLOR)
 
-    def get_zumi_marker_detection(self) -> list:
-        """
-        주미의 자체 마커 감지 기능을 통해 감지된 마커 정보를 가져옵니다.
 
-        이 함수는 set_zumi_marker_detection() 함수로 마커 감지 기능을 활성화했을 때
-        사용할 수 있습니다.
+    def get_zumi_color_center(self) -> list:
+        """
+        주미의 내장 색상 감지 기능을 통해 감지된 색상 영역의 중심 좌표를 가져옵니다.
+
+        이 함수는 `set_zumi_color_detection()` 함수로 색상 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 색상이 감지되면 해당 색상 영역의 중심 x, y 좌표를 반환합니다.
 
         Args:
             없음
 
         Returns:
-            list: 다음 순서로 감지된 마커 정보를 포함하는 리스트를 반환합니다:
-                - **감지된 마커 ID (int)**: 감지된 마커의 고유 ID. 마커가 감지되지 않은 경우 254를 반환합니다.
-                - **x축 위치 (int)**: 감지된 마커의 중심 x 좌표 (감지된 경우에만 유효)
-                - **y축 위치 (int)**: 감지된 마커의 중심 y 좌표 (감지된 경우에만 유효)
+            list: 다음 순서로 감지된 색상 영역의 중심 좌표를 포함하는 리스트를 반환합니다:
+                - **x축 위치 (int)**: 감지된 색상 영역의 중심 x 좌표. (색상이 감지되지 않았다면 0)
+                - **y축 위치 (int)**: 감지된 색상 영역의 중심 y 좌표. (색상이 감지되지 않았다면 0)
 
         Examples:
-            >>> marker_info = zumiAI.get_zumi_marker_detection()
-            >>> print(marker_info)
-            [5, 90, 110] # 예시 출력: ID 5번 마커가 감지되었고, 중심 x=90, y=110 위치
-            >>> print(marker_info)
-            [254, 0, 0] # 예시 출력: 마커가 감지되지 않음
+            >>> zumiAI.set_zumi_color_detection(True) # 색상 감지 기능 활성화
+            >>> color_center = zumiAI.get_zumi_color_center()
+            >>> print(f"감지된 색상 중심 좌표: {color_center}")
+            감지된 색상 중심 좌표: [80, 100] # 예시 출력: x=80, y=100 위치에서 색상 감지됨
+            >>> print(f"감지된 색상 중심 좌표: {color_center}")
+            감지된 색상 중심 좌표: [0, 0] # 예시 출력: 색상이 감지되지 않음
+        """
+
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_COLOR_X)
+
+
+
+    def get_zumi_marker_id(self) -> int:
+        """
+        주미의 내장 마커 감지 기능을 통해 현재 감지된 마커의 ID를 가져옵니다.
+
+        이 함수는 `set_zumi_marker_detection()` 함수로 마커 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 주미의 카메라 시야에 특정 마커가 감지되면 해당 마커의 고유 ID를 반환하며,
+        감지된 마커가 없으면 특정 값을 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            int: 감지된 마커의 고유 ID를 나타내는 정수.
+                - **0~253**: 감지된 마커의 ID.
+                - **254**: 감지된 마커가 없는 경우.
+
+        Examples:
+            >>> zumiAI.set_zumi_marker_detection(True) # 마커 감지 기능 활성화
+            >>> detected_id = zumiAI.get_zumi_marker_id()
+            >>> print(f"감지된 마커 ID: {detected_id}")
+            감지된 마커 ID: 5 # 예시 출력: ID 5번 마커 감지됨
+            >>> print(f"감지된 마커 ID: {detected_id}")
+            감지된 마커 ID: 254 # 예시 출력: 감지된 마커 없음
 
         Note:
             마커 ID 리스트 (추가 예정)
         """
-
         return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_MARKER)
 
-    def get_zumi_cat_detection(self) -> list:
-        """
-        주미가 자체 고양이 감지 기능을 통해 감지된 고양이 정보를 가져옵니다.
 
-        이 함수는 set_zumi_cat_detection() 함수로 고양이 감지 기능을 활성화했을 때
-        사용할 수 있습니다.
+    def get_zumi_marker_center(self) -> list:
+        """
+        주미의 내장 마커 감지 기능을 통해 감지된 마커의 중심 좌표를 가져옵니다.
+
+        이 함수는 `set_zumi_marker_detection()` 함수로 마커 감지 기능을 활성화했을 때
+        사용할 수 있습니다. 마커가 감지되면 해당 마커의 중심 x, y 좌표를 반환합니다.
 
         Args:
             없음
 
         Returns:
-            list: 다음 순서로 감지된 고양이 정보를 포함하는 리스트를 반환합니다:
-                - **감지 여부 (int)**: 고양이 감지 여부 (0: 미감지, 1: 감지됨)
-                - **x축 위치 (int)**: 감지된 고양이의 중심 x 좌표 (감지된 경우에만 유효)
-                - **y축 위치 (int)**: 감지된 고양이의 중심 y 좌표 (감지된 경우에만 유효)
+            list: 다음 순서로 감지된 마커의 중심 좌표를 포함하는 리스트를 반환합니다:
+                - **x축 위치 (int)**: 감지된 마커의 중심 x 좌표. (마커가 감지되지 않았다면 0)
+                - **y축 위치 (int)**: 감지된 마커의 중심 y 좌표. (마커가 감지되지 않았다면 0)
 
         Examples:
-            >>> cat_info = zumiAI.get_zumi_cat_detection()
-            >>> print(cat_info)
-            [1, 70, 90] # 예시 출력: 고양이가 감지되었고, 중심 x=70, y=90 위치
-            >>> print(cat_info)
-            [0, 0, 0]   # 예시 출력: 고양이가 감지되지 않음
+            >>> zumiAI.set_zumi_marker_detection(True) # 마커 감지 기능 활성화
+            >>> marker_center = zumiAI.get_zumi_marker_center()
+            >>> print(f"감지된 마커 중심 좌표: {marker_center}")
+            감지된 마커 중심 좌표: [90, 110] # 예시 출력: x=90, y=110 위치에서 마커 감지됨
+            >>> print(f"감지된 마커 중심 좌표: {marker_center}")
+            감지된 마커 중심 좌표: [0, 0] # 예시 출력: 마커가 감지되지 않음
         """
-        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_CAT)
+
+        return self._connection_handler._get_detect_data(PacketDataIndex.DATA_DETECT_MARKER_X)
+
+
+
+
+
+
 
     def get_button(self) -> int:
         """
@@ -2077,12 +2158,8 @@ class ZumiAI:
         self.display_text_clear()
 
 
-    # def sendForward(self):
-    #     data = Command()
-    #     data.commandType = CommandType.COMMAND_GOGO
-    #     data.option = 0
-    #     return self.transfer(data)
-
+    ##--------------------------------------------------------------------#
+    ##--------------------------------------------------------------------#
     ##--------------------------------------------------------------------#
     # 소켓 영상 제어 명령어
     def camera_stream_start(self):
@@ -2147,9 +2224,11 @@ class ZumiAI:
         """
         주미의 다양한 내장 센서에서 데이터를 읽는 기능을 시작합니다.
 
-        이 함수는 주미의 IR 센서, 버튼, 배터리 등 여러 센서의 데이터를
-        주기적으로 가져올 수 있도록 시스템을 활성화합니다. 센서 값을 사용하기 전에
+        IP 연결 모드에서는 센서 값을 기본적으로 가져오지 않으므로, 센서 값을 사용하기 전에
         이 함수를 반드시 한 번 호출해야 합니다.
+
+        이 함수는 주미의 IR 센서, 버튼, 배터리 등의 데이터를
+        주기적으로 가져올 수 있도록 시스템을 활성화합니다.
 
         Args:
             없음
@@ -2182,9 +2261,9 @@ class ZumiAI:
         Args:
             flag (bool): 센서 값 화면 표시 활성화 여부를 설정합니다.
 
-                        - **True**: 센서 값들을 스트리밍화면에 표시하기 시작합니다.
+                        - **True**: 센서 값들을 스트리밍 화면에 표시하기 시작합니다.
 
-                        - **False**: 센서 값 표시를 중지하고 화면을 원래대로 되돌립니다.
+                        - **False**: 센서 값 표시를 중지합니다.
 
         Returns:
             이 함수는 값을 반환하지 않습니다.
@@ -2233,77 +2312,493 @@ class ZumiAI:
     # face
     def face_detector_init(self, face_recognize_threshold = 0.8):
         """
-        얼굴 인식 기능을 초기화
+        PC로 스트리밍되는 카메라 영상에서 얼굴 인식 기능을 초기화합니다.
+
+        이 함수는 주미 로봇에서 PC로 전송되는 실시간 영상 스트림을 사용하여
+        컴퓨터에서 사람의 얼굴을 인식할 수 있도록 필요한 설정과 리소스(예: 얼굴 인식 모델)를 준비합니다.
+        얼굴 인식은 단순히 얼굴이 감지되는 것을 넘어, 학습된 특정 얼굴을 구별하는 기능입니다.
+
+        Args:
+            face_recognize_threshold (float, optional): 얼굴 인식의 정확도 임계값을 설정합니다.
+                                                        기본값은 0.8이며, 0.0부터 1.0 사이의 값을 가집니다.
+
+                                                        - **값이 높을수록**: 더 엄격한 기준으로 얼굴을 비교하여 오인식률은 낮아지지만, 인식 성공률이 떨어질 수 있습니다.
+
+                                                        - **값이 낮을수록**: 좀 더 관대한 기준으로 얼굴을 비교하여 인식 성공률은 높아지지만, 오인식률이 증가할 수 있습니다.
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - 얼굴 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
+            - 이 함수로 초기화한 후, ``face_detector_start()`` 함수를 호출해야 실제로 얼굴 인식이 시작됩니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start() # 먼저 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init() # 기본 임계값 0.8로 PC 기반 얼굴 인식 기능 초기화
+            >>> zumiAI.face_detector_init(face_recognize_threshold=0.7) # 임계값을 0.7로 설정하여 초기화
+            >>> zumiAI.face_detector_start() # 얼굴 인식 시작
+            # ... 얼굴 인식 로직 ...
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
         """
+
         self._connection_handler._faceDetectorInit(face_recognize_threshold)
+
 
     def face_detector_start(self):
         """
-        얼굴 인식 기능을 시작
+        PC로 스트리밍되는 카메라 영상에서 얼굴 인식 기능을 시작합니다.
+
+        이 함수를 호출하면 주미 로봇의 카메라 영상이 PC로 스트리밍될 때,
+        영상 내에서 인식된 얼굴이 자동으로 감지되고 다음과 같이 화면에 표시됩니다:
+
+        - **사각형 테두리**: 감지된 얼굴 주변에 사각형 테두리가 그려집니다.
+
+        - **등록된 이름**: 만약 등록된 얼굴이라면 해당 이름이 표시됩니다.
+
+        - **신뢰도**: 얼굴 인식의 신뢰도(정확도)가 숫자로 표시됩니다.
+
+        - **중심 좌표 및 크기**: 인식된 얼굴의 중앙 x, y 좌표 및 크기 정보가 함께 표시될 수 있습니다.
+
+        Args:
+            없음
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - 이 함수를 호출하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``face_detector_init()`` 로 얼굴 인식 기능을 초기화해야 합니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 기능 초기화 (선택 사항, 임계값 설정 가능)
+            >>> zumiAI.face_detector_start()  # PC 화면에서 얼굴 인식 및 시각화 시작
+            # 이제 PC 화면의 스트리밍 영상에 인식된 얼굴 정보가 표시됩니다.
+            >>> # ... 얼굴 인식을 사용하는 로직 ...
+            >>> zumiAI.face_detector_stop()   # 얼굴 인식 중지
         """
+
         self._connection_handler._faceDetectorStart()
+
 
     def face_detector_stop(self):
         """
-        얼굴 인식 기능을 종료
+        PC로 스트리밍되는 카메라 영상의 얼굴 인식 기능을 중지합니다.
+
+        이 함수는 ``face_detector_start()`` 함수로 시작된 얼굴 인식 프로세스와
+        관련된 시각화(사각형 테두리, 이름, 신뢰도 등) 및 데이터 처리를 모두 종료합니다.
+        더 이상 얼굴 인식이 필요하지 않을 때 호출하여 시스템 자원을 해제합니다.
+
+        Args:
+            없음
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - 얼굴 인식 기능을 다시 사용하려면 ``face_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 기능 초기화
+            >>> zumiAI.face_detector_start()  # PC 화면에서 얼굴 인식 시작
+            # ... 얼굴 인식을 사용하는 로직 ...
+            >>> zumiAI.face_detector_stop()   # 얼굴 인식 중지
+            # 이제 PC 화면에서 얼굴 인식 관련 표시가 사라지고, 자원이 해제됩니다.
         """
+
         self._connection_handler._faceDetectorStop()
 
-    def is_face_detected(self,name:str="Unknown"):
+
+    def is_face_detected(self,name:str="Unknown") -> bool:
         """
-        카메라에 입력한 이름을 가진 얼굴이 있는지 반환
-        name : 검출할 얼굴의 이름
+        PC로 스트리밍되는 카메라 영상에서 특정 이름의 얼굴이 감지되었는지 확인합니다.
+
+        이 함수는 ``face_detector_start()`` 로 시작된 얼굴 인식 기능이 활성화된 상태에서,
+        PC 화면에 스트리밍되는 영상에 지정된 name을 가진 얼굴이 있는지 여부를 반환합니다.
+
+        Args:
+            name (str, optional): 감지 여부를 확인할 등록된 얼굴의 이름.
+                                기본값은 "Unknown"이며, 이 경우 '알 수 없는' 또는
+                                '등록되지 않은' 얼굴의 감지 여부를 확인합니다.
+
+        Returns:
+            bool: 지정된 name을 가진 얼굴이 영상에서 감지되었는지 여부.
+                - **True**: 해당 이름의 얼굴이 현재 영상에서 감지되었습니다.
+                - **False**: 해당 이름의 얼굴이 현재 영상에서 감지되지 않았습니다.
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()
+            >>> zumiAI.face_detector_init()
+            >>> zumiAI.face_detector_start()
+            >>>
+            >>> # '학생1'이라는 이름의 얼굴이 감지되었는지 확인
+            >>> detected_student = zumiAI.is_face_detected(name="학생1")
+            >>> print(f"'학생1' 감지 여부: {detected_student}")
+            '학생1' 감지 여부: True # 예시 출력: '학생1' 얼굴이 감지됨
+
+            >>> # 'Unknown'(알 수 없는) 얼굴이 감지되었는지 확인
+            >>> detected_unknown = zumiAI.is_face_detected() # 또는 is_face_detected("Unknown")
+            >>> print(f"알 수 없는 얼굴 감지 여부: {detected_unknown}")
+            알 수 없는 얼굴 감지 여부: False # 예시 출력: 알 수 없는 얼굴이 감지되지 않음
         """
+
         return self._connection_handler._isFaceDetected(name)
 
-    def get_detected_face_result(self):
+
+    def get_detected_face_result(self) -> tuple:
         """
-        티처블 모델의 예측 결과 (클래스 이름과 신뢰도 점수)를 반환
-        """
+            PC로 스트리밍되는 카메라 영상에서 인식된 얼굴의 이름과 신뢰도 점수를 가져옵니다.
+
+            이 함수는 ``face_detector_start()`` 함수로 얼굴 인식이 활성화된 상태에서
+            현재 스트리밍 영상에 인식된 얼굴이 있다면, 가장 크게 감지된 얼굴이름과
+            해당 이름에 대한 신뢰도 점수를 튜플 형태로 반환합니다.
+
+            Args:
+                없음
+
+            Returns:
+                tuple: 얼굴의 이름과 신뢰도 점수를 담은 튜플.
+
+                    - **[0] 이름 (str)**: 인식된 얼굴의 이름 (예: "학생1"). 얼굴이 인식되지 않았다면 "Unknown" 또는 마지막으로 인식된 이름이 반환될 수 있습니다.
+
+                    - **[1] 신뢰도 점수 (float)**: 해당 이름에 대한 신뢰도 점수 (0.00 ~ 1.00). 얼굴이 인식되지 않았다면 0.00이 반환될 수 있습니다.
+
+                    예시: `("학생1", 0.95)`
+
+            Note:
+                - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+                - face_recognize_threshold 값에 따라 신뢰도 점수가 달라질 수 있습니다.
+                - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
+
+            Examples:
+                >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+                >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+                >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+                >>> while True:
+                >>>     name, score = zumiAI.get_detected_face_result()
+                >>>     if name != "Unknown" and score > 0.5: # Unknown이 아니며 신뢰도가 0.5보다 높을 때
+                >>>         print(f"인식된 얼굴: {name}, 신뢰도: {score:.2f}")
+                >>>     else:
+                >>>         print("얼굴 인식 대기 중...")
+                >>>     time.sleep(1) # 1초 대기
+
+                >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+            """
+
         return self._connection_handler._getDetectedFaceResult()
 
-    def get_detected_face_name(self):
+
+    def get_detected_face_name(self) -> str:
         """
-        카메라에 확인된 얼굴의 이름을 반환
-        현재 인식된 얼굴이 없다면 Unknown를 반환
+        PC로 스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 이름을 가져옵니다.
+
+        이 함수는 ``face_detector_start()`` 함수로 얼굴 인식이 활성화된 상태에서,
+        현재 스트리밍 영상에 인식된 얼굴이 있다면 해당 얼굴의 등록된 이름을 반환합니다.
+        만약 인식된 얼굴이 없거나 등록되지 않은 얼굴이라면 "Unknown"을 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            str: 인식된 얼굴의 이름.
+                - **등록된 이름 (str)**: 얼굴이 성공적으로 인식된 경우.
+                - **"Unknown" (str)**: 얼굴이 인식되지 않았거나, 등록되지 않은 얼굴인 경우.
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> while True:
+            >>>     face_name = zumiAI.get_detected_face_name()
+            >>>     if face_name != "Unknown":
+            >>>         print(f"인식된 얼굴: {face_name}")
+            >>>     else:
+            >>>         print("얼굴 인식 대기 중... (알 수 없는 얼굴)")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
         """
+
         return self._connection_handler._getDetectedFaceName()
 
-    def get_detected_face_confidence_score(self):
+
+    def get_detected_face_confidence_score(self) -> float:
         """
-        카메라에 인식된 얼굴의 신뢰도 점수를 반환
+        PC로 스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 신뢰도 점수를 가져옵니다.
+
+        이 함수는 ``face_detector_start()`` 함수로 얼굴 인식이 활성화된 상태에서,
+        현재 스트리밍 영상에 인식된 얼굴이 있다면 해당 얼굴이 얼마나 정확하게 인식되었는지 나타내는
+        신뢰도 점수(0.00 ~ 1.00 사이의 값)를 반환합니다. 점수가 높을수록 더욱 확실하게 인식되었다는 의미입니다.
+
+        Args:
+            없음
+
+        Returns:
+            float: 인식된 얼굴의 신뢰도 점수 (0.00 ~ 1.00).
+                얼굴이 인식되지 않았거나 등록되지 않은 얼굴인 경우 0.00이 반환될 수 있습니다.
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - ``face_detector_init()`` 함수에서 설정한 ``face_recognize_threshold`` 값에 따라 인식 결과와 신뢰도 점수의 해석이 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> while True:
+            >>>     score = zumiAI.get_detected_face_confidence_score()
+            >>>     if score > 0.7: # 신뢰도 점수가 0.7보다 높을 때
+            >>>         print(f"얼굴 인식 신뢰도: {score:.2f} (높음)")
+            >>>     elif score > 0.4:
+            >>>         print(f"얼굴 인식 신뢰도: {score:.2f} (보통)")
+            >>>     else:
+            >>>         print(f"얼굴 인식 신뢰도: {score:.2f} (낮거나 인식 안 됨)")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
         """
+
         return self._connection_handler._getDetectedFaceConfidenceScore()
 
-    def get_face_center(self):
+
+    def get_face_center(self) -> list:
         """
-        카메라에 인식된 얼굴의 중심 좌표를 반환
+        PC로 스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 중심 좌표를 가져옵니다.
+
+        이 함수는 ``face_detector_start()`` 함수로 얼굴 인식이 활성화된 상태에서,
+        현재 스트리밍 영상에 얼굴이 인식되었다면, 가장 크게 감지된 얼굴의 중심이 되는
+        x, y 좌표를 리스트 형태로 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            list: 인식된 얼굴의 중심 x, y 좌표를 담은 리스트.
+                - **[0] x축 위치 (int)**: 인식된 얼굴의 중심 x 좌표.
+                - **[1] y축 위치 (int)**: 인식된 얼굴의 중심 y 좌표.
+
+                얼굴이 인식되지 않았다면 `[0, 0]`을 반환할 수 있습니다. 예시: `[160, 120]` (스트리밍 화면의 중앙 근처)
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> while True:
+            >>>     center_x, center_y = zumiAI.get_face_center()
+            >>>     if center_x != 0 or center_y != 0: # 얼굴이 감지되어 유효한 좌표가 반환된 경우
+            >>>         print(f"얼굴 중심 좌표: X={center_x}, Y={center_y}")
+            >>>     else:
+            >>>         print("얼굴 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
         """
+
         return self._connection_handler._getFaceCenter()
 
-    def get_face_size(self):
+
+    def get_face_size(self) -> int:
         """
-        카메라에 인식된 얼굴의 크기를 반환
+        PC로 스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 크기를 가져옵니다.
+
+        이 함수는 ``face_detector_start()`` 함수로 얼굴 인식이 활성화된 상태에서,
+        현재 스트리밍 영상에 얼굴이 인식되었다면, 가장 크게 감지된 얼굴의 크기를
+        숫자(픽셀 또는 상대적인 값)로 반환합니다. 이 값으로 얼굴이 화면에서 얼마나
+        크게 보이는지 알 수 있습니다.
+
+        Args:
+            없음
+
+        Returns:
+            int: 인식된 얼굴의 크기.
+                얼굴이 인식되지 않았다면 0을 반환합니다.
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 얼굴의 거리에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> while True:
+            >>>     face_size = zumiAI.get_face_size()
+            >>>     if face_size > 0: # 얼굴이 감지되어 유효한 크기 값이 반환된 경우
+            >>>         print(f"인식된 얼굴 크기: {face_size}")
+            >>>         if face_size > 100:
+            >>>             print("얼굴이 가까이 있네요!")
+            >>>         else:
+            >>>             print("얼굴이 조금 멀리 있거나 작게 보이네요.")
+            >>>     else:
+            >>>         print("얼굴 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
         """
+
         return self._connection_handler._getFaceSize()
 
-    def face_landmark_visible(self, flag):
+
+
+    def face_landmark_visible(self, flag:bool):
+        """
+        PC로 스트리밍되는 카메라 영상에 인식된 얼굴의 주요 랜드마크(특징점)를 표시합니다.
+
+        이 함수를 호출하면 ``face_detector_start()`` 로 얼굴 인식이 활성화된 상태에서,
+        스트리밍 영상에 인식된 얼굴 위에 다음과 같은 7가지 주요 특징점들이 표시됩니다:
+
+        왼쪽 눈, 오른쪽 눈, 왼쪽 눈썹, 오른쪽 눈썹, 코, 입, 턱
+
+        이 기능은 얼굴의 세부적인 움직임이나 특징을 시각적으로 확인하는 데 유용합니다.
+
+        Args:
+            flag (bool): 얼굴 랜드마크 표시 활성화 여부를 설정합니다.
+
+                        - **True**: 스트리밍 영상에 얼굴 랜드마크를 표시하기 시작합니다.
+
+                        - **False**: 얼굴 랜드마크 표시를 중지합니다.
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - ``face_landmark_visible()`` 함수와 함께 사용하면 얼굴 특징점과 윤곽선을 동시에 볼 수 있습니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> zumiAI.face_landmark_visible(True) # 스트리밍 영상에 얼굴 랜드마크 표시 시작
+            # 이제 PC 화면의 스트리밍 영상에 인식된 얼굴 위에 랜드마크가 나타납니다.
+            >>> # ... 얼굴 랜드마크를 관찰하는 로직 ...
+            >>> zumiAI.face_landmark_visible(False) # 얼굴 랜드마크 표시 중지
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 종료 (필요 시)
+        """
+
         self._connection_handler._faceLandmarkVisible(flag)
 
-    def face_contours_visible(self, flag):
+    def face_contours_visible(self, flag:bool):
+        """
+        PC로 스트리밍되는 카메라 영상에 인식된 얼굴의 윤곽선을 표시합니다.
+
+        이 함수를 호출하면 ``face_detector_start()`` 로 얼굴 인식이 활성화된 상태에서,
+        스트리밍 영상에 인식된 얼굴 위에 얼굴의 주요 특징점을 연결한 파란색 윤곽선이 그려집니다.
+        이는 얼굴의 형태와 움직임을 시각적으로 파악하는 데 유용합니다.
+
+        Args:
+            flag (bool): 얼굴 윤곽선 표시 활성화 여부를 설정합니다.
+
+                        - **True**: 스트리밍 영상에 얼굴 윤곽선을 표시하기 시작합니다.
+
+                        - **False**: 얼굴 윤곽선 표시를 중지합니다.
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - ``face_landmark_visible()`` 함수와 함께 사용하면 얼굴 특징점과 윤곽선을 동시에 볼 수 있습니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> zumiAI.face_contours_visible(True) # 스트리밍 영상에 얼굴 윤곽선 표시 시작
+            # 이제 PC 화면의 스트리밍 영상에 인식된 얼굴 위에 파란색 윤곽선이 나타납니다.
+            >>> # ... 얼굴 윤곽선을 관찰하는 로직 ...
+            >>> zumiAI.face_contours_visible(False) # 얼굴 윤곽선 표시 중지
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 종료 (필요 시)
+        """
+
         self._connection_handler._faceContoursVisible(flag)
 
 
-    def get_face_landmark(self, landmark=1):
+    def get_face_landmark(self, landmark=1) -> list:
         """
-        얼굴의 특정 부위의 좌표를 반환
-        LEFT_EYE = 1
-        RIGHT_EYE = 2
-        LEFT_EYEBROW = 3
-        RIGHT_EYEBROW = 4
-        NOSE = 5
-        MOUTH = 6
-        JAW = 7
+        스트리밍되는 카메라 영상에서 인식된 얼굴의 특정 랜드마크(특징점) 중심 좌표를 가져옵니다.
+
+        이 함수는 `face_detector_start()`` 로 얼굴 인식이 활성화된 상태에서,
+        스트리밍 영상에 인식된 얼굴의 지정된 랜드마크(예: 왼쪽 눈, 코)의 x, y 좌표를 리스트 형태로 반환합니다.
+        이를 통해 얼굴 각 부분의 위치를 프로그램에서 활용할 수 있습니다.
+
+        Args:
+            landmark (int or face_landmark, optional): 좌표를 가져올 얼굴 랜드마크의 ID 또는 이름.
+                                                    기본값은 `1` (왼쪽 눈)입니다.
+                                                    다음 값들을 사용할 수 있습니다:
+
+                                                    - **1 (face_landmark.LEFT_EYE)**: 왼쪽 눈
+
+                                                    - **2 (face_landmark.RIGHT_EYE)**: 오른쪽 눈
+
+                                                    - **3 (face_landmark.LEFT_EYEBROW)**: 왼쪽 눈썹
+
+                                                    - **4 (face_landmark.RIGHT_EYEBROW)**: 오른쪽 눈썹
+
+                                                    - **5 (face_landmark.NOSE)**: 코
+
+                                                    - **6 (face_landmark.MOUTH)**: 입
+
+                                                    - **7 (face_landmark.JAW)**: 턱
+
+                                                    잘못된 값이 입력되면 자동으로 코(`face_landmark.NOSE`)의 좌표를 반환합니다.
+
+        Returns:
+            list: 선택된 얼굴 랜드마크의 중심 x, y 좌표를 담은 리스트.
+                - **[0] x축 위치 (int)**: 랜드마크의 중심 x 좌표.
+                - **[1] y축 위치 (int)**: 랜드마크의 중심 y 좌표.
+
+                얼굴이 인식되지 않았다면 `[0, 0]`을 반환할 수 있습니다. 예시: `[150, 110]` (선택된 랜드마크의 화면 상 위치)
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
+            >>> zumiAI.face_detector_start()  # 얼굴 인식 시작
+
+            >>> # 코의 중심 좌표 가져오기
+            >>> nose_x, nose_y = zumiAI.get_face_landmark(landmark=5) # 또는 zumiAI.get_face_landmark(face_landmark.NOSE)
+            >>> print(f"코의 중심 좌표: X={nose_x}, Y={nose_y}")
+
+            >>> # 왼쪽 눈의 중심 좌표 가져오기
+            >>> left_eye_x, left_eye_y = zumiAI.get_face_landmark(landmark=face_landmark.LEFT_EYE)
+            >>> print(f"왼쪽 눈의 중심 좌표: X={left_eye_x}, Y={left_eye_y}")
+
+            >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
         """
         if not isinstance(landmark, face_landmark):
             try:
@@ -2312,25 +2807,98 @@ class ZumiAI:
                 landmark = face_landmark.NOSE
         return self._connection_handler._getFaceLandmark(landmark)
 
+
     def face_train(self,name:str):
         """
-        얼굴 학습 모드
-        키보드의 z키를 누르면 얼굴을 학습합니다.
-        키도드의 e키를 누르면 종료합니다.
-        name : 등록할 얼굴의 이름
+        스트리밍되는 카메라 영상에서 새로운 얼굴을 학습시키고 등록합니다.
+
+        이 함수를 호출하면 주미 로봇의 카메라 영상이 PC로 스트리밍되는 화면에서
+        얼굴 학습 모드가 활성화됩니다. 이 모드에서는 키보드 입력을 통해
+        얼굴을 학습시키고 저장할 수 있습니다.
+
+        Args:
+            name (str): 등록할 얼굴의 이름. 학습된 얼굴은 이 이름으로 저장됩니다.
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - **학습 과정**:
+                1. ``face_train()`` 함수를 실행하면 얼굴 학습 모드가 시작됩니다.
+                2. 화면에 얼굴이 인식된 상태에서 `r` 키를 누르면 현재 화면에 있는 얼굴이 한 장씩 캡처되어 학습됩니다.
+                3. 얼굴이 인식되지 않은 상태에서 `r` 키를 누르면 학습되지 않으므로, 얼굴이 화면에 잘 보이도록 한 후 여러 번 `r` 키를 눌러 다양한 각도와 표정으로 학습시키는 것이 좋습니다.
+                4. 충분히 학습되었다고 판단되면 `e` 키를 눌러 학습 모드를 종료합니다.
+
+            - 학습된 얼굴 정보는 자동으로 저장되어 다음에 주미를 시작할 때 자동으로 불러와져 인식에 사용됩니다.
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작해야 합니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start() # 카메라 스트리밍 시작 (필수)
+            >>> print("학습할 이름을 입력하세요 (예: '철수', '영희'):")
+            >>> user_name = input()
+            >>> zumiAI.face_train(name=user_name) # 입력된 이름으로 얼굴 학습 모드 시작
+            # 이제 PC 화면을 보면서 'r'키를 눌러 얼굴을 학습하고 'e'키로 종료하세요.
+            >>> print(f"'{user_name}' 얼굴 학습 모드가 종료되었습니다.")
+            # 학습된 얼굴은 이제 'face_detector_start()'로 인식될 수 있습니다.
         """
         self._connection_handler._faceTrain(name)
 
+
     def delete_face_data(self, name:str):
         """
-        등록된 얼굴중 입력한 이름의 데이터 삭제
-        name : 삭제할 얼굴의 이름
+        스트리밍되는 카메라 영상에서 학습된 특정 이름의 얼굴 데이터를 삭제합니다.
+
+        이 함수는 ``face_train()`` 함수를 통해 이전에 학습하고 저장했던 얼굴 데이터 중에서,
+        지정된 name과 일치하는 얼굴 정보를 인식 시스템에서 완전히 지웁니다.
+        더 이상 특정 얼굴을 인식하고 싶지 않을 때 사용합니다.
+
+        Args:
+            name (str): 삭제할 얼굴 데이터의 이름. 정확한 이름을 입력해야 해당 데이터가 삭제됩니다.
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - 이 함수는 영구적으로 얼굴 데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다.
+            - 삭제하려는 이름이 시스템에 등록되어 있지 않으면 아무런 작업도 수행되지 않습니다.
+            - 이 기능은 주미 로봇 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+
+        Examples:
+            >>> # 'jay'라는 이름의 얼굴 데이터 삭제
+            >>> zumiAI.delete_face_data(name="jay")
+            >>> print("'jay' 얼굴 데이터가 삭제되었습니다.")
+
+            >>> # 'may'라는 이름의 얼굴 데이터 삭제
+            >>> zumiAI.delete_face_data(name="may")
+            >>> print("'may' 얼굴 데이터 삭제를 시도했습니다.")
         """
         self._connection_handler._deleteFaceData(name)
 
+
     def delete_all_Face_data(self):
         """
-        등록된 모든 얼굴의 데이터 삭제
+        스트리밍되는 카메라 영상에서 학습된 모든 얼굴 데이터를 삭제합니다.
+
+        이 함수는 ``face_train()`` 함수를 통해 이전에 학습하고 저장했던
+        모든 얼굴 인식 데이터를 인식 시스템에서 완전히 지웁니다.
+        주미의 얼굴 인식 기록을 초기화하고 싶을 때 사용합니다.
+
+        Args:
+            없음
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Note:
+            - **이 작업은 되돌릴 수 없습니다!** 모든 학습된 얼굴 데이터가 영구적으로 삭제되니 신중하게 사용해 주세요.
+            - 이 기능은 주미 로봇 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+
+        Examples:
+            >>> # 저장된 모든 얼굴 데이터 삭제
+            >>> zumiAI.delete_all_Face_data()
+            >>> print("모든 얼굴 데이터가 삭제되었습니다.")
+            # 이제 주미는 학습된 어떤 얼굴도 인식하지 못하게 됩니다.
         """
         self._connection_handler._deleteAllFaceData()
 

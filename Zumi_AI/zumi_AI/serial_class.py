@@ -42,10 +42,21 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self.senBR = 0
         self.senBC = 0
 
-        self.detectFace = [0, 0, 0]
-        self.detectColor = [0, 0, 0]
-        self.detectMarker = [0, 0, 0]
-        self.detectCat = [0, 0, 0]
+
+
+        self.zumiFaceDetected = False
+        self.zumiFaceCenter = [0, 0]
+
+        self.zumiColorDetected = False
+        self.zumiColorCenter = [0, 0]
+
+        self.zumiMarkerDetected = False
+        self.zumiMarkerCenter = [0, 0]
+
+        self.zumiCatDetected = False
+        self.zumiCatCenter = [0, 0]
+
+
 
         self.btn = 0
         self.battery = 0
@@ -60,7 +71,6 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         # self.senBC = dataArray[6]
         # self.senBR = dataArray[5]
 
-        # self.detectFace = dataArray[8]
 
         #self.reqCOM = dataArray[PacketDataIndex.DATA_COM.value - self.headerLen]
         self.reqINFO = dataArray[PacketDataIndex.DATA_INFO.value - self.headerLen]
@@ -77,21 +87,22 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         self.btn = dataArray[PacketDataIndex.DATA_BTN_INPUT.value - self.headerLen]
         self.battery = dataArray[PacketDataIndex.DATA_BATTERY.value - self.headerLen]
 
-        self.detectFace[0] = dataArray[PacketDataIndex.DATA_DETECT_FACE.value - self.headerLen]
-        self.detectFace[1] = dataArray[PacketDataIndex.DATA_DETECT_FACE_X.value - self.headerLen]
-        self.detectFace[2] = dataArray[PacketDataIndex.DATA_DETECT_FACE_Y.value - self.headerLen]
 
-        self.detectColor[0] = dataArray[PacketDataIndex.DATA_DETECT_COLOR.value - self.headerLen]
-        self.detectColor[1] = dataArray[PacketDataIndex.DATA_DETECT_COLOR_X.value - self.headerLen]
-        self.detectColor[2] = dataArray[PacketDataIndex.DATA_DETECT_COLOR_Y.value - self.headerLen]
+        self.zumiFaceDetected = dataArray[PacketDataIndex.DATA_DETECT_FACE.value - self.headerLen]
+        self.zumiFaceCenter[0] = dataArray[PacketDataIndex.DATA_DETECT_FACE_X.value - self.headerLen]
+        self.zumiFaceCenter[1] = dataArray[PacketDataIndex.DATA_DETECT_FACE_Y.value - self.headerLen]
 
-        self.detectMarker[0] = dataArray[PacketDataIndex.DATA_DETECT_MARKER.value - self.headerLen]
-        self.detectMarker[1] = dataArray[PacketDataIndex.DATA_DETECT_MARKER_X.value - self.headerLen]
-        self.detectMarker[2] = dataArray[PacketDataIndex.DATA_DETECT_MARKER_Y.value - self.headerLen]
+        self.zumiColorDetected = dataArray[PacketDataIndex.DATA_DETECT_COLOR.value - self.headerLen]
+        self.zumiColorCenter[0] = dataArray[PacketDataIndex.DATA_DETECT_COLOR_X.value - self.headerLen]
+        self.zumiColorCenter[1] = dataArray[PacketDataIndex.DATA_DETECT_COLOR_Y.value - self.headerLen]
 
-        self.detectCat[0] = dataArray[PacketDataIndex.DATA_DETECT_CAT.value - self.headerLen]
-        self.detectCat[1] = dataArray[PacketDataIndex.DATA_DETECT_CAT_X.value - self.headerLen]
-        self.detectCat[2] = dataArray[PacketDataIndex.DATA_DETECT_CAT_Y.value - self.headerLen]
+        self.zumiMarkerDetected = dataArray[PacketDataIndex.DATA_DETECT_MARKER.value - self.headerLen]
+        self.zumiMarkerCenter[0] = dataArray[PacketDataIndex.DATA_DETECT_MARKER_X.value - self.headerLen]
+        self.zumiMarkerCenter[1] = dataArray[PacketDataIndex.DATA_DETECT_MARKER_Y.value - self.headerLen]
+
+        self.zumiCatDetected = dataArray[PacketDataIndex.DATA_DETECT_CAT.value - self.headerLen]
+        self.zumiCatCenter[0] = dataArray[PacketDataIndex.DATA_DETECT_CAT_X.value - self.headerLen]
+        self.zumiCatCenter[1] = dataArray[PacketDataIndex.DATA_DETECT_CAT_Y.value - self.headerLen]
 
 
         # Verify data processing complete
@@ -272,14 +283,35 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
         return (self.senFL, self.senFR, self.senBL, self.senBC, self.senBR) # Return a tuple copy
 
     def _get_detect_data(self,dataIndex):
+
         if dataIndex == PacketDataIndex.DATA_DETECT_FACE:
-            return self.detectFace
+            return self.zumiFaceDetected
+
+        if dataIndex == PacketDataIndex.DATA_DETECT_FACE_X:
+            return self.zumiFaceCenter
+
+
         elif dataIndex == PacketDataIndex.DATA_DETECT_COLOR:
-            return self.detectColor
+            return self.zumiColorDetected
+        elif dataIndex == PacketDataIndex.DATA_DETECT_COLOR_X:
+            return self.zumiColorCenter
+
+
         elif dataIndex == PacketDataIndex.DATA_DETECT_MARKER:
-            return self.detectMarker
+            return self.zumiMarkerDetected
+        elif dataIndex == PacketDataIndex.DATA_DETECT_MARKER_X:
+            return self.zumiMarkerCenter
+
+
         elif dataIndex == PacketDataIndex.DATA_DETECT_CAT:
-            return self.detectCat
+            return self.zumiCatDetected
+
+        elif dataIndex == PacketDataIndex.DATA_DETECT_CAT_X:
+            return self.zumiCatCenter
+
+
+
+
 
     def _get_btn_data(self):
         return self.btn

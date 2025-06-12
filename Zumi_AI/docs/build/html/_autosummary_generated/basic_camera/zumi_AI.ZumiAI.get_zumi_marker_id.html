@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>key_press_stop &mdash; zumiAI_python 1.0.0 문서</title>
+  <title>get_zumi_marker_id &mdash; zumiAI_python 1.0.0 문서</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -23,8 +23,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="색인" href="../../genindex.html" />
     <link rel="search" title="검색" href="../../search.html" />
-    <link rel="next" title="set_zumi_face_detection" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_face_detection.html" />
-    <link rel="prev" title="key_press_start" href="zumi_AI.ZumiAI.key_press_start.html" /> 
+    <link rel="next" title="get_zumi_marker_center" href="zumi_AI.ZumiAI.get_zumi_marker_center.html" />
+    <link rel="prev" title="get_zumi_color_center" href="zumi_AI.ZumiAI.get_zumi_color_center.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -84,45 +84,49 @@
 <li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_clear.html">display_text_clear</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_pos.html">display_text_pos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_set.html">display_text_set</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_IR_sensor_all.html">get_IR_sensor_all</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_IR_sensor_front.html">get_IR_sensor_front</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_IR_sensor_bottom.html">get_IR_sensor_bottom</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_battery.html">get_battery</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_button.html">get_button</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.key_press_set.html">key_press_set</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.key_press_start.html">key_press_start</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">key_press_stop</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.key_press_stop"><code class="docutils literal notranslate"><span class="pre">ZumiAI.key_press_stop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_all.html">get_IR_sensor_all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_front.html">get_IR_sensor_front</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_bottom.html">get_IR_sensor_bottom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_battery.html">get_battery</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_button.html">get_button</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../keyboard/zumi_AI.ZumiAI.key_press_set.html">key_press_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../keyboard/zumi_AI.ZumiAI.key_press_start.html">key_press_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../keyboard/zumi_AI.ZumiAI.key_press_stop.html">key_press_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.set_zumi_face_detection.html">set_zumi_face_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.set_zumi_cat_detection.html">set_zumi_cat_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.set_zumi_color_detection.html">set_zumi_color_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.set_zumi_marker_detection.html">set_zumi_marker_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.is_zumi_face_detected.html">is_zumi_face_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_zumi_face_center.html">get_zumi_face_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.is_zumi_cat_detected.html">is_zumi_cat_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_zumi_cat_center.html">get_zumi_cat_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_zumi_color_id.html">get_zumi_color_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_zumi_color_center.html">get_zumi_color_center</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">get_zumi_marker_id</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.get_zumi_marker_id"><code class="docutils literal notranslate"><span class="pre">ZumiAI.get_zumi_marker_id()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_face_detection.html">set_zumi_face_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_cat_detection.html">set_zumi_cat_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_color_detection.html">set_zumi_color_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_marker_detection.html">set_zumi_marker_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_face_detection.html">get_zumi_face_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_cat_detection.html">get_zumi_cat_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_color_detection.html">get_zumi_color_detection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_marker_detection.html">get_zumi_marker_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_zumi_marker_center.html">get_zumi_marker_center</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.camera_stream_start.html">camera_stream_start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.camera_LR_Flip.html">camera_LR_Flip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.sensor_start.html">sensor_start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.sensor_visible.html">sensor_visible</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.frame_rate_visible.html">frame_rate_visible</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.delete_all_Face_data.html">delete_all_Face_data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.delete_face_data.html">delete_face_data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_contours_visible.html">face_contours_visible</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_detector_init.html">face_detector_init</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_detector_start.html">face_detector_start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_detector_stop.html">face_detector_stop</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_landmark_visible.html">face_landmark_visible</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_train.html">face_train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_confidence_score.html">get_detected_face_confidence_score</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_name.html">get_detected_face_name</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_result.html">get_detected_face_result</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_center.html">get_face_center</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_landmark.html">get_face_landmark</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_size.html">get_face_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_contours_visible.html">face_contours_visible</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.is_face_detected.html">is_face_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_center.html">get_face_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_size.html">get_face_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_landmark.html">get_face_landmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_train.html">face_train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.delete_face_data.html">delete_face_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.delete_all_Face_data.html">delete_all_Face_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_result.html">get_detected_face_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_name.html">get_detected_face_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_confidence_score.html">get_detected_face_confidence_score</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.get_marker_center.html">get_marker_center</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.get_marker_id.html">get_marker_id</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.get_marker_size.html">get_marker_size</a></li>
@@ -190,9 +194,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">ZumiAI API 개요</a></li>
-      <li class="breadcrumb-item active">key_press_stop</li>
+      <li class="breadcrumb-item active">get_zumi_marker_id</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.key_press_stop.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_marker_id.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -200,30 +204,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="key-press-stop">
-<h1>key_press_stop<a class="headerlink" href="#key-press-stop" title="Link to this heading"></a></h1>
+  <section id="get-zumi-marker-id">
+<h1>get_zumi_marker_id<a class="headerlink" href="#get-zumi-marker-id" title="Link to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="zumi_AI.ZumiAI.key_press_stop">
-<span class="sig-prename descclassname"><span class="pre">ZumiAI.</span></span><span class="sig-name descname"><span class="pre">key_press_stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.key_press_stop" title="Link to this definition"></a></dt>
-<dd><p>실행 중인 외부 키보드 인터럽트 리스너를 중지합니다.</p>
-<p>이 함수는 key_press_start()로 시작된 키보드 리스너를 안전하게 종료합니다.</p>
-<p>프로그램이 완전히 종료되기 전에 명시적으로 호출하여 리소스 누수를 방지하는 것이 좋습니다.</p>
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.get_zumi_marker_id">
+<span class="sig-prename descclassname"><span class="pre">ZumiAI.</span></span><span class="sig-name descname"><span class="pre">get_zumi_marker_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#zumi_AI.ZumiAI.get_zumi_marker_id" title="Link to this definition"></a></dt>
+<dd><p>주미의 내장 마커 감지 기능을 통해 현재 감지된 마커의 ID를 가져옵니다.</p>
+<p>이 함수는 <cite>set_zumi_marker_detection()</cite> 함수로 마커 감지 기능을 활성화했을 때
+사용할 수 있습니다. 주미의 카메라 시야에 특정 마커가 감지되면 해당 마커의 고유 ID를 반환하며,
+감지된 마커가 없으면 특정 값을 반환합니다.</p>
 <dl class="field-list simple">
 <dt class="field-odd">매개변수<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>없음</strong></p>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
-<dd class="field-even"><p>이 함수는 값을 반환하지 않습니다.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>감지된 마커의 고유 ID를 나타내는 정수.</dt><dd><ul class="simple">
+<li><p><strong>0~253</strong>: 감지된 마커의 ID.</p></li>
+<li><p><strong>254</strong>: 감지된 마커가 없는 경우.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">반환 형식<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 키보드 리스너를 시작한 후 작업을 수행합니다.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 작업이 끝나면 리스너를 중지합니다.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">key_press_stop</span><span class="p">()</span>
-<span class="go">외부 키보드 인터럽트 리스너 중지 요청.</span>
-<span class="go">외부 키보드 인터럽트 리스너 스레드 종료됨. # 또는 &#39;실행 중인 외부 키보드 인터럽트 리스너가 없습니다.&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">set_zumi_marker_detection</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># 마커 감지 기능 활성화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detected_id</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_zumi_marker_id</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;감지된 마커 ID: </span><span class="si">{</span><span class="n">detected_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">감지된 마커 ID: 5 # 예시 출력: ID 5번 마커 감지됨</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;감지된 마커 ID: </span><span class="si">{</span><span class="n">detected_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">감지된 마커 ID: 254 # 예시 출력: 감지된 마커 없음</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">참고</p>
+<p>마커 ID 리스트 (추가 예정)</p>
 </div>
 </dd></dl>
 
@@ -233,8 +252,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="zumi_AI.ZumiAI.key_press_start.html" class="btn btn-neutral float-left" title="key_press_start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../basic_camera/zumi_AI.ZumiAI.set_zumi_face_detection.html" class="btn btn-neutral float-right" title="set_zumi_face_detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="zumi_AI.ZumiAI.get_zumi_color_center.html" class="btn btn-neutral float-left" title="get_zumi_color_center" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zumi_AI.ZumiAI.get_zumi_marker_center.html" class="btn btn-neutral float-right" title="get_zumi_marker_center" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

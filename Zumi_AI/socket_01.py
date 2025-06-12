@@ -19,10 +19,10 @@ zumi.camera_stream_start()
 
 
 ##
-
+##
 zumi.sensor_start()
-zumi.sensor_visible(True)
-zumi.frame_rate_visible(True)
+#zumi.sensor_visible(True)
+#zumi.frame_rate_visible(True)
 
 zumi.display_text_set(5,5)
 zumi.display_text("Motor",1)
@@ -131,7 +131,11 @@ try:
 
         time.sleep(0.5)
 
-        
+##        ir = zumi.get_battery()
+##        print(ir)
+##
+##
+##        
 ##        count1 = zumi.get_sketch_center("queen")
 ##        print(count1)
         

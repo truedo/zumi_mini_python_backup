@@ -54,6 +54,39 @@ class SketchData:
         #     if self.textY > self.box[i][1]:
         #         self.textY = self.box[i][1]
 
+
+
+
+
+# Define packet constants based on WebSocket test code and assumptions
+WS_SENSOR_HEADER = bytes([0x24, 0x52]) # $R
+WS_SENSOR_DATA_LENGTH = 7 # Header (2) + Sensor Values (5: FR, FL, BR, BL, BC)
+# Assume a similar status packet exists over WebSocket
+WS_STATUS_HEADER = bytes([0x24, 0x53]) # $S (Assuming a different header for status)
+# Based on serial handler's data mapping (22 data bytes after 2 header bytes)
+WS_STATUS_DATA_LENGTH = 24 # Header (2) + Status Data (22)
+
+# Define data indices for the assumed status packet (relative to start of packet)
+# These map to the serial handler's PacketDataIndex values directly, assuming the header is 2 bytes
+# Using a dict or Enum would be better, but hardcoding based on serial code's _handler logic
+_STATUS_INDEX_REQ_COM = 2
+_STATUS_INDEX_REQ_INFO = 3
+_STATUS_INDEX_REQ_REQ = 4
+_STATUS_INDEX_REQ_PSTAT = 5
+_STATUS_INDEX_DETECT_FACE = 8 # Start of 3 bytes (assuming serial's index 8 is 1st byte)
+_STATUS_INDEX_DETECT_COLOR = 11 # Start of 3 bytes
+_STATUS_INDEX_DETECT_MARKER = 14 # Start of 3 bytes
+_STATUS_INDEX_DETECT_CAT = 17 # Start of 3 bytes
+_STATUS_INDEX_BTN = 20
+_STATUS_INDEX_BATTERY = 21
+# Note: This mapping assumes indices relative to the start of the 24-byte status packet.
+# Example: reqCOM is dataArray[PacketDataIndex.DATA_COM.vaFlue - self.headerLen] in serial.
+# If PacketDataIndex.DATA_COM.value is 4 and self.headerLen is 2, it reads dataArray[2].
+# So, in the 24-byte packet, this corresponds to index 2. This confirms the mapping.
+
+
+
+
 class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     """
     Handles communication with a robot via WebSocket.
@@ -2191,6 +2224,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__drawSensorAreaFlag = False
 
 
+
+
     def _frameRateVisible(self, flag):
         if flag == True:
             if self.__drawFPSFlag == True:
@@ -2215,11 +2250,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             bat_offset = 3
 
         self.sensor_values = {
-            'FR': data[2],
             'FL': data[3],
-            'BR': data[4],
+            'FR': data[2],
             'BL': data[5],
             'BC': data[6],
+            'BR': data[4],
             'BTN': data[7],
             'BAT': data[8] - bat_offset,
             'STAT': data[9]
@@ -2260,6 +2295,37 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     cv2.putText(frame, text, (5, y),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2, lineType=cv2.LINE_AA)
                     y += 18
+
+
+    def _get_PSTAT_data(self):
+        if self.__sensorFlag == True:
+            return (self.sensor_values['STAT']) # Return a PSTAT flag
+        else :
+            print("sensor_start 를 먼저 실행해주세요.")
+            return (0) # Return a PSTAT flag
+
+    def _get_ir_all_readings(self):
+        """Returns the latest IR sensor readings (FL, FR, BL, BC, BR)."""
+        if self.__sensorFlag == True:
+            return (self.sensor_values['FL'], self.sensor_values['FR'], self.sensor_values['BL'], self.sensor_values['BC'], self.sensor_values['BR']) # Return a tuple copy
+        else :
+            print("sensor_start 를 먼저 실행해주세요.")
+            return (0, 0, 0, 0, 0) # Return a tuple copy
+
+    def _get_btn_data(self):
+        if self.__sensorFlag == True:
+            return self.sensor_values['BTN']
+        else :
+            print("sensor_start 를 먼저 실행해주세요.")
+            return (0)
+
+    def _get_battery_data(self):
+        if self.__sensorFlag == True:
+            return self.sensor_values['BAT']
+        else :
+            print("sensor_start 를 먼저 실행해주세요.")
+            return (0)
+
 
     # 프레임 표시
     def _FPS_overlay(self, frame):

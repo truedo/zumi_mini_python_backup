@@ -153,7 +153,6 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    display_text_set
    #sendText
 
-
 ------------------------------------------------------
 
 .. raw:: html
@@ -179,16 +178,36 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    get_battery
    get_button
 
+------------------------------------------------------
+
+.. raw:: html
+
+   <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+   6) 키보드 인터럽트 제어
+   </div>
+
+   <div style="font-size: 13px; margin-left: 10px;">
+     <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+     <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+   </div><br>
+
+.. currentmodule:: zumi_AI.ZumiAI
+.. autosummary::
+   :toctree: _autosummary_generated/keyboard
+   :template: function.rst
+
    key_press_set
    key_press_start
    key_press_stop
 
 ------------------------------------------------------
 
+
+
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   6) 기본 카메라 인식 기능
+   7) 기본 카메라 인식 기능
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -206,12 +225,17 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    set_zumi_color_detection
    set_zumi_marker_detection
 
+   is_zumi_face_detected
+   get_zumi_face_center
 
-   get_zumi_face_detection
-   get_zumi_cat_detection
-   get_zumi_color_detection
-   get_zumi_marker_detection
+   is_zumi_cat_detected
+   get_zumi_cat_center
 
+   get_zumi_color_id
+   get_zumi_color_center
+
+   get_zumi_marker_id
+   get_zumi_marker_center
 
 ------------------------------------------------------
 
@@ -219,7 +243,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   7) 카메라 스트리밍
+   8) 카메라 스트리밍
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -245,7 +269,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   8) 얼굴 인식
+   9) 얼굴 인식
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -258,22 +282,26 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    :toctree: _autosummary_generated/face_recognition
    :template: function.rst
 
-   delete_all_Face_data
-   delete_face_data
-   face_contours_visible
    face_detector_init
    face_detector_start
    face_detector_stop
-   face_landmark_visible
-   face_train
 
-   get_detected_face_confidence_score
-   get_detected_face_name
-   get_detected_face_result
-   get_face_center
-   get_face_landmark
-   get_face_size
+   face_landmark_visible
+   face_contours_visible
+
    is_face_detected
+   get_face_center
+   get_face_size
+   get_face_landmark
+
+   face_train
+   delete_face_data
+   delete_all_Face_data
+
+   get_detected_face_result
+   get_detected_face_name
+   get_detected_face_confidence_score
+
 
 ------------------------------------------------------
 
@@ -281,7 +309,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   9) 마커 인식
+   10) 마커 인식
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -311,7 +339,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   10) 스케치 인식
+   11) 스케치 인식
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -342,7 +370,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   11) 제스처 인식
+   12) 제스처 인식
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -371,7 +399,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   12) 객체 인식(신호등, 정지 표지판)
+   13) 객체 인식(신호등, 정지 표지판)
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
@@ -413,7 +441,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 .. raw:: html
 
    <div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
-   13) 사용자 학습 모델 (Teachable Machine)
+   14) 사용자 학습 모델 (Teachable Machine)
    </div>
 
    <div style="font-size: 13px; margin-left: 10px;">
