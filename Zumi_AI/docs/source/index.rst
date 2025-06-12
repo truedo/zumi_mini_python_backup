@@ -10,7 +10,10 @@ zumiAI의 파이썬 문서입니다.
    :maxdepth: 2
    :caption: Contents:
 
-   zumi_AI
+
+   api
+
+
 
 Indices and tables
 ===========================

@@ -2150,7 +2150,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             print("경고: 아직 모델 추론이 실행되지 않았거나 결과가 없습니다. teachable_detector_init()를 먼저 실행하세요.")
             return None, None
 
-
         # 클래스 이름은 인덱스 2부터 반환 (인덱스 번호 제거)
         processed_class_name = self.teachableClassName[2:]
         # 신뢰도 점수는 소수점 두 자리까지 포맷팅 (float 형태로 유지)
