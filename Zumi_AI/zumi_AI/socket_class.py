@@ -740,8 +740,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             self.__drawFaceContoursFlag = False
 
 
-
-
     def _getFaceLandmark(self, landmark: face_landmark) -> list:
         if self.__facecurrentResults == True and self.__faceResults != None:
 
@@ -1045,10 +1043,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             convertPos = self.convert_center_pos(self.__aprilTags[0].center[0], self.__aprilTags[0].center[1])
             return convertPos
 
-
-
-
-
     def _getAprilSize(self):
         if self.__aprilTags is None or len(self.__aprilTags) == 0:
             return 0
@@ -1295,12 +1289,31 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         return self.__gestureSize
 
     # yolo
-    def _yoloDetectorInit(self):
+    def _yoloDetectorInit(self, performance_mode = "speed"):
         if self.__yoloDetectInitFlag is False:
             self.__yoloDetectInitFlag = True
             self.__drawYoloAreaFlag = True
 
-            self.__yoloModel = YOLO("yolov8n.pt")  # yolov8s.pt, yolov8m.pt 등으로 변경 가능
+            model_map = {
+                "speed": "yolov8n.pt",
+                "balance": "yolov8s.pt",
+                "power": "yolov8m.pt"
+            }
+            selected_model = model_map.get(performance_mode, "yolov8n.pt")
+
+            if selected_model == "yolov8n.pt":
+                print("🔧 mode set : speed")
+            elif selected_model == "yolov8s.pt":
+                print("🔧 mode set : balance")
+            elif selected_model == "yolov8m.pt":
+                print("🔧 mode set : power")
+
+            self.__yoloModel = YOLO(selected_model)
+
+           # self.__yoloModel = YOLO("yolov8n.pt")  # yolov8s.pt, yolov8m.pt 등으로 변경 가능
+           # self.__yoloModel = YOLO("YOLOv8s.pt")  # yolov8s.pt, yolov8m.pt 등으로 변경 가능
+           # self.__yoloModel = YOLO("yolov8m.pt")  # yolov8s.pt, yolov8m.pt 등으로 변경 가능
+
             self.__coco_class_names = self.__yoloModel.names
         print("Yolo detector initialized")
 
@@ -1394,8 +1407,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         #   77: teddy bear
         #   78: hair drier
         #   79: toothbrush
-
-
 
         self._yoloCheckAddObj("person")
         # self._yoloCheckAddObj("bicycle")
@@ -1695,6 +1706,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         Returns:
             bool: 해당 클래스가 감지되었으면 True, 아니면 False
         """
+        name = KOREAN_TO_ENGLISH_OBJ_MAP.get(name, name)
+
         for detection in self.__yoloDetections:
             if detection["name"] == name:
                 return True
@@ -1711,6 +1724,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         Returns:
             int: 객체의 크기(면적). 객체가 없으면 0을 반환합니다.
         """
+        name = KOREAN_TO_ENGLISH_OBJ_MAP.get(name, name)
+
         for detection in self.__yoloDetections:
             if detection["name"] == name:
                 return detection["size"]
@@ -1727,6 +1742,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         Returns:
             tuple: 객체의 중심 좌표 (x, y). 객체가 없으면 빈 튜플 ()을 반환합니다.
         """
+
+        name = KOREAN_TO_ENGLISH_OBJ_MAP.get(name, name)
+
         for detection in self.__yoloDetections:
             if detection["name"] == name:
                 return detection["center"]
@@ -1743,6 +1761,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         Returns:
             float: 객체의 신뢰도. 객체가 없으면 0.0을 반환합니다.
         """
+
+        name = KOREAN_TO_ENGLISH_OBJ_MAP.get(name, name)
+
         for detection in self.__yoloDetections:
             if detection["name"] == name:
                 return detection["confidence"]
@@ -1754,6 +1775,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if not self.__yoloModel:
             print("❌ 모델이 로드되지 않았습니다. 객체를 추가할 수 없습니다.")
             return
+
+        obj_name = KOREAN_TO_ENGLISH_OBJ_MAP.get(obj_name, obj_name)
 
         if obj_name:
             # 클래스 이름으로 ID 찾기
@@ -1779,6 +1802,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if not self.__yoloModel:
             print("❌ 모델이 로드되지 않았습니다. 객체를 제거할 수 없습니다.")
             return
+
+        obj_name = KOREAN_TO_ENGLISH_OBJ_MAP.get(obj_name, obj_name)
 
         if obj_name:
             if obj_name in self.__yoloTarget_classes:

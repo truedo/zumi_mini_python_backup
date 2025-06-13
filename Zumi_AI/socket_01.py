@@ -33,10 +33,11 @@ zumi.sensor_start()
 
 #zumi.yolo_check_add_obj("stop sign")
 ##
-zumi.object_detector_init()
+zumi.object_detector_init("power")
 zumi.object_detector_start()
 ##zumi.object_detector_stop()
 
+##zumi.object_check_add_obj("사람")
 
 ##
 ##zumi.marker_detector_init()
@@ -135,9 +136,9 @@ try:
 ##        print(ir)
 ##
 ##
-##        
-        count1 = zumi.is_obj_detected("cat")
-        print(count1)
+   
+##        count1 = zumi.is_obj_detected("cat")
+##        print(count1)
         
 ####
 ##        class_name, confidence_score = zumi.get_sketch_result("queen")

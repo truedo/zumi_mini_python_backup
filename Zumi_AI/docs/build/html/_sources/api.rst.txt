@@ -302,7 +302,6 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    get_detected_face_name
    get_detected_face_confidence_score
 
-
 ------------------------------------------------------
 
 
@@ -331,7 +330,6 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    get_marker_id
    get_marker_center
    get_marker_size
-
 
 ------------------------------------------------------
 
@@ -397,6 +395,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    get_sketch_result
    get_sketch_name
    get_sketch_confidence
+
 ------------------------------------------------------
 
 .. raw:: html
@@ -415,28 +414,21 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    :toctree: _autosummary_generated/traffic_sign_recognition
    :template: function.rst
 
-
-   get_traffic_light_center
-   get_traffic_light_color
-   get_traffic_light_confidence
-   get_traffic_light_size
-
-   get_stop_sign_center
-   get_stop_sign_confidence
-   get_stop_sign_size
-   is_stop_sign_detected
-   is_traffic_light_detected
-
-   get_obj_center
-   get_obj_confidence
-   get_obj_size
-   is_obj_detected
-
-   object_check_add_obj
-   object_check_all_add_obj
    object_detector_init
    object_detector_start
    object_detector_stop
+
+   is_obj_detected
+   get_obj_size
+   get_obj_center
+   get_obj_confidence
+
+   get_traffic_light_color
+
+   object_check_add_obj
+   object_check_all_add_obj
+   object_check_del_obj
+   object_check_all_del_obj
 
 ------------------------------------------------------
 
@@ -462,3 +454,4 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    teachable_detector_start
    teachable_detector_stop
    get_teachable_result
+

@@ -388,3 +388,104 @@ MEDIAPIPE_LANDMARK_MAP = {
     # 턱 (턱 끝을 대표점으로 사용)
     face_landmark.JAW: [152]             # FaceLandmark -> face_landmark
 }
+
+
+KOREAN_TO_ENGLISH_OBJ_MAP = {
+    # 사람 및 동물 (Person and Animals)
+    "사람": "person",
+    "자전거": "bicycle",
+    "오토바이": "motorcycle",
+    "새": "bird",
+    "고양이": "cat",
+    "개": "dog",
+    "말": "horse",
+    "양": "sheep",
+    "소": "cow",
+    "코끼리": "elephant",
+    "곰": "bear",
+    "얼룩말": "zebra",
+    "기린": "giraffe",
+
+    # 차량 (Vehicles)
+    "자동차": "car",
+    "비행기": "airplane",
+    "버스": "bus",
+    "기차": "train",
+    "트럭": "truck",
+    "보트": "boat",
+
+    # 야외 및 거리 (Outdoor and Street)
+    "신호등": "traffic light",
+    "소화전": "fire hydrant",
+    "정지 표지판": "stop sign",
+    "주차 미터기": "parking meter",
+    "벤치": "bench",
+
+    # 악세사리 (Accessories)
+    "배낭": "backpack",
+    "우산": "umbrella",
+    "핸드백": "handbag",
+    "넥타이": "tie",
+    "여행 가방": "suitcase",
+
+    # 스포츠 용품 (Sports Equipment)
+    "프리스비": "frisbee",
+    "스키": "skis",
+    "스노보드": "snowboard",
+    "스포츠 공": "sports ball",
+    "연": "kite",
+    "야구 배트": "baseball bat",
+    "야구 글러브": "baseball glove",
+    "스케이트보드": "skateboard",
+    "서핑보드": "surfboard",
+    "테니스 라켓": "tennis racket",
+
+    # 주방 및 식기 (Kitchen and Dining)
+    "병": "bottle",
+    "와인잔": "wine glass",
+    "컵": "cup",
+    "포크": "fork",
+    "칼": "knife",
+    "숟가락": "spoon",
+    "그릇": "bowl",
+
+    # 음식 (Food)
+    "바나나": "banana",
+    "사과": "apple",
+    "샌드위치": "sandwich",
+    "오렌지": "orange",
+    "브로콜리": "broccoli",
+    "당근": "carrot",
+    "핫도그": "hot dog",
+    "피자": "pizza",
+    "도넛": "donut",
+    "케이크": "cake",
+
+    # 가구 (Furniture)
+    "의자": "chair",
+    "소파": "couch", # 또는 "sofa"
+    "화분": "potted plant",
+    "침대": "bed",
+    "식탁": "dining table",
+    "변기": "toilet",
+
+    # 전자제품 및 실내 물품 (Electronics and Indoor Items)
+    "TV": "tv", # 또는 "tvmonitor"
+    "노트북": "laptop",
+    "마우스": "mouse",
+    "리모컨": "remote",
+    "키보드": "keyboard",
+    "휴대폰": "cell phone",
+    "전자레인지": "microwave",
+    "오븐": "oven",
+    "토스터": "toaster",
+    "싱크대": "sink",
+    "냉장고": "refrigerator",
+    "책": "book",
+    "시계": "clock",
+    "꽃병": "vase",
+    "가위": "scissors",
+    "테디 베어": "teddy bear",
+    "헤어 드라이어": "hair drier",
+    "칫솔": "toothbrush",
+}

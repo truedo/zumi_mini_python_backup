@@ -190,7 +190,6 @@ class ZumiAI:
             return True
         return False
 
-
     def connect(self, connection_info=None):
         """
         주미 AI를 연결합니다.
@@ -247,8 +246,6 @@ class ZumiAI:
             self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
             self._connection_handler.connect(connection_info)
 
-
-
     def disconnect(self):
         """
         주미 AI의 연결을 종료합니다.
@@ -263,6 +260,7 @@ class ZumiAI:
             >>> zumiAI.disconnect()
         """
         self._connection_handler.close()
+
 
 
     def _parse_key_string(self, key_str):
@@ -322,7 +320,6 @@ class ZumiAI:
             # 특정 키에 대한 콜백 실행이 리스너를 멈추게 하지는 않습니다.
             # 만약 특정 키(예: 'end' 키)가 눌리면 모든 외부 리스닝을 멈추고 싶다면
             # 해당 키에 연결된 콜백에서 external_key_interrupt_stop()을 호출하도록 구현합니다.
-
 
     def key_press_set(self, key_str:str, callback_func:callable):
         """
@@ -456,7 +453,6 @@ class ZumiAI:
         else:
             print("실행 중인 외부 키보드 인터럽트 리스너가 없습니다.")
 
-
     def _on_press(self, key):
         """
         키가 눌렸을 때 키보드 리스너 스레드에서 호출되는 콜백 메서드.
@@ -467,7 +463,6 @@ class ZumiAI:
 
                 # 외부 설정 인터럽트도 종료
                 self.key_press_stop()
-
 
                 print(f"\n--- EMERGENCY STOP! ---\n")
                 #self._stop_event.set() # 메인 루프 중지 신호
@@ -486,6 +481,7 @@ class ZumiAI:
         except AttributeError:
             # 특수 키가 아닌 경우
             pass
+
 
 
     def buildHeader(self) -> bytearray:
@@ -2123,7 +2119,6 @@ class ZumiAI:
             3. 보정이 완료될 때까지 잠시 기다려주세요. (약간의 시간이 소요될 수 있습니다.)
 
             작동 영상 참고 <https://www.naver.com/>
-
         """
 
         self.sendCommand(CommandType.COMMAND_MOTOR_CALIBRATION_START)
@@ -2175,14 +2170,14 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            이 기능은 주미에서 직접 실행되는 얼굴/색상/마커 감지 기능과 다릅니다.
-            전송된 영상은 PC에서 별도의 이미지 처리 라이브러리(예: OpenCV)를 사용하여 분석할 수 있습니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()
             # 이제 주미의 카메라 영상이 PC로 스트리밍되기 시작합니다.
             # (별도의 뷰어 프로그램이나 코드를 통해 영상을 볼 수 있습니다.)
+
+        Note:
+            이 기능은 주미에서 직접 실행되는 얼굴/색상/마커 감지 기능과 다릅니다.
+            전송된 영상은 PC에서 별도의 이미지 처리 라이브러리(예: OpenCV)를 사용하여 분석할 수 있습니다.
         """
 
         self._connection_handler._cameraStream()
@@ -2236,16 +2231,16 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            이 함수를 호출한 후, ``get_IR_sensor_all()``, ``get_battery()``, ``get_button()``
-            등과 같은 관련 함수를 사용하여 현재 센서 값들을 가져올 수 있습니다.
-            또한, ``sensor_visible()`` 함수를 사용해 스트리밍 카메라 영상에서 센서 값들을 직접 확인할 수도 있습니다.
-
         Examples:
             >>> zumiAI.sensor_start()
             # 이제 주미의 센서 데이터가 내부적으로 업데이트되기 시작합니다.
             >>> ir_values = zumiAI.get_IR_sensor_all()
             >>> print("현재 IR 센서 값:", ir_values)
+
+        Note:
+            이 함수를 호출한 후, ``get_IR_sensor_all()``, ``get_battery()``, ``get_button()``
+            등과 같은 관련 함수를 사용하여 현재 센서 값들을 가져올 수 있습니다.
+            또한, ``sensor_visible()`` 함수를 사용해 스트리밍 카메라 영상에서 센서 값들을 직접 확인할 수도 있습니다.
         """
 
         self._connection_handler._sensorStart()
@@ -2282,7 +2277,7 @@ class ZumiAI:
     # fps
     def frame_rate_visible(self, flag:bool):
         """
-        주미의 PC 스트리밍 카메라 영상의 프레임 속도(FPS) 정보를 표시합니다.
+        주미의 스트리밍 카메라 영상의 프레임 속도(FPS) 정보를 표시합니다.
 
         이 함수는 주미의 카메라 영상이 컴퓨터로 실시간 스트리밍될 때,
         PC 화면에 표시되는 영상의 현재 프레임 속도를 시각적으로 보여줍니다.
@@ -2329,11 +2324,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 얼굴 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
-            - 이 함수로 초기화한 후, ``face_detector_start()`` 함수를 호출해야 실제로 얼굴 인식이 시작됩니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start() # 먼저 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init() # 기본 임계값 0.8로 PC 기반 얼굴 인식 기능 초기화
@@ -2341,6 +2331,11 @@ class ZumiAI:
             >>> zumiAI.face_detector_start() # 얼굴 인식 시작
             # ... 얼굴 인식 로직 ...
             >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+        Note:
+            - 얼굴 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
+            - 이 함수로 초기화한 후, ``face_detector_start()`` 함수를 호출해야 실제로 얼굴 인식이 시작됩니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
         """
 
         self._connection_handler._faceDetectorInit(face_recognize_threshold)
@@ -2367,10 +2362,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 호출하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``face_detector_init()`` 로 얼굴 인식 기능을 초기화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 기능 초기화 (선택 사항, 임계값 설정 가능)
@@ -2378,6 +2369,10 @@ class ZumiAI:
             # 이제 PC 화면의 스트리밍 영상에 인식된 얼굴 정보가 표시됩니다.
             >>> # ... 얼굴 인식을 사용하는 로직 ...
             >>> zumiAI.face_detector_stop()   # 얼굴 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``face_detector_init()`` 로 얼굴 인식 기능을 초기화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
         """
 
         self._connection_handler._faceDetectorStart()
@@ -2397,10 +2392,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 얼굴 인식 기능을 다시 사용하려면 ``face_detector_start()`` 함수를 다시 호출해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 기능 초기화
@@ -2408,6 +2399,10 @@ class ZumiAI:
             # ... 얼굴 인식을 사용하는 로직 ...
             >>> zumiAI.face_detector_stop()   # 얼굴 인식 중지
             # 이제 PC 화면에서 얼굴 인식 관련 표시가 사라지고, 자원이 해제됩니다.
+
+        Note:
+            - 얼굴 인식 기능을 다시 사용하려면 ``face_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 얼굴 감지/인식 기능과는 다릅니다.
         """
 
         self._connection_handler._faceDetectorStop()
@@ -2430,10 +2425,6 @@ class ZumiAI:
                 - **True**: 해당 이름의 얼굴이 현재 영상에서 감지되었습니다.
                 - **False**: 해당 이름의 얼굴이 현재 영상에서 감지되지 않았습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()
             >>> zumiAI.face_detector_init()
@@ -2448,6 +2439,10 @@ class ZumiAI:
             >>> detected_unknown = zumiAI.is_face_detected() # 또는 is_face_detected("Unknown")
             >>> print(f"알 수 없는 얼굴 감지 여부: {detected_unknown}")
             알 수 없는 얼굴 감지 여부: False # 예시 출력: 알 수 없는 얼굴이 감지되지 않음
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         return self._connection_handler._isFaceDetected(name)
@@ -2473,11 +2468,6 @@ class ZumiAI:
 
                     예시: `("학생1", 0.95)`
 
-            Note:
-                - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-                - face_recognize_threshold 값에 따라 신뢰도 점수가 달라질 수 있습니다.
-                - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
-
             Examples:
                 >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
                 >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2492,6 +2482,11 @@ class ZumiAI:
                 >>>     time.sleep(1) # 1초 대기
 
                 >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+            Note:
+                - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+                - face_recognize_threshold 값에 따라 신뢰도 점수가 달라질 수 있습니다.
+                - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
             """
 
         return self._connection_handler._getDetectedFaceResult()
@@ -2513,10 +2508,6 @@ class ZumiAI:
                 - **등록된 이름 (str)**: 얼굴이 성공적으로 인식된 경우.
                 - **"Unknown" (str)**: 얼굴이 인식되지 않았거나, 등록되지 않은 얼굴인 경우.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2531,6 +2522,10 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
         """
 
         return self._connection_handler._getDetectedFaceName()
@@ -2551,11 +2546,6 @@ class ZumiAI:
             float: 인식된 얼굴의 신뢰도 점수 (0.00 ~ 1.00).
                 얼굴이 인식되지 않았거나 등록되지 않은 얼굴인 경우 0.00이 반환될 수 있습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - ``face_detector_init()`` 함수에서 설정한 ``face_recognize_threshold`` 값에 따라 인식 결과와 신뢰도 점수의 해석이 달라질 수 있습니다.
-            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2572,6 +2562,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - ``face_detector_init()`` 함수에서 설정한 ``face_recognize_threshold`` 값에 따라 인식 결과와 신뢰도 점수의 해석이 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
         """
 
         return self._connection_handler._getDetectedFaceConfidenceScore()
@@ -2595,10 +2590,6 @@ class ZumiAI:
 
                 얼굴이 인식되지 않았다면 `[0, 0]`을 반환할 수 있습니다. 예시: `[0, 0]` (스트리밍 화면의 중앙)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
-            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
 
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
@@ -2614,6 +2605,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
         """
 
         return self._connection_handler._getFaceCenter()
@@ -2635,11 +2631,6 @@ class ZumiAI:
             int: 인식된 얼굴의 크기.
                 얼굴이 인식되지 않았다면 0을 반환합니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 얼굴의 거리에 따라 달라질 수 있습니다.
-            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2658,6 +2649,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 얼굴의 거리에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
         """
 
         return self._connection_handler._getFaceSize()
@@ -2685,11 +2681,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-            - ``face_landmark_visible()`` 함수와 함께 사용하면 얼굴 특징점과 윤곽선을 동시에 볼 수 있습니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2701,6 +2692,11 @@ class ZumiAI:
             >>> zumiAI.face_landmark_visible(False) # 얼굴 랜드마크 표시 중지
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 종료 (필요 시)
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - ``face_landmark_visible()`` 함수와 함께 사용하면 얼굴 특징점과 윤곽선을 동시에 볼 수 있습니다.
         """
 
         self._connection_handler._faceLandmarkVisible(flag)
@@ -2723,11 +2719,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-            - ``face_landmark_visible()`` 함수와 함께 사용하면 얼굴 특징점과 윤곽선을 동시에 볼 수 있습니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2739,6 +2730,11 @@ class ZumiAI:
             >>> zumiAI.face_contours_visible(False) # 얼굴 윤곽선 표시 중지
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 종료 (필요 시)
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - ``face_landmark_visible()`` 함수와 함께 사용하면 얼굴 특징점과 윤곽선을 동시에 볼 수 있습니다.
         """
 
         self._connection_handler._faceContoursVisible(flag)
@@ -2780,11 +2776,6 @@ class ZumiAI:
 
                 얼굴이 인식되지 않았다면 `[0, 0]`을 반환할 수 있습니다. 예시: `[150, 110]` (선택된 랜드마크의 화면 상 위치)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
-            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
-            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.face_detector_init()   # 얼굴 인식 초기화
@@ -2799,6 +2790,11 @@ class ZumiAI:
             >>> print(f"왼쪽 눈의 중심 좌표: X={left_eye_x}, Y={left_eye_y}")
 
             >>> zumiAI.face_detector_stop() # 얼굴 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``face_detector_init()``, 그리고 ``face_detector_start()`` 함수를 순서대로 호출하여 스트리밍 및 얼굴 인식 기능을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 얼굴(가장 크게 감지된 얼굴)에 대한 정보만 반환합니다.
         """
         if not isinstance(landmark, face_landmark):
             try:
@@ -2822,6 +2818,15 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
+        Examples:
+            >>> zumiAI.camera_stream_start() # 카메라 스트리밍 시작 (필수)
+            >>> print("학습할 이름을 입력하세요 (예: '철수', '영희'):")
+            >>> user_name = input()
+            >>> zumiAI.face_train(name=user_name) # 입력된 이름으로 얼굴 학습 모드 시작
+            # 이제 PC 화면을 보면서 'r'키를 눌러 얼굴을 학습하고 'e'키로 종료하세요.
+            >>> print(f"'{user_name}' 얼굴 학습 모드가 종료되었습니다.")
+            # 학습된 얼굴은 이제 'face_detector_start()'로 인식될 수 있습니다.
+
         Note:
             - **학습 과정**:
                 1. ``face_train()`` 함수를 실행하면 얼굴 학습 모드가 시작됩니다.
@@ -2832,15 +2837,6 @@ class ZumiAI:
             - 학습된 얼굴 정보는 자동으로 저장되어 다음에 주미를 시작할 때 자동으로 불러와져 인식에 사용됩니다.
             - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작해야 합니다.
             - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
-        Examples:
-            >>> zumiAI.camera_stream_start() # 카메라 스트리밍 시작 (필수)
-            >>> print("학습할 이름을 입력하세요 (예: '철수', '영희'):")
-            >>> user_name = input()
-            >>> zumiAI.face_train(name=user_name) # 입력된 이름으로 얼굴 학습 모드 시작
-            # 이제 PC 화면을 보면서 'r'키를 눌러 얼굴을 학습하고 'e'키로 종료하세요.
-            >>> print(f"'{user_name}' 얼굴 학습 모드가 종료되었습니다.")
-            # 학습된 얼굴은 이제 'face_detector_start()'로 인식될 수 있습니다.
         """
         self._connection_handler._faceTrain(name)
 
@@ -2859,11 +2855,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수는 영구적으로 얼굴 데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다.
-            - 삭제하려는 이름이 시스템에 등록되어 있지 않으면 아무런 작업도 수행되지 않습니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> # 'jay'라는 이름의 얼굴 데이터 삭제
             >>> zumiAI.delete_face_data(name="jay")
@@ -2872,6 +2863,12 @@ class ZumiAI:
             >>> # 'may'라는 이름의 얼굴 데이터 삭제
             >>> zumiAI.delete_face_data(name="may")
             >>> print("'may' 얼굴 데이터 삭제를 시도했습니다.")
+
+        Note:
+            - 이 함수는 영구적으로 얼굴 데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다.
+            - 삭제하려는 이름이 시스템에 등록되어 있지 않으면 아무런 작업도 수행되지 않습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+
         """
         self._connection_handler._deleteFaceData(name)
 
@@ -2890,15 +2887,15 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - **이 작업은 되돌릴 수 없습니다!** 모든 학습된 얼굴 데이터가 영구적으로 삭제되니 신중하게 사용해 주세요.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> # 저장된 모든 얼굴 데이터 삭제
             >>> zumiAI.delete_all_Face_data()
             >>> print("모든 얼굴 데이터가 삭제되었습니다.")
             # 이제 주미는 학습된 어떤 얼굴도 인식하지 못하게 됩니다.
+
+        Note:
+            - **이 작업은 되돌릴 수 없습니다!** 모든 학습된 얼굴 데이터가 영구적으로 삭제되니 신중하게 사용해 주세요.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         self._connection_handler._deleteAllFaceData()
@@ -2921,17 +2918,17 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 마커 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
-            - 이 함수로 초기화한 후, ``marker_detector_start()`` 함수를 호출해야 실제로 마커 인식이 시작됩니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start() # 먼저 카메라 스트리밍 시작
             >>> zumiAI.marker_detector_init() # PC 기반 마커 인식 기능 초기화
             >>> zumiAI.marker_detector_start() # 마커 인식 시작
             # ... 마커 인식 로직 ...
             >>> zumiAI.marker_detector_stop() # 마커 인식 중지
+
+        Note:
+            - 마커 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
+            - 이 함수로 초기화한 후, ``marker_detector_start()`` 함수를 호출해야 실제로 마커 인식이 시작됩니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
         """
 
         self._connection_handler._aprilDetectorInit()
@@ -2961,10 +2958,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 호출하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.marker_detector_init() # 마커 인식 기능 초기화
@@ -2972,6 +2965,10 @@ class ZumiAI:
             # 이제 PC 화면의 스트리밍 영상에 인식된 마커 정보가 표시됩니다.
             >>> # ... 마커 인식을 사용하는 로직 ...
             >>> zumiAI.marker_detector_stop() # 마커 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
         """
 
         self._connection_handler._aprilDetectorStart()
@@ -2990,10 +2987,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 마커 인식 기능을 다시 사용하려면 ``marker_detector_start()`` 함수를 다시 호출해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.marker_detector_init() # 마커 인식 기능 초기화
@@ -3001,6 +2994,10 @@ class ZumiAI:
             # ... 마커 인식을 사용하는 로직 ...
             >>> zumiAI.marker_detector_stop() # 마커 인식 중지
             # 이제 PC 화면에서 마커 인식 관련 표시가 사라지고, 자원이 해제됩니다.
+
+        Note:
+            - 마커 인식 기능을 다시 사용하려면 ``marker_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
         """
 
         self._connection_handler._aprildetectorStop()
@@ -3022,10 +3019,6 @@ class ZumiAI:
 
                 - **False**: 해당 ID의 마커가 현재 영상에서 감지되지 않았습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()
             >>> zumiAI.marker_detector_init()
@@ -3040,6 +3033,10 @@ class ZumiAI:
             >>> detected_marker_200 = zumiAI.is_marker_detected(id=200)
             >>> print(f"ID 200 마커 감지 여부: {detected_marker_200}")
             ID 200 마커 감지 여부: False # 예시 출력: ID 200 마커가 감지되지 않음
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 마커 감지 기능과는 다릅니다.
         """
         return self._connection_handler._isMarkerDetected(id)
 
@@ -3065,10 +3062,6 @@ class ZumiAI:
                 마커가 인식되지 않았다면 -1 을 반환합니다.
                 예시: 1 (ID가 1인 마커가 감지됨)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
-            - 이 함수는 한 번에 하나의 마커에 대한 정보만 반환합니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.marker_detector_init() # 마커 인식 초기화
@@ -3085,6 +3078,10 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumiAI.marker_detector_stop() # 마커 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
+            - 이 함수는 한 번에 하나의 마커에 대한 정보만 반환합니다.
         """
 
         return self._connection_handler._getAprilId()
@@ -3110,11 +3107,6 @@ class ZumiAI:
 
                 마커가 인식되지 않았다면 `[0, 0]`을 반환합니다. 예시: `[0, 0]` (스트리밍 화면의 중앙)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
-            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
-            - 이 함수는 한 번에 하나의 마커에 대한 정보만 반환합니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.marker_detector_init() # 마커 인식 초기화
@@ -3129,6 +3121,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumiAI.marker_detector_stop() # 마커 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 이 함수는 한 번에 하나의 마커에 대한 정보만 반환합니다.
         """
 
         return self._connection_handler._getAprilCenter()
@@ -3150,11 +3147,6 @@ class ZumiAI:
                 int: 인식된 마커의 크기.
                     마커가 인식되지 않았다면 0을 반환합니다.
 
-            Note:
-                - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
-                - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 마커의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
-                - 이 함수는 한 번에 하나의 마커에 대한 정보만 반환합니다.
-
             Examples:
                 >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
                 >>> zumiAI.marker_detector_init() # 마커 인식 초기화
@@ -3173,6 +3165,11 @@ class ZumiAI:
                 >>>     time.sleep(1) # 1초 대기
 
                 >>> zumiAI.marker_detector_stop() # 마커 인식 중지
+
+            Note:
+                - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
+                - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 마커의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
+                - 이 함수는 한 번에 하나의 마커에 대한 정보만 반환합니다.
             """
         return self._connection_handler._getAprilSize()
 
@@ -3193,19 +3190,19 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수는 내부적으로 손 인식 모델을 설정합니다.
-            - 손 감지 및 추적의 최소 신뢰도(min_detection_confidence, min_tracking_confidence)는 0.5로 설정됩니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-            - 이 함수로 초기화한 후, ``gesture_detector_start()`` 함수를 호출해야 실제로 제스처 인식이 시작됩니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumiAI.camera_stream_start() # 먼저 카메라 스트리밍 시작
             >>> zumiAI.gesture_detector_init() # PC 기반 손 제스처 인식 기능 초기화
             >>> zumiAI.gesture_detector_start() # 손 제스처 인식 시작
             # ... 손 제스처 인식 로직 ...
             >>> zumiAI.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수는 내부적으로 손 인식 모델을 설정합니다.
+            - 손 감지 및 추적의 최소 신뢰도(min_detection_confidence, min_tracking_confidence)는 0.5로 설정됩니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
+            - 이 함수로 초기화한 후, ``gesture_detector_start()`` 함수를 호출해야 실제로 제스처 인식이 시작됩니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         self._connection_handler._gestureDetectorInit()
@@ -3250,11 +3247,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 호출하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 기능과는 다릅니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.gesture_detector_init() # 손 제스처 인식 기능 초기화
@@ -3262,6 +3254,11 @@ class ZumiAI:
             # 이제 PC 화면의 스트리밍 영상에 인식된 손과 제스처 정보가 표시됩니다.
             >>> # ... 손 제스처 인식을 사용하는 로직 ...
             >>> zumiAI.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 기능과는 다릅니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
         """
 
         self._connection_handler._gestureDetectorStart()
@@ -3281,10 +3278,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 손 제스처 인식 기능을 다시 사용하려면 ``gesture_detector_start()`` 함수를 다시 호출해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어에서 처리되는 기능과는 다릅니다.
-
         Examples:
             >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumiAI.gesture_detector_init() # 손 제스처 인식 기능 초기화
@@ -3292,6 +3285,10 @@ class ZumiAI:
             # ... 손 제스처 인식을 사용하는 로직 ...
             >>> zumiAI.gesture_detector_stop() # 손 제스처 인식 중지
             # 이제 PC 화면에서 손 제스처 인식 관련 표시가 사라지고, 자원이 해제됩니다.
+
+        Note:
+            - 손 제스처 인식 기능을 다시 사용하려면 ``gesture_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어에서 처리되는 기능과는 다릅니다.
         """
 
         self._connection_handler._gestureDetectorStop()
@@ -3313,11 +3310,6 @@ class ZumiAI:
 
                 - **False**: 손이 현재 영상에 감지되지 않았습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.gesture_detector_init() # 손 제스처 인식 초기화
@@ -3331,6 +3323,12 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
+
         """
         return self._connection_handler._isGestureDetected()
 
@@ -3354,11 +3352,6 @@ class ZumiAI:
 
                     손이 감지되지 않았다면 모든 값이 0인 리스트 `[0, 0, 0, 0, 0]`을 반환할 수 있습니다. 예시: `[0, 1, 0, 0, 0]` (검지 손가락만 펴진 상태, 즉 '가리키기')
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.gesture_detector_init() # 손 제스처 인식 초기화
@@ -3372,6 +3365,12 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
+
         """
 
         return self._connection_handler._getGestureFinger()
@@ -3403,11 +3402,6 @@ class ZumiAI:
         Returns:
             str: 인식된 손 제스처의 이름. 위에 나열된 문자열 중 하나를 반환합니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.gesture_detector_init() # 손 제스처 인식 초기화
@@ -3424,6 +3418,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
         """
         return self._connection_handler._getGestureRecognize()
 
@@ -3447,11 +3446,6 @@ class ZumiAI:
 
                 손이 인식되지 않았다면 `[0, 0]`을 반환할 수 있습니다. 예시: `[0, 0]` (스트리밍 화면의 중앙)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
-            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.gesture_detector_init() # 손 제스처 인식 초기화
@@ -3466,6 +3460,12 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
+
         """
         return self._connection_handler._getGestureCenter()
 
@@ -3485,11 +3485,6 @@ class ZumiAI:
             int: 인식된 손의 크기.
                 손이 인식되지 않았다면 0을 반환합니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
-            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 손의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
-            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.gesture_detector_init() # 손 제스처 인식 초기화
@@ -3508,245 +3503,785 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.gesture_detector_stop() # 손 제스처 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``gesture_detector_init()`` 로 손 제스처 인식 기능을 초기화한 후, ``gesture_detector_start()`` 를 호출하여 손 제스처 인식을 활성화해야 합니다.
+            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 손의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
+            - 한 번에 하나의 손만 인식하도록 설정되어 있습니다.
         """
         return self._connection_handler._getGestureSize()
 
     ##--------------------------------------------------------------------#
     # yolo
-    def object_detector_init(self):
+    def object_detector_init(self, performance_mode = "speed"):
         """
-        object 인식 기능을 초기화
+        스트리밍되는 카메라 영상에서 물체 인식(Object Detection) 기능을 초기화합니다.
+
+        이 함수는 주미에서 PC로 전송되는 실시간 영상 스트림을 사용하여 컴퓨터가 영상 속에 있는 다양한 물체(예: 사람, 자동차, 의자 등)를 인식할 수 있도록 모델을 준비합니다.
+        사용자는 원하는 물체 인식 성능 모드를 선택하여 주미가 얼마나 빠르게 또는 얼마나 정확하게 물체를 인식할지 조절할 수 있습니다.
+
+        Args:
+            performance_mode (str, optional): 물체 인식 모델의 성능 모드를 선택합니다.
+                                            다음 중 하나의 값을 입력할 수 있습니다:
+
+                                            - **"speed"**: 가장 빠르지만 인식 정확도는 보통 (기본값)
+
+                                            - **"balance"**: 속도와 정확도의 균형
+
+                                            - **"power"**: 느리지만 가장 정확한 인식
+
+                                            입력된 값이 유효하지 않으면 "speed"로 자동 설정됩니다.
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start() # 먼저 카메라 스트리밍 시작
+
+            >>> # 기본값인 "speed" 성능으로 물체 인식 기능 초기화
+            >>> zumi.object_detector_init()
+            >>> print("물체 인식 기능이 'speed' 모드로 초기화되었습니다.")
+
+            >>> # "balance" 성능으로 물체 인식 기능 초기화
+            >>> zumi.object_detector_init(performance_mode="balance")
+            >>> print("물체 인식 기능이 'balance' 모드로 초기화되었습니다.")
+
+            >>> # "power" 성능으로 물체 인식 기능 초기화
+            >>> zumi.object_detector_init(performance_mode="power")
+            >>> print("물체 인식 기능이 'power' 모드로 초기화되었습니다.")
+
+            >>> zumi.object_detector_start() # 물체 인식 시작
+            # ... 물체 인식 로직 ...
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 선택한 performance_mode에 따라 다른 모델 파일이 로드됩니다.
+            - COCO 데이터셋을 기반으로 학습되었기 때문에, 일상생활에서 흔히 볼 수 있는 약 80가지 종류의 물체를 인식할 수 있습니다.
+            - 이 함수로 초기화한 후, ``object_detector_start()`` 함수를 호출해야 실제로 물체 인식이 시작됩니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
-        self._connection_handler._yoloDetectorInit()
+        self._connection_handler._yoloDetectorInit(performance_mode)
 
     def object_detector_start(self):
         """
-        object 인식 기능을 시작
+        스트리밍되는 카메라 영상에서 물체 인식(Object Detection) 기능을 시작합니다.
+
+        이 함수를 호출하면 ``object_detector_init()`` 으로 준비된 모델을 사용하여 주미의 실시간 카메라 영상 속에서 다양한 물체를 인식하기 시작합니다.
+        인식된 물체는 화면에 테두리와 함께 이름, 신뢰도(정확도) 등이 표시될 수 있습니다.
+
+        기본적으로 주미는 자율주행에 필요한 다음 물체들을 우선적으로 인식하도록 설정되어 있습니다:
+
+        - **"person"** (사람)
+
+        - **"car"** (자동차)
+
+        - **"bus"** (버스)
+
+        - **"truck"** (트럭)
+
+        - **"traffic light"** (신호등)
+
+        - **"stop sign"** (정지 표지판)
+
+        - **"cat"** (고양이)
+
+        - **"dog"** (개)
+
+        Args:
+            없음
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init(performance_mode="balance") # 'balance' 모드로 물체 인식 모델 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작
+            # 이제 PC 화면의 스트리밍 영상에서 설정된 물체들이 인식되기 시작합니다.
+            >>> # ... 인식 결과를 사용하는 로직 ...
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``object_detector_init()`` 로 물체 인식 모델을 초기화해야 합니다.
+            - 기본 인식 목록 외에, 다음 함수들을 사용하여 모델이 인식할 수 있는 다른 물체를 인식하도록 추가하거나, 현재 인식 목록에서 특정 물체를 제거할 수 있습니다:
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+
+                - ``object_check_add_obj(obj_name)``: 특정 물체를 인식 목록에 추가합니다.
+                - ``object_check_all_add_obj()``: 모든 물체(COCO 데이터셋 80종)를 인식 목록에 추가합니다.
+                - ``object_check_del_obj(obj_name)``: 특정 물체를 인식 목록에서 제거합니다.
+                - ``object_check_all_del_obj()``: 모든 물체를 인식 목록에서 제거합니다.
+
+
+                - 사용가능한 리스트 목록은 다음과 같습니다.
+
+
+                    # 사람 및 동물 (Person and Animals)
+                        "사람": "person"
+
+                        "자전거": "bicycle"
+
+                        "오토바이": "motorcycle"
+
+                        "새": "bird"
+
+                        "고양이": "cat"
+
+                        "개": "dog"
+
+                        "말": "horse"
+
+                        "양": "sheep"
+
+                        "소": "cow"
+
+                        "코끼리": "elephant"
+
+                        "곰": "bear"
+
+                        "얼룩말": "zebra"
+
+                        "기린": "giraffe"
+
+                    # 차량 (Vehicles)
+                        "자동차": "car"
+
+                        "비행기": "airplane"
+
+                        "버스": "bus"
+
+                        "기차": "train"
+
+                        "트럭": "truck"
+
+                        "보트": "boat"
+
+                    # 야외 및 거리 (Outdoor and Street)
+                        "신호등": "traffic light"
+
+                        "소화전": "fire hydrant"
+
+                        "정지 표지판": "stop sign"
+
+                        "주차 미터기": "parking meter"
+
+                        "벤치": "bench"
+
+                    # 악세사리 (Accessories)
+                        "배낭": "backpack"
+
+                        "우산": "umbrella"
+
+                        "핸드백": "handbag"
+
+                        "넥타이": "tie"
+
+                        "여행 가방": "suitcase"
+
+                    # 스포츠 용품 (Sports Equipment)
+                        "프리스비": "frisbee"
+
+                        "스키": "skis"
+
+                        "스노보드": "snowboard"
+
+                        "스포츠 공": "sports ball"
+
+                        "연": "kite"
+
+                        "야구 배트": "baseball bat"
+
+                        "야구 글러브": "baseball glove"
+
+                        "스케이트보드": "skateboard"
+
+                        "서핑보드": "surfboard"
+
+                        "테니스 라켓": "tennis racket"
+
+                    # 주방 및 식기 (Kitchen and Dining)
+                        "병": "bottle"
+
+                        "와인잔": "wine glass"
+
+                        "컵": "cup"
+
+                        "포크": "fork"
+
+                        "칼": "knife"
+
+                        "숟가락": "spoon"
+
+                        "그릇": "bowl"
+
+                    # 음식 (Food)
+                        "바나나": "banana"
+
+                        "사과": "apple"
+
+                        "샌드위치": "sandwich"
+
+                        "오렌지": "orange"
+
+                        "브로콜리": "broccoli"
+
+                        "당근": "carrot"
+
+                        "핫도그": "hot dog"
+
+                        "피자": "pizza"
+
+                        "도넛": "donut"
+
+                        "케이크": "cake"
+
+                    # 가구 (Furniture)
+                        "의자": "chair
+
+                        "소파": "couch
+
+                        "화분": "potted plant"
+
+                        "침대": "bed"
+
+                        "식탁": "dining table"
+
+                        "변기": "toilet"
+
+                    # 전자제품 및 실내 물품 (Electronics and Indoor Items)
+
+                        "TV": "tv"
+
+                        "노트북": "laptop"
+
+                        "마우스": "mouse"
+
+                        "리모컨": "remote"
+
+                        "키보드": "keyboard"
+
+                        "휴대폰": "cell phone"
+
+                        "전자레인지": "microwave"
+
+                        "오븐": "oven"
+
+                        "토스터": "toaster"
+
+                        "싱크대": "sink"
+
+                        "냉장고": "refrigerator"
+
+                        "책": "book"
+
+                        "시계": "clock"
+
+                        "꽃병": "vase"
+
+                        "가위": "scissors"
+
+                        "테디 베어": "teddy bear"
+
+                        "헤어 드라이어": "hair drier"
+
+                        "칫솔": "toothbrush"
+
         """
+
         self._connection_handler._yoloDetectorStart()
 
     def object_detector_stop(self):
         """
-        object 인식 기능을 종료
+        스트리밍되는 카메라 영상의 물체 인식(Object Detection) 기능을 중지합니다.
+
+        이 함수는 ``object_detector_start()`` 로 시작된 모델 기반의 물체 인식 프로세스를
+        종료하고 관련된 리소스(자원)를 해제합니다. 더 이상 주미가 영상 속 물체들을
+        인식할 필요가 없을 때 이 함수를 사용합니다.
+
+        Args:
+            없음
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 모델 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작
+            >>> # ... 물체 인식 로직 ...
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+            >>> print("물체 인식 기능이 종료되었습니다.")
+
+        Note:
+            - 물체 인식 기능을 다시 사용하려면 ``object_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._yoloDetectorStop()
 
-# Classes
-        # names:
-        #   0: person
-        #   1: bicycle
-        #   2: car
-        #   3: motorcycle
-        #   4: airplane
-        #   5: bus
-        #   6: train
-        #   7: truck
-        #   8: boat
-        #   9: traffic light
-        #   10: fire hydrant
-        #   11: stop sign
-        #   12: parking meter
-        #   13: bench
-        #   14: bird
-        #   15: cat
-        #   16: dog
-        #   17: horse
-        #   18: sheep
-        #   19: cow
-        #   20: elephant
-        #   21: bear
-        #   22: zebra
-        #   23: giraffe
-        #   24: backpack
-        #   25: umbrella
-        #   26: handbag
-        #   27: tie
-        #   28: suitcase
-        #   29: frisbee
-        #   30: skis
-        #   31: snowboard
-        #   32: sports ball
-        #   33: kite
-        #   34: baseball bat
-        #   35: baseball glove
-        #   36: skateboard
-        #   37: surfboard
-        #   38: tennis racket
-        #   39: bottle
-        #   40: wine glass
-        #   41: cup
-        #   42: fork
-        #   43: knife
-        #   44: spoon
-        #   45: bowl
-        #   46: banana
-        #   47: apple
-        #   48: sandwich
-        #   49: orange
-        #   50: broccoli
-        #   51: carrot
-        #   52: hot dog
-        #   53: pizza
-        #   54: donut
-        #   55: cake
-        #   56: chair
-        #   57: couch
-        #   58: potted plant
-        #   59: bed
-        #   60: dining table
-        #   61: toilet
-        #   62: tv
-        #   63: laptop
-        #   64: mouse
-        #   65: remote
-        #   66: keyboard
-        #   67: cell phone
-        #   68: microwave
-        #   69: oven
-        #   70: toaster
-        #   71: sink
-        #   72: refrigerator
-        #   73: book
-        #   74: clock
-        #   75: vase
-        #   76: scissors
-        #   77: teddy bear
-        #   78: hair drier
-        #   79: toothbrush
+
+    def is_obj_detected(self, name:str) -> bool:
+        """
+        스트리밍되는 카메라 영상에서 특정 이름의 물체가 감지되었는지 확인합니다.
+
+        이 함수는 ``object_detector_start()`` 로 물체 인식이 활성화된 상태에서, 주미의 카메라 영상 속에 지정된 name을 가진 물체(예: "person", "car")가
+        화면에 나타났는지 여부를 True 또는 False로 반환합니다.
+
+        Args:
+            name (str): 감지 여부를 확인할 물체의 이름.
+                        이 이름은 ``object_detector_start()`` 를 통해 인식하도록 설정된 물체 목록(기본 목록 또는 ``object_check_add_obj()``, ``object_check_all_add_obj()`` 로 추가된 물체)에 포함되어야 합니다.
+                        (예: "person", "stop sign", "traffic light", "car"등)
+                        만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환됩니다.
+                        (예: "사람" 입력 시 "person"으로 변환)
+
+        Returns:
+            bool: 해당 물체가 영상에서 감지되었는지 여부.
+                - **True**: 지정된 name의 물체가 현재 영상에 감지되었습니다.
+                - **False**: 지정된 name의 물체가 현재 영상에 감지되지 않았습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작
+
+            >>> print("--- 영어 이름으로 'person' 감지 예시 ---")
+            >>> while True:
+            >>>     if zumi.is_obj_detected(name="person"): # 영어 이름 사용
+            >>>         print("사람(person)이 감지되었습니다!")
+            >>>         break # 감지되면 반복 중단
+            >>>     else:
+            >>>         print("사람(person) 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> print("--- 한글 이름으로 'car' 감지 예시 ---")
+            >>> # KOREAN_TO_ENGLISH_OBJ_MAP이 미리 정의되어 있다고 가정합니다.
+            >>> while True:
+            >>>     if zumi.is_obj_detected(name="자동차"): # 한글 이름 사용
+            >>>         print("자동차(car)가 감지되었습니다!")
+            >>>         break # 감지되면 반복 중단
+            >>>     else:
+            >>>         print("자동차(car) 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``object_detector_init()`` 로 물체 인식 기능을 초기화한 후, ``object_detector_start()`` 를 호출하여 물체 인식을 활성화해야 합니다.
+            - name으로 지정하는 물체 이름은 COCO 데이터셋에 정의된 클래스 이름이어야 합니다. 한글 이름으로 변환해서 사용할 수도 있습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+        """
+        return self._connection_handler._isObjDetected(name)
+
+    def get_obj_center(self, name:str) -> tuple:
+        """
+        스트리밍되는 카메라 영상에서 특정 이름의 물체(객체) 중심 좌표를 가져옵니다.
+
+        이 함수는 ``object_detector_start()`` 로 물체 인식이 활성화된 상태에서, 주미의 카메라 영상 속에서 지정된 name을 가진 물체가 감지되었다면, 해당 물체의 중심이 되는 x, y 좌표를 튜플 형태로 반환합니다.
+        만약 같은 이름의 물체가 여러 개 감지되었다면, 가장 먼저 인식된(첫 번째) 물체의 좌표를 알려줍니다.
+
+        Args:
+            name (str): 중심 좌표를 조회할 물체의 이름.
+                        이 이름은 ``object_detector_start()`` 를 통해 인식하도록 설정된 물체 목록(기본 목록 또는 ``object_check_add_obj()``, ``object_check_all_add_obj()`` 로 추가된 물체)에 포함되어야 합니다.
+                        (예: "person", "stop sign", "traffic light", "car"등)
+                        만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환됩니다.
+                        (예: "사람" 입력 시 "person"으로 변환)
+
+        Returns:
+            tuple: 인식된 물체의 중심 좌표 (x, y).
+
+                - **x (int)**: 물체의 중심 x 좌표.
+
+                - **y (int)**: 물체의 중심 y 좌표.
+
+                물체가 인식되지 않았다면 빈 튜플 `()`을 반환합니다. 예시: `(0, 0)` (스트리밍 화면의 중앙)
+
+        Examples:
+        >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+        >>> zumi.object_detector_init() # 물체 인식 초기화
+        >>> zumi.object_detector_start() # 물체 인식 시작
+
+        >>> print("--- 영어 이름으로 'person' 감지 예시 ---")
+        >>> while True:
+        >>>     person_center = zumi.get_obj_center(name="person") # 영어 이름 사용
+        >>>     if person_center: # 사람이 감지되어 좌표가 반환된 경우
+        >>>         center_x, center_y = person_center
+        >>>         print(f"사람(person)의 중심 좌표: X={center_x}, Y={center_y}")
+        >>>         break # 감지되면 반복 중단
+        >>>     else:
+        >>>         print("사람(person) 감지 대기 중...")
+        >>>     time.sleep(1) # 1초 대기
+
+        >>> print("--- 한글 이름으로 '자동차' 감지 예시 ---")
+        >>> # KOREAN_TO_ENGLISH_OBJ_MAP이 미리 정의되어 있다고 가정합니다.
+        >>> while True:
+        >>>     car_center = zumi.get_obj_center(name="자동차") # 한글 이름 사용
+        >>>     if car_center: # 자동차가 감지되어 좌표가 반환된 경우
+        >>>         center_x, center_y = car_center
+        >>>         print(f"자동차(car)의 중심 좌표: X={center_x}, Y={center_y}")
+        >>>         break # 감지되면 반복 중단
+        >>>     else:
+        >>>         print("자동차(car) 감지 대기 중...")
+        >>>     time.sleep(1) # 1초 대기
+
+        >>> zumi.object_detector_stop() # 물체 인식 중지
+
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``object_detector_init()`` 로 물체 인식 기능을 초기화한 후, ``object_detector_start()`` 를 호출하여 물체 인식을 활성화해야 합니다.
+            - name으로 지정하는 물체 이름은 COCO 데이터셋에 정의된 클래스 이름이어야 합니다. 한글 이름으로 변환해서 사용할 수도 있습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+        """
+
+        return self._connection_handler._getObjCenter(name)
+
+
+    def get_obj_size(self, name:str) -> int:
+        """
+        스트리밍되는 카메라 영상에서 특정 이름의 물체(객체) 크기를 가져옵니다.
+
+        이 함수는 ``object_detector_start()`` 로 물체 인식이 활성화된 상태에서,
+        주미의 카메라 영상 속에서 지정된 name을 가진 물체가 감지되었다면,
+        해당 물체가 화면에서 차지하는 크기(면적)를 숫자로 반환합니다. 이 크기 값을 통해
+        물체가 주미로부터 얼마나 멀리 떨어져 있는지 예측하는 데 사용할 수 있습니다.
+        만약 같은 이름의 물체가 여러 개 감지되었다면, 가장 먼저 인식된(첫 번째) 물체의 크기를 알려줍니다.
+
+        Args:
+            name (str): 크기를 조회할 물체의 이름.
+                        이 이름은 ``object_detector_start()`` 를 통해 인식하도록 설정된 물체 목록(기본 목록 또는 ``object_check_add_obj()``, ``object_check_all_add_obj()`` 로 추가된 물체)에 포함되어야 합니다.
+                        (예: "person", "stop sign", "traffic light", "car"등)
+                        만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환됩니다.
+                        (예: "사람" 입력 시 "person"으로 변환)
+        Returns:
+            int: 인식된 물체의 크기(면적).
+                물체가 인식되지 않았다면 0을 반환합니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작
+
+            >>> print("--- 영어 이름으로 'car' 크기 감지 예시 ---")
+            >>> while True:
+            >>>     car_size = zumi.get_obj_size(name="car") # 영어 이름 사용
+            >>>     if car_size > 0: # 자동차가 감지되어 크기 값이 반환된 경우
+            >>>         print(f"자동차(car)의 크기: {car_size}")
+            >>>         if car_size > 5000:
+            >>>             print("자동차가 가까이 있네요!")
+            >>>         else:
+            >>>             print("자동차가 조금 멀리 있거나 작게 보이네요.")
+            >>>         break # 감지되면 반복 중단
+            >>>     else:
+            >>>         print("자동차(car) 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> print("--- 한글 이름으로 '개' 크기 감지 예시 ---")
+            >>> # KOREAN_TO_ENGLISH_OBJ_MAP이 미리 정의되어 있다고 가정합니다.
+            >>> while True:
+            >>>     dog_size = zumi.get_obj_size(name="개") # 한글 이름 사용
+            >>>     if dog_size > 0: # 개가 감지되어 크기 값이 반환된 경우
+            >>>         print(f"개(dog)의 크기: {dog_size}")
+            >>>         if dog_size > 3000:
+            >>>             print("개가 가까이 있네요!")
+            >>>         else:
+            >>>             print("개가 조금 멀리 있거나 작게 보이네요.")
+            >>>         break # 감지되면 반복 중단
+            >>>     else:
+            >>>         print("개(dog) 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``object_detector_init()`` 로 물체 인식 기능을 초기화한 후, ``object_detector_start()`` 를 호출하여 물체 인식을 활성화해야 합니다.
+            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 물체의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
+            - name으로 지정하는 물체 이름은 COCO 데이터셋에 정의된 클래스 이름이어야 합니다. 한글 이름으로 변환해서 사용할 수도 있습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+        """
+        return self._connection_handler._getObjSize(name)
+
+
+    def get_obj_confidence(self, name:str)-> float:
+        """
+        스트리밍되는 카메라 영상에서 특정 이름의 물체(객체)에 대한 신뢰도 점수를 가져옵니다.
+
+        이 함수는 ``object_detector_start()`` 로 물체 인식이 활성화된 상태에서, 주미의 카메라 영상 속에서 지정된 name을 가진 물체가 감지되었다면,
+        해당 물체 인식의 정확도(신뢰도)를 0.0(0%)부터 1.0(100%) 사이의 숫자로 반환합니다.
+        이 점수를 통해 주미가 해당 물체를 얼마나 확실하게 인식했는지 알 수 있습니다.
+        만약 같은 이름의 물체가 여러 개 감지되었다면, 가장 먼저 인식된(첫 번째) 물체의 신뢰도를 알려줍니다.
+
+        Args:
+            name (str): 신뢰도 점수를 조회할 물체의 이름.
+                        이 이름은 ``object_detector_start()`` 를 통해 인식하도록 설정된 물체 목록(기본 목록 또는 ``object_check_add_obj()``, ``object_check_all_add_obj()`` 로 추가된 물체)에 포함되어야 합니다.
+                        (예: "person", "stop sign", "traffic light", "car"등)
+                        만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환됩니다.
+                        (예: "사람" 입력 시 "person"으로 변환)
+        Returns:
+            float: 인식된 물체의 신뢰도 점수. 0.0부터 1.0 사이의 값입니다.
+                물체가 인식되지 않았다면 0.0을 반환합니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작
+
+            >>> print("--- 영어 이름으로 'person' 신뢰도 감지 예시 ---")
+            >>> while True:
+            >>>     person_confidence = zumi.get_obj_confidence(name="person") # 영어 이름 사용
+            >>>     if person_confidence > 0.0: # 사람이 감지되어 유효한 신뢰도 값이 반환된 경우
+            >>>         print(f"사람(person) 인식 신뢰도: {person_confidence:.2f}")
+            >>>         if person_confidence > 0.9:
+            >>>             print("사람을 아주 정확하게 인식했어요!")
+            >>>         break # 감지되면 반복 중단
+            >>>     else:
+            >>>         print("사람(person) 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> print("--- 한글 이름으로 '고양이' 신뢰도 감지 예시 ---")
+            >>> # KOREAN_TO_ENGLISH_OBJ_MAP이 미리 정의되어 있다고 가정합니다.
+            >>> while True:
+            >>>     cat_confidence = zumi.get_obj_confidence(name="고양이") # 한글 이름 사용
+            >>>     if cat_confidence > 0.0: # 고양이가 감지되어 유효한 신뢰도 값이 반환된 경우
+            >>>         print(f"고양이(cat) 인식 신뢰도: {cat_confidence:.2f}")
+            >>>         if cat_confidence > 0.8:
+            >>>             print("고양이를 꽤 정확하게 인식했어요!")
+            >>>         break # 감지되면 반복 중단
+            >>>     else:
+            >>>         print("고양이(cat) 감지 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``object_detector_init()`` 로 물체 인식 기능을 초기화한 후, ``object_detector_start()`` 를 호출하여 물체 인식을 활성화해야 합니다.
+            - name으로 지정하는 물체 이름은 COCO 데이터셋에 정의된 클래스 이름이어야 합니다. 한글 이름으로 변환해서 사용할 수도 있습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+        """
+        return self._connection_handler._getObjConfidence(name)
+
+    def get_traffic_light_color(self) -> str:
+        """
+        스트리밍되는 카메라 영상에서 신호등의 현재 색상을 판별하여 반환합니다.
+
+        이 함수는 ``object_detector_start()`` 로 물체 인식이 활성화된 상태에서,
+        주미의 카메라 영상 속에 신호등이 감지되면 해당 신호등의 불빛이 어떤 색인지 분석하여
+        그 결과를 문자열로 알려줍니다.
+
+        Args:
+            없음
+
+        Returns:
+            str: 인식된 신호등의 색상. 다음 중 하나의 값을 반환합니다:
+
+                - **"RED"**: 빨간색 신호등이 감지된 경우
+
+                - **"YELLOW"**: 노란색 신호등이 감지된 경우
+
+                - **"GREEN"**: 초록색 신호등이 감지된 경우
+
+                - **"UNKNOWN"**: 신호등이 감지되지 않았거나, 색상을 정확히 판별하기 어려운 경우
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작
+
+            >>> while True:
+            >>>     light_color = zumi.get_traffic_light_color()
+            >>>     if light_color == "RED":
+            >>>         print("신호등이 빨간색입니다! 정지하세요.")
+            >>>         zumi.stop()
+            >>>     elif light_color == "GREEN":
+            >>>         print("신호등이 초록색입니다! 출발하세요.")
+            >>>         zumi.forward(20)
+            >>>     elif light_color == "YELLOW":
+            >>>         print("신호등이 노란색입니다! 주의하세요.")
+            >>>         zumi.stop()
+            >>>     else:
+            >>>         print("신호등 인식 대기 중...")
+            >>>     time.sleep(1) # 1초 대기
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``object_detector_init()`` 로 물체 인식 기능을 초기화한 후, ``object_detector_start()`` 를 호출하여 물체 인식을 활성화해야 합니다.
+            - `object_detector_start()` 의 기본 인식 목록에 "traffic light"가 포함되어 있어야 신호등 인식이 가능합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
+        """
+
+        return self._connection_handler._getTrafficLightColor()
+
 
     def object_check_add_obj(self, obj_name=""):
         """
-        object 검출 오브젝트를 추가
+        스트리밍되는 카메라 영상에서 물체 인식 목록에 새로운 물체(객체)를 추가합니다.
+
+        이 함수를 사용하면 ``object_detector_start()`` 가 기본으로 인식하는 물체들 외에, 다른 종류의 물체도 주미의 인식 대상에 포함시킬 수 있습니다.
+        추가하려는 물체의 이름을 obj_name으로 지정하면, 주미는 해당 물체도 화면에서 찾아내기 시작합니다.
+
+        Args:
+            obj_name (str, optional): 물체 인식 목록에 추가할 물체의 이름.
+                                  (예: "chair", "keyboard", "bottle" 등)
+                                  만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환되어 처리됩니다.
+                                  (예: "개" 입력 시 "dog"으로 변환)
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작 (기본 물체 인식 시작)
+
+            >>> # 'keyboard'와 'mouse'를 추가로 인식하도록 설정
+            >>> zumi.object_check_add_obj(obj_name="keyboard")
+            >>> zumi.object_check_add_obj(obj_name="mouse")
+            >>> print("인식 목록에 'keyboard'와 'mouse'가 추가되었습니다.")
+
+            >>> # 한글 이름으로 '컵'과 '의자'를 추가 (한글-영어 매핑 사전이 구현되어 있다고 가정)
+            >>> zumi.object_check_add_obj(obj_name="컵")
+            >>> zumi.object_check_add_obj(obj_name="의자")
+            >>> print("인식 목록에 '컵'과 '의자'가 추가되었습니다.")
+
+            >>> # 이제 'keyboard', 'mouse', '컵', '의자' 등도 화면에서 인식될 수 있습니다.
+            >>> while True:
+            >>>     if zumi.is_obj_detected(name="keyboard"):
+            >>>         print("키보드 감지!")
+            >>>     elif zumi.is_obj_detected(name="컵"): # 한글 이름으로도 인식 여부 확인 가능
+            >>>         print("컵 감지!")
+            >>>     time.sleep(0.5)
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수는 물체 인식이 시작되기 전(``object_detector_init()`` 이후, ``object_detector_start()`` 이전) 또는 물체 인식이 실행 중인 상태에서 사용할 수 있습니다.
+            - 추가하려는 obj_name 이 모델이 인식할 수 있는 COCO 데이터셋 클래스에 포함되어 있어야 제대로 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._yoloCheckAddObj(obj_name)
 
 
     def object_check_all_add_obj(self):
         """
-        object 모든 검출 오브젝트를 추가
+        스트리밍되는 카메라 영상에서 물체 인식 목록에 모델이 인식 가능한 모든 물체(객체)를 추가합니다.
+
+        이 함수를 사용하면 ``object_detector_start()`` 가 기본으로 인식하는 소수의 물체들뿐만 아니라, 모델이 학습된 'COCO 데이터셋'에 포함된 약 80가지 종류의 모든 물체를 주미가 화면에서 찾아내기 시작합니다.
+        사람, 자동차, 신호등 같은 기본 물체부터 의자, 책, 자전거, 동물 등 훨씬 더 다양한 물체들을 인식할 수 있게 됩니다.
+
+        Args:
+            없음
+
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작 (기본 물체만 인식)
+
+            >>> # 이제 모든 종류의 물체를 인식하도록 변경
+            >>> zumi.object_check_all_add_obj()
+            >>> print("이제 모든 종류의 물체 인식을 시작합니다.")
+
+            >>> # 이제 화면에 보이는 다양한 물체들이 인식될 수 있습니다.
+            >>> while True:
+            >>>     # 인식된 모든 물체의 정보를 가져오는 다른 함수들과 함께 사용할 수 있습니다.
+            >>>     pass
+            >>>     time.sleep(0.5)
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수는 물체 인식이 시작되기 전(``object_detector_init()`` 이후, ``object_detector_start()`` 이전) 또는 물체 인식이 실행 중인 상태에서 사용할 수 있습니다.
+            - 모든 물체를 인식하도록 설정하면, 시스템의 처리량이 늘어나 주미의 성능에 영향을 줄 수 있습니다. 정확히 필요한 물체만 인식하도록 설정하는 것이 효율적일 수 있습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._yoloCheckAllAddObj()
 
-    def object_check_del_obj(self, obj_name=""):
+
+    def object_check_del_obj(self, obj_name: str = ""):
         """
-        object 검출 오브젝트를 제거
+        스트리밍되는 카메라 영상에서 물체 인식 목록에서 특정 물체(객체)를 제거합니다.
+
+        이 함수를 사용하면 ``object_detector_start()`` 로 현재 인식 중인 물체들 중에서
+        더 이상 인식하고 싶지 않은 물체(예: "cat", "dog" 등)를 obj_name으로 지정하여
+        인식 대상에서 제외시킬 수 있습니다. 이렇게 하면 주미는 해당 물체를 더 이상 화면에서
+        찾아내지 않게 됩니다.
+
+        Args:
+            obj_name (str, optional): 물체 인식 목록에서 제거할 물체의 이름.
+                                  (예: "chair", "keyboard", "bottle" 등)
+                                  만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환되어 처리됩니다.
+                                  (예: "개" 입력 시 "dog"으로 변환)
+        Returns:
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작 (기본 물체 인식 시작)
+
+            >>> # 'cat'과 'dog'을 인식 목록에서 제거
+            >>> zumi.object_check_del_obj(obj_name="cat")
+            >>> zumi.object_check_del_obj(obj_name="dog")
+            >>> print("인식 목록에서 'cat'과 'dog'이 제거되었습니다.")
+
+            >>> # 이제 주미는 'cat'과 'dog'을 더 이상 인식하지 않습니다.
+            >>> while True:
+            >>>     if zumi.is_obj_detected(name="person"):
+            >>>         print("사람 감지!")
+            >>>     # 'cat'이나 'dog'은 감지되지 않습니다.
+            >>>     time.sleep(0.5)
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+        Note:
+            - 이 함수는 물체 인식이 시작되기 전(``object_detector_init()`` 이후, ``object_detector_start()`` 이전) 또는 물체 인식이 실행 중인 상태에서 사용할 수 있습니다.
+            - 제거하려는 obj_name이 현재 인식 목록에 없으면 아무런 작업도 수행되지 않습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._yoloCheckDelObj(obj_name)
 
-    def object_check_all_del_obj(self, obj_name=""):
+    def object_check_all_del_obj(self):
         """
-        object 모든 검출 오브젝트를 제거
-        """
-        self._connection_handler._yoloCheckAllAddObj()
+        스트리밍되는 카메라 영상에서 물체 인식 목록에 있는 모든 물체(객체)를 제거합니다.
 
-
-    def is_stop_sign_detected(self):
-        """
-        카메라에 stop sign 이 감지되었는지 확인
-        """
-        return self._connection_handler._isObjDetected("stop sign")
-
-    def get_stop_sign_center(self):
-        """
-        카메라에 감지된 stop sign의 중심 좌표
-        """
-        return self._connection_handler._getObjCenter("stop sign")
-
-    def get_stop_sign_size(self):
-        """
-        카메라에 감지된 stop sign의 크기
-        """
-        return self._connection_handler._getObjSize("stop sign")
-
-    def get_stop_sign_confidence(self):
-        """
-        카메라에 감지된 stop sign의 신뢰도 점수
-        """
-        return self._connection_handler._getObjConfidence("stop sign")
-
-    def is_traffic_light_detected(self):
-        """
-        카메라에 신호등이 감지되었는지 확인
-        """
-        return self._connection_handler._isObjDetected("traffic light")
-
-    def get_traffic_light_center(self):
-        """
-        카메라에 감지된 신호등의 중심 좌표
-        """
-        return self._connection_handler._getObjCenter("traffic light")
-
-    def get_traffic_light_size(self):
-        """
-        카메라에 감지된 신호등의 크기
-        """
-        return self._connection_handler._getObjSize("traffic light")
-
-    def get_traffic_light_color(self):
-        """
-        신호등 색상을 판별합니다.
-
-        Returns:
-            str: "RED", "YELLOW", "GREEN", "UNKNOWN" 중 하나
-        """
-        return self._connection_handler._getTrafficLightColor()
-
-    def get_traffic_light_confidence(self):
-        """
-        카메라에 감지된 신호등의 신뢰도 점수
-        """
-        return self._connection_handler._getObjConfidence("traffic light")
-
-    def is_obj_detected(self, name:str):
-        """
-        특정 이름의 클래스가 감지되었는지 확인합니다.
+        이 함수를 사용하면 ``object_detector_start()`` 로 현재 인식 중인 모든 물체들을
+        인식 대상에서 한 번에 제외시킬 수 있습니다. 주미가 더 이상 어떤 물체도
+        자동으로 인식하지 않도록 하고 싶을 때 이 함수를 사용합니다.
 
         Args:
-            name (str): 확인할 클래스의 이름 (예: "person", "car")
+            없음
 
         Returns:
-            bool: 해당 클래스가 감지되었으면 True, 아니면 False
+            이 함수는 값을 반환하지 않습니다.
+
+        Examples:
+            >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumi.object_detector_init() # 물체 인식 초기화
+            >>> zumi.object_detector_start() # 물체 인식 시작 (기본 물체 인식 시작)
+
+            >>> # 모든 물체를 인식 목록에서 제거
+            >>> zumi.object_check_all_del_obj()
+            >>> print("모든 물체 인식 목록이 비워졌습니다.")
+
+            >>> # 이제 주미는 어떤 물체도 인식하지 않습니다.
+            >>> while True:
+            >>>     if zumi.is_obj_detected(name="person"):
+            >>>         print("사람 감지!") # 이 메시지는 출력되지 않습니다.
+            >>>     else:
+            >>>         print("모든 물체 감지 중지됨...")
+            >>>     time.sleep(0.5)
+
+            >>> zumi.object_detector_stop() # 물체 인식 중지
+
+
+        Note:
+            - 이 함수는 물체 인식이 시작되기 전(``object_detector_init()`` 이후, ``object_detector_start()`` 이전) 또는 물체 인식이 실행 중인 상태에서 사용할 수 있습니다.
+
+            - 이 함수를 호출하면 모든 물체 인식이 중지되는 것이 아니라, 현재 인식하고 있는 목록만 비워지는 것입니다. 따라서 ``is_obj_detected()`` 같은 함수들은 항상 False를 반환하게 됩니다.
+            - 특정 물체만 다시 인식하고 싶다면 ``object_check_add_obj()`` 함수를 사용하여 원하는 물체만 다시 추가할 수 있습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
-        return self._connection_handler._isObjDetected(name)
 
-    def get_obj_size(self, name:str):
-        """
-        특정 이름의 클래스의 크기(면적)를 반환합니다.
-        동일한 클래스가 여러 개 감지된 경우, 첫 번째 객체의 크기를 반환합니다.
-
-        Args:
-            name (str): 크기를 조회할 클래스의 이름
-
-        Returns:
-            int: 객체의 크기(면적). 객체가 없으면 0을 반환합니다.
-        """
-        return self._connection_handler._getObjSize(name)
-
-    def get_obj_center(self, name:str):
-        """
-        특정 이름의 클래스의 중심 좌표 (x, y)를 반환합니다.
-        동일한 클래스가 여러 개 감지된 경우, 첫 번째 객체의 좌표를 반환합니다.
-
-        Args:
-            name (str): 중심 좌표를 조회할 클래스의 이름
-
-        Returns:
-            tuple: 객체의 중심 좌표 (x, y). 객체가 없으면 빈 튜플 ()을 반환합니다.
-        """
-        return self._connection_handler._getObjCenter(name)
-
-    def get_obj_confidence(self, name:str):
-        """
-        특정 이름의 클래스의 신뢰도(confidence)를 반환합니다.
-        동일한 클래스가 여러 개 감지된 경우, 첫 번째 객체의 신뢰도를 반환합니다.
-
-        Args:
-            name (str): 신뢰도를 조회할 클래스의 이름
-
-        Returns:
-            float: 객체의 신뢰도. 객체가 없으면 0.0을 반환합니다.
-        """
-        return self._connection_handler._getObjConfidence(name)
+        self._connection_handler._yoloCheckAllDelObj()
 
 
     ##--------------------------------------------------------------------#]
@@ -3766,17 +4301,17 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 스케치 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
-            - 이 함수로 초기화한 후, ``sketch_detector_start()`` 함수를 호출해야 실제로 스케치 인식이 시작됩니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start() # 먼저 카메라 스트리밍 시작
             >>> zumi.sketch_detector_init() # PC 기반 스케치 인식 기능 초기화
             >>> zumi.sketch_detector_start() # 스케치 인식 시작
             # ... 흰 종이에 검은 펜으로 그린 그림을 사각형 안에 넣고 인식 로직 실행 ...
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 스케치 인식을 사용하기 전에 ``camera_stream_start()`` 함수를 호출하여 영상 스트리밍을 시작해야 합니다.
+            - 이 함수로 초기화한 후, ``sketch_detector_start()`` 함수를 호출해야 실제로 스케치 인식이 시작됩니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         self._connection_handler._sketchDetectorInit()
@@ -3808,11 +4343,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 호출하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화해야 합니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.sketch_detector_init() # 스케치 인식 기능 초기화
@@ -3820,6 +4350,11 @@ class ZumiAI:
             # 이제 PC 화면의 스트리밍 영상에 인식된 스케치 정보가 표시됩니다.
             >>> # ... 스케치 인식을 사용하는 로직 ...
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화해야 합니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._sketchDetectorStart()
 
@@ -3837,10 +4372,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 스케치 인식 기능을 다시 사용하려면 ``sketch_detector_start()`` 함수를 다시 호출해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.sketch_detector_init() # 스케치 인식 기능 초기화
@@ -3848,6 +4379,10 @@ class ZumiAI:
             # ... 스케치 인식을 사용하는 로직 ...
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
             # 이제 PC 화면에서 스케치 인식 관련 표시가 사라지고, 자원이 해제됩니다.
+
+        Note:
+            - 스케치 인식 기능을 다시 사용하려면 ``sketch_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._sketchDetectorStop()
 
@@ -3872,11 +4407,6 @@ class ZumiAI:
 
                 - **False**: 해당 이름의 스케치가 현재 영상에 감지되지 않았습니다.
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()
             >>> zumi.sketch_detector_init()
@@ -3891,6 +4421,11 @@ class ZumiAI:
             >>> detected_default_sketch = zumi.is_sketch_detected()
             >>> print(f"기본 스케치 감지 여부: {detected_default_sketch}")
             # 기본 스케치 감지 여부: False (예시 출력: 기본 스케치가 감지되지 않음)
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         return self._connection_handler._isSketchDetected(name)
 
@@ -3901,7 +4436,7 @@ class ZumiAI:
         이 함수는 ``sketch_detector_start()`` 로 스케치 인식이 활성화된 상태에서,
         현재 영상에 지정된 name의 스케치가 인식되었다면 해당 스케치의 중심이 되는
         x, y 좌표를 리스트 형태로 반환합니다. 이 좌표를 통해 주미가 스케치를 화면의
-        어느 위치에서 보고 있는지 알 수 있어요.
+        어느 위치에서 보고 있는지 알 수 있습니다.
 
         Args:
             name (str, optional): 중심 좌표를 가져올 스케치의 이름.
@@ -3915,12 +4450,6 @@ class ZumiAI:
                 - **[1] y축 위치 (int)**: 스케치의 중심 y 좌표.
 
                 스케치가 인식되지 않았다면 `[-1, -1]`을 반환합니다. 예시: `[0, 0]` (스트리밍 화면의 중앙)
-
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
-            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
 
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
@@ -3936,6 +4465,12 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
+            - 반환되는 좌표는 스트리밍 영상 화면의 크기(해상도)에 따라 달라질 수 있습니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         return self._connection_handler._getSketchCenter(name)
@@ -3948,7 +4483,7 @@ class ZumiAI:
         이 함수는 ``sketch_detector_start()`` 로 스케치 인식이 활성화된 상태에서,
         현재 영상에 지정된 name의 스케치가 인식되었다면 해당 스케치의 크기를
         숫자(픽셀 또는 상대적인 값)로 반환합니다. 이 값을 통해 스케치가 화면에서 얼마나
-        크게 보이는지, 즉 주미와의 거리가 어느 정도인지 예측하는 데 사용할 수 있어요.
+        크게 보이는지, 즉 주미와의 거리가 어느 정도인지 예측하는 데 사용할 수 있습니다.
 
         Args:
             name (str, optional): 크기를 가져올 스케치의 이름.
@@ -3957,12 +4492,6 @@ class ZumiAI:
         Returns:
             int: 인식된 스케치의 크기.
                 스케치가 인식되지 않았다면 0 을 반환합니다.
-
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
-            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 스케치의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
 
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
@@ -3982,6 +4511,12 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
+            - 반환되는 크기 값은 스트리밍 영상 화면의 해상도나 스케치의 실제 크기, 주미와의 거리에 따라 달라질 수 있습니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         return self._connection_handler._getSketchSize(name)
@@ -4003,6 +4538,17 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
+        Examples:
+            >>> zumi.camera_stream_start() # 카메라 스트리밍 시작 (필수)
+            >>> zumi.sketch_train(name="my_car_drawing") # 'my_car_drawing' 이름으로 스케치 학습 모드 시작
+            # 이제 PC 화면을 보면서 'r'키를 눌러 스케치를 학습하고 'e'키로 종료하세요.
+            >>> print("'my_car_drawing' 스케치 학습 모드가 종료되었습니다.")
+            # 학습된 스케치는 이제 'sketch_detector_start()'로 인식될 수 있습니다.
+
+            >>> # 이름을 지정하지 않고 학습 모드를 시작하는 경우
+            >>> zumi.sketch_train()
+            # 학습 모드 시작 시 이름을 입력하라는 메시지가 화면에 표시됩니다.
+
         Note:
             - **학습 과정**:
                 1. ``sketch_train()`` 함수를 실행하면 스케치 학습 모드가 시작됩니다.
@@ -4014,17 +4560,6 @@ class ZumiAI:
             - 학습된 스케치 정보는 자동으로 저장되어 다음에 주미를 시작할 때 자동으로 불러와져 인식에 사용됩니다.
             - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작해야 합니다.
             - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
-        Examples:
-            >>> zumi.camera_stream_start() # 카메라 스트리밍 시작 (필수)
-            >>> zumi.sketch_train(name="my_car_drawing") # 'my_car_drawing' 이름으로 스케치 학습 모드 시작
-            # 이제 PC 화면을 보면서 'r'키를 눌러 스케치를 학습하고 'e'키로 종료하세요.
-            >>> print("'my_car_drawing' 스케치 학습 모드가 종료되었습니다.")
-            # 학습된 스케치는 이제 'sketch_detector_start()'로 인식될 수 있습니다.
-
-            >>> # 이름을 지정하지 않고 학습 모드를 시작하는 경우
-            >>> zumi.sketch_train()
-            # 학습 모드 시작 시 이름을 입력하라는 메시지가 화면에 표시됩니다.
         """
 
         self._connection_handler._sketchTrain(name)
@@ -4047,11 +4582,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수는 영구적으로 스케치 데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다.
-            - 삭제하려는 이름이 시스템에 등록되어 있지 않으면 아무런 작업도 수행되지 않습니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> # 'my_house'라는 이름의 스케치 데이터 삭제
             >>> zumi.delete_sketch_data(name="my_house")
@@ -4060,6 +4590,11 @@ class ZumiAI:
             >>> # 'my_car'라는 이름의 스케치 데이터 삭제 (만약 등록되지 않았다면 아무 일도 일어나지 않음)
             >>> zumi.delete_sketch_data(name="my_car")
             >>> print("'my_car' 스케치 데이터 삭제를 시도했습니다.")
+
+        Note:
+            - 이 함수는 영구적으로 스케치 데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다.
+            - 삭제하려는 이름이 시스템에 등록되어 있지 않으면 아무런 작업도 수행되지 않습니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         self._connection_handler._deleteSketchData(name)
@@ -4071,7 +4606,7 @@ class ZumiAI:
 
         이 함수는 ``sketch_train()`` 함수를 통해 이전에 학습하고 저장했던
         모든 스케치 인식 데이터를 인식 시스템에서 완전히 지웁니다.
-        주미의 스케치 인식 기록을 완전히 초기화하고 싶을 때 사용해요.
+        주미의 스케치 인식 기록을 완전히 초기화하고 싶을 때 사용합니다.
 
         Args:
             없음
@@ -4079,15 +4614,15 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 작업은 되돌릴 수 없습니다! 모든 학습된 스케치 데이터가 영구적으로 삭제되니 신중하게 사용해 주세요.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> # 저장된 모든 스케치 데이터 삭제
             >>> zumi.delete_all_sketch_data()
             >>> print("모든 스케치 데이터가 삭제되었습니다.")
             # 이제 주미는 학습된 어떤 스케치도 인식하지 못하게 됩니다.
+
+        Note:
+            - 이 작업은 되돌릴 수 없습니다! 모든 학습된 스케치 데이터가 영구적으로 삭제되니 신중하게 사용해 주세요.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._deleteAllSketchData()
 
@@ -4115,11 +4650,6 @@ class ZumiAI:
                 스케치가 인식되지 않았거나, 지정된 `name`의 스케치 데이터가 없으면 `["None", 0.0]`을 반환합니다.
                 예시: `["my_drawing", 0.85]` (인식된 스케치는 'my_drawing'이며, 85%의 신뢰도)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.sketch_detector_init() # 스케치 인식 초기화
@@ -4136,6 +4666,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         return self._connection_handler._getSketchResult(name)
@@ -4146,7 +4681,7 @@ class ZumiAI:
 
         이 함수는 ``sketch_detector_start()`` 로 스케치 인식이 활성화된 상태에서,
         현재 영상에 스케치가 인식되었다면 해당 스케치의 이름을 문자열로 반환합니다.
-        이 이름을 통해 주미가 어떤 스케치를 보고 있는지 확인할 수 있어요.
+        이 이름을 통해 주미가 어떤 스케치를 보고 있는지 확인할 수 있습니다.
 
         Args:
             name (str, optional): 이름을 가져올 스케치의 기준이 되는 이름.
@@ -4155,11 +4690,6 @@ class ZumiAI:
         Returns:
             str: 인식된 스케치의 이름.
                 스케치가 인식되지 않았거나, 지정된 name의 스케치 데이터가 없으면 "None" 반환합니다. 예시: "my_house" (인식된 스케치의 이름)
-
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
 
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
@@ -4177,6 +4707,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         return self._connection_handler._getSketchName(name)
 
@@ -4199,11 +4734,6 @@ class ZumiAI:
                 스케치가 인식되지 않았거나, 지정된 `name`의 스케치 데이터가 없으면 0.0을 반환합니다.
                 예시: `0.92` (92%의 정확도로 인식됨)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
-            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.sketch_detector_init() # 스케치 인식 초기화
@@ -4220,6 +4750,11 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.sketch_detector_stop() # 스케치 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``sketch_detector_init()`` 로 스케치 인식 기능을 초기화한 후, ``sketch_detector_start()`` 를 호출하여 스케치 인식을 활성화해야 합니다.
+            - 스케치 인식은 흰 종이에 검은 펜으로 사각형 테두리를 그리고, 그 안에 그린 그림을 보여줄 때 가장 잘 작동합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         return self._connection_handler._getSketchConfidence(name)
 
@@ -4248,11 +4783,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 티처블 머신으로 학습시킨 모델 파일과 라벨 파일은 파이썬 스크립트와 같은 폴더에 있거나, 정확한 경로를 지정해 주어야 합니다.
-            - 이 함수로 초기화한 후, ``teachable_detector_start()`` 함수를 호출해야 실제로 인식이 시작됩니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> # 기본 모델과 라벨 파일로 티처블 머신 인식 기능 초기화
             >>> zumi.teachable_detector_init()
@@ -4267,6 +4797,11 @@ class ZumiAI:
             >>> zumi.teachable_detector_start() # 티처블 머신 인식 시작
             # ... 티처블 머신 인식 로직 ...
             >>> zumi.teachable_detector_stop() # 티처블 머신 인식 중지
+
+        Note:
+            - 티처블 머신으로 학습시킨 모델 파일과 라벨 파일은 파이썬 스크립트와 같은 폴더에 있거나, 정확한 경로를 지정해 주어야 합니다.
+            - 이 함수로 초기화한 후, ``teachable_detector_start()`` 함수를 호출해야 실제로 인식이 시작됩니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         self._connection_handler._teachableInit(model_path, lable_path)
@@ -4286,10 +4821,6 @@ class ZumiAI:
         Returns:
             이 함수는 값을 반환하지 않습니다.
 
-        Note:
-            - 이 함수를 호출하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``teachable_detector_init()`` 로 티처블 머신 모델을 초기화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.teachable_detector_init(model_path='my_model/model.tflite', label_path='my_model/labels.txt') # 모델 초기화
@@ -4297,6 +4828,10 @@ class ZumiAI:
             # 이제 PC 화면의 스트리밍 영상에서 학습시킨 물체나 제스처가 인식되기 시작합니다.
             >>> # ... 인식 결과를 사용하는 로직 ...
             >>> zumi.teachable_detector_stop() # 티처블 머신 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``teachable_detector_init()`` 로 티처블 머신 모델을 초기화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._teachableStart()
 
@@ -4306,17 +4841,13 @@ class ZumiAI:
 
         이 함수는 ``teachable_detector_start()`` 로 시작된 티처블 머신 인식 프로세스를
         종료하고 관련된 리소스(자원)를 해제합니다. 더 이상 주미가 학습된 대상을
-        인식할 필요가 없을 때 이 함수를 사용해요.
+        인식할 필요가 없을 때 이 함수를 사용합니다.
 
         Args:
             없음
 
         Returns:
             이 함수는 값을 반환하지 않습니다.
-
-        Note:
-            - 티처블 머신 인식 기능을 다시 사용하려면 ``teachable_detector_start()`` 함수를 다시 호출해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
 
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
@@ -4325,6 +4856,10 @@ class ZumiAI:
             >>> # ... 티처블 머신 인식 로직 ...
             >>> zumi.teachable_detector_stop() # 티처블 머신 인식 중지
             >>> print("티처블 머신 인식 기능이 종료되었습니다.")
+
+        Note:
+            - 티처블 머신 인식 기능을 다시 사용하려면 ``teachable_detector_start()`` 함수를 다시 호출해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         self._connection_handler._teachableStop()
 
@@ -4351,10 +4886,6 @@ class ZumiAI:
 
                 아무것도 인식되지 않았다면 `["None", 0.0]`을 반환합니다. 예시: `["happy_face", 0.98]` ('happy_face'를 98%의 신뢰도로 인식함)
 
-        Note:
-            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``teachable_detector_init()`` 로 티처블 머신 모델을 초기화한 후, ``teachable_detector_start()`` 를 호출하여 인식을 활성화해야 합니다.
-            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
-
         Examples:
             >>> zumi.camera_stream_start()  # 카메라 스트리밍 시작
             >>> zumi.teachable_detector_init() # 티처블 머신 모델 초기화 (기본 모델 사용)
@@ -4371,6 +4902,10 @@ class ZumiAI:
             >>>     time.sleep(1) # 1초 대기
 
             >>> zumi.teachable_detector_stop() # 티처블 머신 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``teachable_detector_init()`` 로 티처블 머신 모델을 초기화한 후, ``teachable_detector_start()`` 를 호출하여 인식을 활성화해야 합니다.
+            - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
 
         return self._connection_handler._getTeachableResult()

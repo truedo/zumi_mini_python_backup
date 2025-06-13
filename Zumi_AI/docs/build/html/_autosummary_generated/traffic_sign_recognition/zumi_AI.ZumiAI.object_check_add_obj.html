@@ -24,7 +24,7 @@
     <link rel="index" title="색인" href="../../genindex.html" />
     <link rel="search" title="검색" href="../../search.html" />
     <link rel="next" title="object_check_all_add_obj" href="zumi_AI.ZumiAI.object_check_all_add_obj.html" />
-    <link rel="prev" title="is_obj_detected" href="zumi_AI.ZumiAI.is_obj_detected.html" /> 
+    <link rel="prev" title="get_traffic_light_color" href="zumi_AI.ZumiAI.get_traffic_light_color.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -151,27 +151,21 @@
 <li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_result.html">get_sketch_result</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_name.html">get_sketch_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_confidence.html">get_sketch_confidence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_traffic_light_center.html">get_traffic_light_center</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_traffic_light_color.html">get_traffic_light_color</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_traffic_light_confidence.html">get_traffic_light_confidence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_traffic_light_size.html">get_traffic_light_size</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_stop_sign_center.html">get_stop_sign_center</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_stop_sign_confidence.html">get_stop_sign_confidence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_stop_sign_size.html">get_stop_sign_size</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.is_stop_sign_detected.html">is_stop_sign_detected</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.is_traffic_light_detected.html">is_traffic_light_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_detector_init.html">object_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_detector_start.html">object_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_detector_stop.html">object_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.is_obj_detected.html">is_obj_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_obj_size.html">get_obj_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_obj_center.html">get_obj_center</a></li>
 <li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_obj_confidence.html">get_obj_confidence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_obj_size.html">get_obj_size</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.is_obj_detected.html">is_obj_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.get_traffic_light_color.html">get_traffic_light_color</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">object_check_add_obj</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.object_check_add_obj"><code class="docutils literal notranslate"><span class="pre">ZumiAI.object_check_add_obj()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_check_all_add_obj.html">object_check_all_add_obj</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_detector_init.html">object_detector_init</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_detector_start.html">object_detector_start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_detector_stop.html">object_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_check_del_obj.html">object_check_del_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.object_check_all_del_obj.html">object_check_all_del_obj</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.teachable_detector_init.html">teachable_detector_init</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.teachable_detector_start.html">teachable_detector_start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.teachable_detector_stop.html">teachable_detector_stop</a></li>
@@ -210,7 +204,58 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="zumi_AI.ZumiAI.object_check_add_obj">
 <span class="sig-prename descclassname"><span class="pre">ZumiAI.</span></span><span class="sig-name descname"><span class="pre">object_check_add_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.object_check_add_obj" title="Link to this definition"></a></dt>
-<dd><p>object 검출 오브젝트를 추가</p>
+<dd><p>스트리밍되는 카메라 영상에서 물체 인식 목록에 새로운 물체(객체)를 추가합니다.</p>
+<p>이 함수를 사용하면 <code class="docutils literal notranslate"><span class="pre">object_detector_start()</span></code> 가 기본으로 인식하는 물체들 외에, 다른 종류의 물체도 주미의 인식 대상에 포함시킬 수 있습니다.
+추가하려는 물체의 이름을 obj_name으로 지정하면, 주미는 해당 물체도 화면에서 찾아내기 시작합니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj_name</strong> (<em>str</em><em>, </em><em>optional</em>) – 물체 인식 목록에 추가할 물체의 이름.
+(예: “chair”, “keyboard”, “bottle” 등)
+만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환되어 처리됩니다.
+(예: “개” 입력 시 “dog”으로 변환)</p>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p>이 함수는 값을 반환하지 않습니다.</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작 (기본 물체 인식 시작)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># &#39;keyboard&#39;와 &#39;mouse&#39;를 추가로 인식하도록 설정</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;keyboard&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;인식 목록에 &#39;keyboard&#39;와 &#39;mouse&#39;가 추가되었습니다.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 한글 이름으로 &#39;컵&#39;과 &#39;의자&#39;를 추가 (한글-영어 매핑 사전이 구현되어 있다고 가정)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;컵&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;의자&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;인식 목록에 &#39;컵&#39;과 &#39;의자&#39;가 추가되었습니다.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 이제 &#39;keyboard&#39;, &#39;mouse&#39;, &#39;컵&#39;, &#39;의자&#39; 등도 화면에서 인식될 수 있습니다.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">zumi</span><span class="o">.</span><span class="n">is_obj_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;keyboard&quot;</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;키보드 감지!&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">elif</span> <span class="n">zumi</span><span class="o">.</span><span class="n">is_obj_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;컵&quot;</span><span class="p">):</span> <span class="c1"># 한글 이름으로도 인식 여부 확인 가능</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;컵 감지!&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">참고</p>
+<ul class="simple">
+<li><p>이 함수는 물체 인식이 시작되기 전(<code class="docutils literal notranslate"><span class="pre">object_detector_init()</span></code> 이후, <code class="docutils literal notranslate"><span class="pre">object_detector_start()</span></code> 이전) 또는 물체 인식이 실행 중인 상태에서 사용할 수 있습니다.</p></li>
+<li><p>추가하려는 obj_name 이 모델이 인식할 수 있는 COCO 데이터셋 클래스에 포함되어 있어야 제대로 작동합니다.</p></li>
+<li><p>이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.</p></li>
+</ul>
+</div>
 </dd></dl>
 
 </section>
@@ -219,7 +264,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="zumi_AI.ZumiAI.is_obj_detected.html" class="btn btn-neutral float-left" title="is_obj_detected" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zumi_AI.ZumiAI.get_traffic_light_color.html" class="btn btn-neutral float-left" title="get_traffic_light_color" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="zumi_AI.ZumiAI.object_check_all_add_obj.html" class="btn btn-neutral float-right" title="object_check_all_add_obj" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
