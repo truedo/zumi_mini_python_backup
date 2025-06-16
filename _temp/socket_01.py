@@ -22,7 +22,7 @@ zumi.camera_stream_start()
 ##
 zumi.sensor_start()
 #zumi.sensor_visible(True)
-#zumi.frame_rate_visible(True)
+zumi.frame_rate_visible(True)
 
 ##zumi.display_text_set(5,5)
 ##zumi.display_text("Motor",1)
@@ -31,24 +31,50 @@ zumi.sensor_start()
 ##zumi.display_text_pos(0,20)
 
 
-#zumi.yolo_check_add_obj("stop sign")
 ##
-##zumi.object_detector_init("power")
-##zumi.object_detector_start()
-##zumi.object_detector_stop()
+##
 
-##zumi.object_check_add_obj("사람")
+
+##zumi.face_landmark_visible(True)
+##zumi.face_contours_visible(True)
+
+zumi.face_detector_init()
+zumi.face_detector_start()
+######zumi.face_detector_stop()
+####
+#zumi.face_train("dr")
+####zumi.delete_face_data("child")
+
+
+
 
 ##
-##zumi.marker_detector_init()
-##zumi.marker_detector_start()
+zumi.marker_detector_init()
+zumi.marker_detector_start()
 ##zumi.marker_detector_stop()
 
 
 ##
-##zumi.gesture_detector_init()
-##zumi.gesture_detector_start()
+zumi.gesture_detector_init()
+zumi.gesture_detector_start()
 #zumi.gesture_detector_stop()
+
+
+
+##
+zumi.sketch_detector_init()
+zumi.sketch_detector_start()
+#zumi.sketch_train("school")
+
+
+##
+zumi.object_detector_init() #speed
+##zumi.object_detector_init("balance")
+##zumi.object_detector_init("power")
+zumi.object_detector_start()
+##zumi.object_detector_stop()
+
+##zumi.object_check_add_obj("사람")
 
 
 
@@ -60,30 +86,6 @@ zumi.sensor_start()
 
 
 
-
-
-##
-##
-##zumi.face_detector_init()
-##zumi.face_detector_start()
-######zumi.face_detector_stop()
-####
-#zumi.face_train("bin")
-####zumi.delete_face_data("child")
-
-
-
-
-
-
-##zumi.face_landmark_visible(True)
-##zumi.face_contours_visible(True)
-
-
-##
-##zumi.sketch_detector_init()
-##zumi.sketch_detector_start()
-#zumi.sketch_train("school")
 
 #zumi.delete_sketch_data("school")
                         

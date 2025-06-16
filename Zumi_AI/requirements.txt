@@ -1,0 +1,13 @@
+colorama==0.4.6
+mediapipe==0.10.21
+numpy==2.3.0
+opencv_contrib_python==4.6.0.66
+opencv_python==4.11.0.86
+pupil_apriltags==1.0.4.post11
+pynput==1.8.1
+pyserial==3.5
+setuptools==78.1.0
+tensorflow==2.19.0
+tensorflow_intel==2.13.0
+ultralytics==8.3.100
+websocket_client==1.8.0

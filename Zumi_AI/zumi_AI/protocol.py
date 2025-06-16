@@ -463,14 +463,14 @@ KOREAN_TO_ENGLISH_OBJ_MAP = {
 
     # 가구 (Furniture)
     "의자": "chair",
-    "소파": "couch", # 또는 "sofa"
+    "소파": "couch",
     "화분": "potted plant",
     "침대": "bed",
     "식탁": "dining table",
     "변기": "toilet",
 
     # 전자제품 및 실내 물품 (Electronics and Indoor Items)
-    "TV": "tv", # 또는 "tvmonitor"
+    "TV": "tv",
     "노트북": "laptop",
     "마우스": "mouse",
     "리모컨": "remote",

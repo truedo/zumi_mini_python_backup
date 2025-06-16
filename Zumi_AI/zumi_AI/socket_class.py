@@ -2,14 +2,12 @@
 import cv2
 import numpy as np
 import websocket
-import argparse
+#import argparse
 import time
 import threading
 import queue
 
-import logging
-import re # 정규 표현식 모듈 임포트
-
+#import logging
 
 
 

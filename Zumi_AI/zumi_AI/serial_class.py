@@ -5,7 +5,6 @@ from time import sleep
 from threading import Thread
 from colorama import Fore, Back, Style
 from serial.tools.list_ports import comports
-from pynput import keyboard
 
 from .receiver import *
 
@@ -211,7 +210,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
                 self._debugger._printError("Could not connect to device.")
                 print("Serial port could not open. Check the dognle and port.")
                 self.close()
-                exit()
+                #exit()
                 return False
 
         # Could not find device
@@ -219,7 +218,7 @@ class SerialConnectionHandler(): # BaseConnectionHandler 상속
             self._debugger._printError("Could not connect to device.")
             print("Could not find ZumiAI dongle.")
             self.close()
-            exit()
+            #exit()
             return False
 
         # 정지 신호 보내기

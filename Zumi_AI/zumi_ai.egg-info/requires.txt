@@ -1,4 +1,10 @@
-pyserial
-colorama
-pynput
-numpy
+colorama==0.4.6
+mediapipe==0.10.21
+numpy==1.26.4
+opencv-contrib-python==4.6.0.66
+pupil-apriltags==1.0.4.post11
+pynput==1.8.1
+pyserial==3.5
+tensorflow==2.19.0
+ultralytics==8.3.100
+websocket-client==1.8.0
