@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: zumi-ai
-Version: 0.1.18
+Version: 0.1.21
 Summary: Zumi AI for library.
 Author-email: dr <drlee@robolink.co.kr>
 License-Expression: MIT
@@ -9,19 +9,20 @@ Project-URL: Bug Tracker, https://github.com/truedo/zumi_mini_python_backup/issu
 Keywords: ai,zumi,robotics
 Classifier: Programming Language :: Python :: 3
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.7
+Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: colorama==0.4.6
-Requires-Dist: mediapipe==0.10.21
-Requires-Dist: numpy==1.26.4
-Requires-Dist: opencv-contrib-python==4.6.0.66
-Requires-Dist: pupil-apriltags==1.0.4.post11
 Requires-Dist: pynput==1.8.1
 Requires-Dist: pyserial==3.5
-Requires-Dist: tensorflow==2.19.0
-Requires-Dist: ultralytics==8.3.100
-Requires-Dist: websocket-client==1.8.0
+Provides-Extra: pro
+Requires-Dist: mediapipe==0.10.21; extra == "pro"
+Requires-Dist: numpy==1.26.4; extra == "pro"
+Requires-Dist: opencv-contrib-python==4.6.0.66; extra == "pro"
+Requires-Dist: pupil-apriltags==1.0.4.post11; extra == "pro"
+Requires-Dist: tensorflow==2.19.0; extra == "pro"
+Requires-Dist: ultralytics==8.3.100; extra == "pro"
+Requires-Dist: websocket-client==1.8.0; extra == "pro"
 Dynamic: license-file
 
 # Zumi AI Library

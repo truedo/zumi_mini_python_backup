@@ -11,23 +11,25 @@ import queue
 
 
 
-import pkg_resources
+#import pkg_resources
 import copy
 import os
 
-import mediapipe as mp
-from pupil_apriltags import Detector
-from ultralytics import YOLO
 
-import tensorflow as tf
+
+#import mediapipe as mp
+#from pupil_apriltags import Detector
+#from ultralytics import YOLO
+
+#import tensorflow as tf
 # from tensorflow import keras
 
 from .receiver import *
 
 #from .face_landmark import FaceLandmark
-from .face_recognizer import FaceRecognizer
+#from .face_recognizer import FaceRecognizer
 #from .number_recognizer import NumberRecognizer
-from .sketch_recognizer import SketchProcessor
+#from .sketch_recognizer import SketchProcessor
 
 
 
@@ -295,13 +297,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
         print("camera module ready")
-        # self.april_detector = Detector(families='tag25h9',
-        #                nthreads=1,
-        #                quad_decimate=1.0,
-        #                quad_sigma=0.0,
-        #                refine_edges=1,
-        #                decode_sharpening=0.25,
-        #                debug=0) # 필요시 debug=1 로 변경하여 내부 디버그 정보 확인
 
     # --- WebSocket Callbacks ---
 
@@ -408,6 +403,10 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # --- face ---
     def _faceDetectorInit(self, face_recognize_threshold = 0.8):#0.2~2.0
+
+        import mediapipe as mp
+        from .face_recognizer import FaceRecognizer
+
 
         if self.__faceDetectInitFlag is False:
             # self.__faceD = FaceDetector()
@@ -828,6 +827,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # april
     def _aprilDetectorInit(self):
+
+        from pupil_apriltags import Detector
+
         if self.__aprilDetectInitFlag is False:
 
             self.__aprilD = Detector(families='tag25h9',
@@ -1054,6 +1056,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # gesture
     def _gestureDetectorInit(self):
+        import mediapipe as mp
+
         if self.__gestureDetectInitFlag is False:
 
             # Mediapipe 설정
@@ -1288,6 +1292,9 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # yolo
     def _yoloDetectorInit(self, performance_mode = "speed"):
+
+        from ultralytics import YOLO
+
         if self.__yoloDetectInitFlag is False:
             self.__yoloDetectInitFlag = True
             self.__drawYoloAreaFlag = True
@@ -1845,6 +1852,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # --- scketch ---
     def _sketchDetectorInit(self):
+        from .sketch_recognizer import SketchProcessor
         if self.__sketchDetectInitFlag is False:
             self.__sketchRecognizer = SketchProcessor()
             self.__sketchDetectInitFlag = True
@@ -2000,6 +2008,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # teachable machine
     def _teachableInit(self, ModelPath = 'model_unquant.tflite', LabelPath = 'labels.txt'):
+        import tensorflow as tf
+
         if self.__teachableInitFlag is False:
             self.__teachableInitFlag = True
             self.teachableModelPath = ModelPath

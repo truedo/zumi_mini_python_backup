@@ -1,52 +1,51 @@
 [build-system]
-requires = ["setuptools>=61.0"] # 패키지 빌드에 필요한 최소 setuptools 버전
-build-backend = "setuptools.build_meta" # 사용할 빌드 백엔드 지정
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "zumi-ai" # 배포할 패키지 이름. pip install 할 때 사용됨. 소문자, 하이픈 권장.
-version = "0.1.18" # 패키지 버전. 처음 배포 시 0.1.0 또는 0.1.1 등으로 시작.
+name = "zumi-ai"
+version = "0.1.21"
 authors = [
-  { name="dr", email="drlee@robolink.co.kr" }, # 저자 정보
+  { name="dr", email="drlee@robolink.co.kr" },
 ]
-#[project.dependencies] # 이 패키지가 의존하는 다른 패키지 목록
-dependencies = [
-  "colorama==0.4.6",
-  "mediapipe==0.10.21",
-  "numpy==1.26.4",
-  "opencv-contrib-python==4.6.0.66", # opencv_contrib_python은 여기에 하이픈으로 변경
-  "pupil-apriltags==1.0.4.post11", # pupil_apriltags는 여기에 하이픈으로 변경
-  "pynput==1.8.1",
-  "pyserial==3.5",
-  "tensorflow==2.19.0", # tensorflow_intel 대신 일반적으로 tensorflow만 사용
-  "ultralytics==8.3.100",
-  "websocket-client==1.8.0", # websocket_client는 여기에 하이픈으로 변경
-]
-description = "Zumi AI for library." # 패키지 설명
-readme = "README.md" # README 파일 지정
-requires-python = ">=3.7" # 이 라이브러리가 요구하는 최소 파이썬 버전
-license = "MIT"  # ✅ 문자열로 바꿔야 함 (표준 SPDX ID)
-classifiers = [ # PyPI에서 패키지를 분류하는데 사용되는 목록 (https://pypi.org/classifiers/)
+description = "Zumi AI for library."
+readme = "README.md"
+requires-python = ">=3.9" #pro is 3.12
+license = "MIT"
+classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-keywords = ["ai", "zumi", "robotics"] # 검색 키워드
+keywords = ["ai", "zumi", "robotics"]
 
-[project.urls] # 관련 URL (선택 사항)
-"Homepage" = "https://github.com/truedo/zumi_mini_python_backup" # GitHub 레포 주소 등
+# 초보자를 위한 최소 필수 의존성 (pip install zumi-ai 시 설치)
+# [project.dependencies] 바로 아래에 배열 형태로 나열해야 합니다.
+dependencies = [
+  "colorama==0.4.6",
+  "pynput==1.8.1",
+  "pyserial==3.5",
+]
+
+# 파워 유저를 위한 추가/선택적 의존성 (pip install zumi-ai[pro] 시 설치)
+[project.optional-dependencies]
+pro = [
+  "mediapipe==0.10.21",
+  "numpy==1.26.4",
+  "opencv-contrib-python==4.6.0.66",
+  "pupil-apriltags==1.0.4.post11",
+  "tensorflow==2.19.0",
+  "ultralytics==8.3.100",
+  "websocket-client==1.8.0",
+]
+
+
+[project.urls]
+"Homepage" = "https://github.com/truedo/zumi_mini_python_backup"
 "Bug Tracker" = "https://github.com/truedo/zumi_mini_python_backup/issues"
 
-# 이 아래 내용을 추가하거나 기존 [tool.setuptools]와 합쳐주세요.
 [tool.setuptools]
-# 명시적으로 패키지를 찾도록 설정 (이전에 문제되었던 'pt' 오류 방지)
-packages = ["zumi_AI"] # zumi_ai 디렉토리를 패키지로 포함
-# packages.find 설정도 가능:
-# packages.find = {where = ["."], include = ["zumi_ai", "zumi_ai.*"]}
-
-# 패키지 데이터를 포함하도록 설정 (이것이 .tflite 파일을 포함하는 핵심)
+packages = ["zumi_AI"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-# "패키지 이름" = ["패키지 내에서 포함할 파일 패턴"]
-#"zumi_ai" = ["data/*.tflite"] # zumi_ai/data/ 디렉토리 안의 모든 .tflite 파일을 포함
-# 만약 .tflite 파일이 zumi_ai/ 바로 아래에 있다면 "zumi_ai" = ["*.tflite"] 로 설정
-"zumi_AI" = ["res/model/*.tflite"] # ✅ 이 부분을 수정해야 합니다.
+"zumi_AI" = ["res/model/*.tflite"]
