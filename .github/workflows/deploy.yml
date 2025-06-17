@@ -5,6 +5,11 @@ on:
     branches:
       - main # main 브랜치에 푸시될 때 이 워크플로우 실행
 
+permissions: # 이 부분을 추가해야 합니다.
+  contents: write # 저장소 콘텐츠에 대한 쓰기 권한 부여
+  pages: write # GitHub Pages 배포를 위한 쓰기 권한 부여 (필수)
+  id-token: write # OpenID Connect (OIDC) 사용을 위한 권한 (필요 시)
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -18,5 +23,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 여기가 중요합니다! HTML 파일이 있는 경로를 정확히 지정해줍니다.
           publish_dir: ./Zumi_AI/docs/build/html
