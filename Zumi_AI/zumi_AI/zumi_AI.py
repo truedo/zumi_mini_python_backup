@@ -569,7 +569,7 @@ class ZumiAI:
         return self.size
 
 
-    def sendCommand_test(self):
+    def _sendCommand_test(self):
         """
         테스트 명령을 전송합니다.
 
