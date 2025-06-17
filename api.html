@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ko" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZumiAI API 개요 &mdash; zumiAI_python 1.0.0 문서</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5a0dd2f0"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/translations.js?v=e33e7ba0"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="connect" href="_autosummary_generated/connection/zumi_AI.ZumiAI.connect.html" />
+    <link rel="prev" title="zumiAI의 파이썬 문서입니다." href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            zumiAI_python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ZumiAI API 개요</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/connection/zumi_AI.ZumiAI.connect.html">connect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/connection/zumi_AI.ZumiAI.disconnect.html">disconnect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.stop.html">stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.control_motor.html">control_motor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.control_motor_time.html">control_motor_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.forward_dist.html">forward_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.reverse_dist.html">reverse_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_move_dist.html">send_move_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.forward_dist_quick.html">forward_dist_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.reverse_dist_quick.html">reverse_dist_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_move_dist_quick.html">send_move_dist_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.left_turn.html">left_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.right_turn.html">right_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_turn.html">send_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.left_turn_quick.html">left_turn_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.right_turn_quick.html">right_turn_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_turn_quick.html">send_turn_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.forward_infinite.html">forward_infinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.reverse_infinite.html">reverse_infinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.move_infinite.html">move_infinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.linefollower_distance.html">linefollower_distance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.linefollower_infinite.html">linefollower_infinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.linefollower.html">linefollower</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.go_sensor.html">go_sensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.set_calibration_motors.html">set_calibration_motors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.change_emotion.html">change_emotion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.play_sound.html">play_sound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.led_control.html">led_control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.led_pattern.html">led_pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.change_screen.html">change_screen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text.html">display_text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_add.html">display_text_add</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_clear.html">display_text_clear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_pos.html">display_text_pos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_set.html">display_text_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_all.html">get_IR_sensor_all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_front.html">get_IR_sensor_front</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_bottom.html">get_IR_sensor_bottom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_battery.html">get_battery</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_button.html">get_button</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/keyboard/zumi_AI.ZumiAI.key_press_set.html">key_press_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/keyboard/zumi_AI.ZumiAI.key_press_start.html">key_press_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/keyboard/zumi_AI.ZumiAI.key_press_stop.html">key_press_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_face_detection.html">set_zumi_face_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_cat_detection.html">set_zumi_cat_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_color_detection.html">set_zumi_color_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_marker_detection.html">set_zumi_marker_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.is_zumi_face_detected.html">is_zumi_face_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_face_center.html">get_zumi_face_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.is_zumi_cat_detected.html">is_zumi_cat_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_cat_center.html">get_zumi_cat_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_color_id.html">get_zumi_color_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_color_center.html">get_zumi_color_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_marker_id.html">get_zumi_marker_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_marker_center.html">get_zumi_marker_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.camera_stream_start.html">camera_stream_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.camera_LR_Flip.html">camera_LR_Flip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.sensor_start.html">sensor_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.sensor_visible.html">sensor_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.frame_rate_visible.html">frame_rate_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_detector_init.html">face_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_detector_start.html">face_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_detector_stop.html">face_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_landmark_visible.html">face_landmark_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_contours_visible.html">face_contours_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.is_face_detected.html">is_face_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_face_center.html">get_face_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_face_size.html">get_face_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_face_landmark.html">get_face_landmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_train.html">face_train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.delete_face_data.html">delete_face_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.delete_all_Face_data.html">delete_all_Face_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_detected_face_result.html">get_detected_face_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_detected_face_name.html">get_detected_face_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_detected_face_confidence_score.html">get_detected_face_confidence_score</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.marker_detector_init.html">marker_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.marker_detector_start.html">marker_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.marker_detector_stop.html">marker_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.is_marker_detected.html">is_marker_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.get_marker_id.html">get_marker_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.get_marker_center.html">get_marker_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.get_marker_size.html">get_marker_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.gesture_detector_init.html">gesture_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.gesture_detector_start.html">gesture_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.gesture_detector_stop.html">gesture_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.is_gesture_detected.html">is_gesture_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_center.html">get_gesture_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_size.html">get_gesture_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_finger.html">get_gesture_finger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_recognize.html">get_gesture_recognize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_detector_init.html">sketch_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_detector_start.html">sketch_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_detector_stop.html">sketch_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.is_sketch_detected.html">is_sketch_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_center.html">get_sketch_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_size.html">get_sketch_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_train.html">sketch_train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.delete_sketch_data.html">delete_sketch_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.delete_all_sketch_data.html">delete_all_sketch_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_result.html">get_sketch_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_name.html">get_sketch_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_confidence.html">get_sketch_confidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_init.html">object_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_start.html">object_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_stop.html">object_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.is_obj_detected.html">is_obj_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_size.html">get_obj_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_center.html">get_obj_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_confidence.html">get_obj_confidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_traffic_light_color.html">get_traffic_light_color</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_add_obj.html">object_check_add_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_all_add_obj.html">object_check_all_add_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_del_obj.html">object_check_del_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_all_del_obj.html">object_check_all_del_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.teachable_detector_init.html">teachable_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.teachable_detector_start.html">teachable_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.teachable_detector_stop.html">teachable_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.get_teachable_result.html">get_teachable_result</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">zumiAI_python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ZumiAI API 개요</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="zumiai-api">
+<h1>ZumiAI API 개요<a class="headerlink" href="#zumiai-api" title="Link to this heading"></a></h1>
+<p>이 문서는 ZumiAI 라이브러리의 모든 주요 메서드를 요약하여 보여줍니다.
+ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악할 수 있도록 분류되어 있습니다.</p>
+<hr class="docutils" />
+<strong>주미 AI 설치 방법</strong><br>
+<p>주미 AI를 사용하기 위한 설치는 두 가지 방식으로 나뉩니다. 사용 목적에 맞게 선택하여 설치해 주세요.</p>
+
+<div style="background-color: #f0fff7; padding: 15px; border-left: 5px solid #00cc52; margin-bottom: 20px; font-size: 16px; line-height: 1.6;">
+
+<h5>1. 🔌 기본 설치 (동글 버전)</h5>
+<p>이 방법은 주미와 함께 제공되는 <strong>USB 동글을 사용</strong>하는 가장 기본적인 설치 방식입니다.</p>
+<ul>
+<li><strong>권장 파이썬 버전:</strong> 3.9 이상</li>
+<li><strong>장점:</strong> 설치와 연결이 매우 <strong>빠르고 간편</strong>합니다. 코딩에 집중하고 싶을 때 적합합니다.</li>
+<li><strong>단점:</strong> 카메라 스트리밍을 통한 <strong>고급 기능은 사용할 수 없습니다.</strong></li>
+</ul>
+<pre><code>pip install zumi-ai</code></pre>
+
+<hr style="border-top: 1px dashed #ccc; margin: 20px 0;">
+
+<h5>2. 🌐 고급 설치 (스트리밍 및 비전 기능 지원)</h5>
+<p>이 방법은 주미와 <strong>IP 주소를 직접 입력하여 연결</strong>하며, 카메라 스트리밍을 통한 <strong>AI 비전 기능</strong>을 사용할 수 있는 고급 설치 방식입니다.</p>
+<ul>
+<li><strong>권장 파이썬 버전:</strong> 3.12.3 이상의 3.12.x 모든 버전 (3.13은 현재 지원되지 않습니다)</li>
+<li><strong>장점:</strong> 주미의 카메라 영상을 실시간 스트리밍하여 강력한 AI 기능을 활용할 수 있습니다.</li>
+<li><strong>단점:</strong> 설치해야 할 추가 라이브러리가 많아 <strong>설치 시간이 오래 걸릴 수 있습니다.</strong></li>
+</ul>
+<pre><code>pip install zumi-ai[pro]</code></pre>
+
+<br>
+<p>🌐 카메라 스트리밍 버전을 위한 준비물</p>
+<ul>
+   <li><strong>무선 공유기 (2.4GHz 필수):</strong> Zumi와 PC가 같은 네트워크에 연결되도록 하는 필수 장비입니다.</li>
+   <li><strong>안정적인 Wi-Fi 연결:</strong> Zumi와 PC 모두 공유기에 안정적으로 연결되어야 스트리밍이 끊기지 않습니다.</li>
+</ul>
+<p>⚠️ **참고:** 주변에 무선 장비가 많거나 신호가 복잡한 환경에서는 간섭으로 인해 연결이 불안정해지거나 스트리밍 품질이 떨어질 수 있습니다.</p>
+
+
+
+</div><hr class="docutils" />
+<div style="background-color: #f0f8ff; padding: 10px; border-left: 4px solid #007acc; margin-bottom: 15px; font-size: 14px;">
+  <h5>※ 지원 여부 안내</h5>
+  함수별 <strong>지원 여부</strong>는 <u>연결 방식</u>에 따른 동작 가능 여부를 나타냅니다.<br>
+  🔌 <strong>동글 연결</strong> : USB 동글을 사용하여 Zumi AI에 연결한 경우<br>
+  🌐 <strong>IP 연결</strong> : 사용자가 IP 주소를 직접 입력하여 Zumi AI에 연결한 경우<br><br>
+  일부 함수는 특정 연결 방식에서만 동작합니다. 각 함수 설명의 지원 정보를 참고하세요.
+</div><hr class="docutils" />
+<strong>기본 연결 방식</strong><br>
+Zumi AI를 사용하기 위한 기본적인 연결 방법은 아래와 같습니다.<br>
+이 코드를 통해 Zumi AI 객체를 초기화하고 연결을 설정할 수 있습니다.<br>
+
+<div style="background-color: #f0fff7; padding: 15px; border-left: 5px solid #00cc52; margin-bottom: 20px; font-size: 16px; line-height: 1.6;">
+
+from zumi_AI.zumi_AI import *<br>
+zumiAI = ZumiAI()<br>
+zumiAI.connect()<br>
+</div><hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+  1) 연결 제어
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/connection/zumi_AI.ZumiAI.connect.html#zumi_AI.ZumiAI.connect" title="zumi_AI.ZumiAI.connect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connect</span></code></a>([connection_info])</p></td>
+<td><p>주미 AI를 연결합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/connection/zumi_AI.ZumiAI.disconnect.html#zumi_AI.ZumiAI.disconnect" title="zumi_AI.ZumiAI.disconnect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disconnect</span></code></a>()</p></td>
+<td><p>주미 AI의 연결을 종료합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+2) 주행 및 움직임 제어
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.stop.html#zumi_AI.ZumiAI.stop" title="zumi_AI.ZumiAI.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
+<td><p>주미의 모든 움직임을 즉시 멈춥니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.control_motor.html#zumi_AI.ZumiAI.control_motor" title="zumi_AI.ZumiAI.control_motor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">control_motor</span></code></a>([dirL, speedL, dirR, speedR])</p></td>
+<td><p>모터를 작동합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.control_motor_time.html#zumi_AI.ZumiAI.control_motor_time" title="zumi_AI.ZumiAI.control_motor_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">control_motor_time</span></code></a>([dirL, speedL, dirR, ...])</p></td>
+<td><p>일정한 시간 동안 모터를 제어합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.forward_dist.html#zumi_AI.ZumiAI.forward_dist" title="zumi_AI.ZumiAI.forward_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward_dist</span></code></a>([speed, dist])</p></td>
+<td><p>지정된 거리만큼 주미를 전진시킵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.reverse_dist.html#zumi_AI.ZumiAI.reverse_dist" title="zumi_AI.ZumiAI.reverse_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse_dist</span></code></a>([speed, dist])</p></td>
+<td><p>지정된 거리만큼 주미를 후진시킵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_move_dist.html#zumi_AI.ZumiAI.send_move_dist" title="zumi_AI.ZumiAI.send_move_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_move_dist</span></code></a>([speed, dist, dir])</p></td>
+<td><p>지정된 거리만큼 주미에게 이동하도록 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.forward_dist_quick.html#zumi_AI.ZumiAI.forward_dist_quick" title="zumi_AI.ZumiAI.forward_dist_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward_dist_quick</span></code></a>([dist])</p></td>
+<td><p>빠르게 지정된 거리만큼 주미를 전진시킵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.reverse_dist_quick.html#zumi_AI.ZumiAI.reverse_dist_quick" title="zumi_AI.ZumiAI.reverse_dist_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse_dist_quick</span></code></a>([dist])</p></td>
+<td><p>빠르게 지정된 거리만큼 주미를 후진시킵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_move_dist_quick.html#zumi_AI.ZumiAI.send_move_dist_quick" title="zumi_AI.ZumiAI.send_move_dist_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_move_dist_quick</span></code></a>([dist, dir])</p></td>
+<td><p>빠르게 주미에게 지정된 거리만큼 이동하도록 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.left_turn.html#zumi_AI.ZumiAI.left_turn" title="zumi_AI.ZumiAI.left_turn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">left_turn</span></code></a>([speed, deg])</p></td>
+<td><p>왼쪽으로 지정된 각도만큼 주미를 회전시키는 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.right_turn.html#zumi_AI.ZumiAI.right_turn" title="zumi_AI.ZumiAI.right_turn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">right_turn</span></code></a>([speed, deg])</p></td>
+<td><p>오른쪽으로 지정된 각도만큼 주미를 회전시키는 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_turn.html#zumi_AI.ZumiAI.send_turn" title="zumi_AI.ZumiAI.send_turn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_turn</span></code></a>([speed, deg, dir])</p></td>
+<td><p>지정된 각도만큼 주미를 회전시키는 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.left_turn_quick.html#zumi_AI.ZumiAI.left_turn_quick" title="zumi_AI.ZumiAI.left_turn_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">left_turn_quick</span></code></a>([deg])</p></td>
+<td><p>빠르게 왼쪽으로 지정된 각도만큼 주미를 회전시키는 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.right_turn_quick.html#zumi_AI.ZumiAI.right_turn_quick" title="zumi_AI.ZumiAI.right_turn_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">right_turn_quick</span></code></a>([deg])</p></td>
+<td><p>빠르게 오른쪽으로 지정된 각도만큼 주미를 회전시키는 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.send_turn_quick.html#zumi_AI.ZumiAI.send_turn_quick" title="zumi_AI.ZumiAI.send_turn_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_turn_quick</span></code></a>([deg, dir])</p></td>
+<td><p>빠르게 지정된 각도만큼 주미를 회전시키는 명령을 전송합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.forward_infinite.html#zumi_AI.ZumiAI.forward_infinite" title="zumi_AI.ZumiAI.forward_infinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward_infinite</span></code></a>([speed])</p></td>
+<td><p>지정된 속도로 주미가 계속 전진하도록 명령합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.reverse_infinite.html#zumi_AI.ZumiAI.reverse_infinite" title="zumi_AI.ZumiAI.reverse_infinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse_infinite</span></code></a>([speed])</p></td>
+<td><p>지정된 속도로 주미가 계속 후진하도록 명령합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.move_infinite.html#zumi_AI.ZumiAI.move_infinite" title="zumi_AI.ZumiAI.move_infinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_infinite</span></code></a>([speed, dir])</p></td>
+<td><p>지정된 속도와 방향으로 주미가 계속 이동하도록 명령합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.linefollower_distance.html#zumi_AI.ZumiAI.linefollower_distance" title="zumi_AI.ZumiAI.linefollower_distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linefollower_distance</span></code></a>([speed, dist])</p></td>
+<td><p>라인을 따라 지정된 거리만큼 주미가 이동하도록 명령합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.linefollower_infinite.html#zumi_AI.ZumiAI.linefollower_infinite" title="zumi_AI.ZumiAI.linefollower_infinite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linefollower_infinite</span></code></a>([speed])</p></td>
+<td><p>라인을 따라 지정된 속도로 계속 주미가 이동하도록 명령합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.linefollower.html#zumi_AI.ZumiAI.linefollower" title="zumi_AI.ZumiAI.linefollower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linefollower</span></code></a>([speed, senBL, senBR, senBC, time])</p></td>
+<td><p>라인 감지 센서를 이용하여 라인을 따라 주미가 이동하도록 명령합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.go_sensor.html#zumi_AI.ZumiAI.go_sensor" title="zumi_AI.ZumiAI.go_sensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_sensor</span></code></a>([speed, senL, senR])</p></td>
+<td><p>전방 센서에 무언가가 감지될 때까지 주미가 직진합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/movement/zumi_AI.ZumiAI.set_calibration_motors.html#zumi_AI.ZumiAI.set_calibration_motors" title="zumi_AI.ZumiAI.set_calibration_motors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_calibration_motors</span></code></a>()</p></td>
+<td><p>주미의 모터를 보정하여 정확한 움직임을 수행할 수 있도록 합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+3) 감정 및 소리
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.change_emotion.html#zumi_AI.ZumiAI.change_emotion" title="zumi_AI.ZumiAI.change_emotion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">change_emotion</span></code></a>([set])</p></td>
+<td><p>주미의 표정을 변경합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.play_sound.html#zumi_AI.ZumiAI.play_sound" title="zumi_AI.ZumiAI.play_sound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play_sound</span></code></a>([sound])</p></td>
+<td><p>주미에서 지정된 사운드를 재생합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.led_control.html#zumi_AI.ZumiAI.led_control" title="zumi_AI.ZumiAI.led_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">led_control</span></code></a>([r, g, b])</p></td>
+<td><p>주미의 LED 색상을 변경합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/emotion_sound/zumi_AI.ZumiAI.led_pattern.html#zumi_AI.ZumiAI.led_pattern" title="zumi_AI.ZumiAI.led_pattern"><code class="xref py py-obj docutils literal notranslate"><span class="pre">led_pattern</span></code></a>([pattern, time])</p></td>
+<td><p>주미의 LED에 다양한 패턴 효과를 적용합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+4) 화면 제어
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.change_screen.html#zumi_AI.ZumiAI.change_screen" title="zumi_AI.ZumiAI.change_screen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">change_screen</span></code></a>([screen_type])</p></td>
+<td><p>주미의 디스플레이 화면을 전환합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text.html#zumi_AI.ZumiAI.display_text" title="zumi_AI.ZumiAI.display_text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_text</span></code></a>(text[, newline])</p></td>
+<td><p>주어진 문자열을 디스플레이에 출력합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_add.html#zumi_AI.ZumiAI.display_text_add" title="zumi_AI.ZumiAI.display_text_add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_text_add</span></code></a>(text[, newline])</p></td>
+<td><p>현재 디스플레이에 기존 텍스트에 이어서 새로운 텍스트를 출력합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_clear.html#zumi_AI.ZumiAI.display_text_clear" title="zumi_AI.ZumiAI.display_text_clear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_text_clear</span></code></a>()</p></td>
+<td><p>디스플레이에 표시된 모든 텍스트를 지웁니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_pos.html#zumi_AI.ZumiAI.display_text_pos" title="zumi_AI.ZumiAI.display_text_pos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_text_pos</span></code></a>([pos_x, pos_y])</p></td>
+<td><p>텍스트의 위치를 지정합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/camera_display/zumi_AI.ZumiAI.display_text_set.html#zumi_AI.ZumiAI.display_text_set" title="zumi_AI.ZumiAI.display_text_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_text_set</span></code></a>([color, size])</p></td>
+<td><p>텍스트의 색상과 크기를 설정합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+5) 기타 센서 및 시스템 정보
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_all.html#zumi_AI.ZumiAI.get_IR_sensor_all" title="zumi_AI.ZumiAI.get_IR_sensor_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_IR_sensor_all</span></code></a>()</p></td>
+<td><p>주미의 모든 적외선(IR) 센서 값을 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_front.html#zumi_AI.ZumiAI.get_IR_sensor_front" title="zumi_AI.ZumiAI.get_IR_sensor_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_IR_sensor_front</span></code></a>()</p></td>
+<td><p>주미의 전방 적외선(IR) 센서 값들을 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_bottom.html#zumi_AI.ZumiAI.get_IR_sensor_bottom" title="zumi_AI.ZumiAI.get_IR_sensor_bottom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_IR_sensor_bottom</span></code></a>()</p></td>
+<td><p>주미의 하단 적외선(IR) 센서 값들을 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_battery.html#zumi_AI.ZumiAI.get_battery" title="zumi_AI.ZumiAI.get_battery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_battery</span></code></a>()</p></td>
+<td><p>주미의 현재 배터리 잔량을 퍼센트(%) 값으로 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sensors_system_info/zumi_AI.ZumiAI.get_button.html#zumi_AI.ZumiAI.get_button" title="zumi_AI.ZumiAI.get_button"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_button</span></code></a>()</p></td>
+<td><p>주미에 있는 4개의 버튼 중 현재 눌린 버튼의 값을 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+6) 키보드 인터럽트 제어
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/keyboard/zumi_AI.ZumiAI.key_press_set.html#zumi_AI.ZumiAI.key_press_set" title="zumi_AI.ZumiAI.key_press_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">key_press_set</span></code></a>(key_str, callback_func)</p></td>
+<td><p>사용자 키보드의 특정 키가 눌렸을 때 실행될 콜백 함수를 등록합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/keyboard/zumi_AI.ZumiAI.key_press_start.html#zumi_AI.ZumiAI.key_press_start" title="zumi_AI.ZumiAI.key_press_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">key_press_start</span></code></a>()</p></td>
+<td><p>등록된 키보드 인터럽트 리스너를 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/keyboard/zumi_AI.ZumiAI.key_press_stop.html#zumi_AI.ZumiAI.key_press_stop" title="zumi_AI.ZumiAI.key_press_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">key_press_stop</span></code></a>()</p></td>
+<td><p>실행 중인 외부 키보드 인터럽트 리스너를 중지합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+7) 기본 카메라 인식 기능
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: green; font-weight: bold;">✅ 동글 연결 지원</span> |
+  <span style="color: red; font-weight: bold;">❌ IP 연결 미지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_face_detection.html#zumi_AI.ZumiAI.set_zumi_face_detection" title="zumi_AI.ZumiAI.set_zumi_face_detection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_zumi_face_detection</span></code></a>([enable])</p></td>
+<td><p>주미의 내장 얼굴 감지 기능을 켜거나 끕니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_cat_detection.html#zumi_AI.ZumiAI.set_zumi_cat_detection" title="zumi_AI.ZumiAI.set_zumi_cat_detection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_zumi_cat_detection</span></code></a>([enable])</p></td>
+<td><p>주미의 내장 고양이 감지 기능을 켜거나 끕니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_color_detection.html#zumi_AI.ZumiAI.set_zumi_color_detection" title="zumi_AI.ZumiAI.set_zumi_color_detection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_zumi_color_detection</span></code></a>([enable])</p></td>
+<td><p>주미의 내장 색상 감지 기능을 켜거나 끕니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.set_zumi_marker_detection.html#zumi_AI.ZumiAI.set_zumi_marker_detection" title="zumi_AI.ZumiAI.set_zumi_marker_detection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_zumi_marker_detection</span></code></a>([enable])</p></td>
+<td><p>주미의 내장 마커 감지 기능을 켜거나 끕니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.is_zumi_face_detected.html#zumi_AI.ZumiAI.is_zumi_face_detected" title="zumi_AI.ZumiAI.is_zumi_face_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zumi_face_detected</span></code></a>()</p></td>
+<td><p>주미의 내장 얼굴 감지 기능을 통해 얼굴이 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_face_center.html#zumi_AI.ZumiAI.get_zumi_face_center" title="zumi_AI.ZumiAI.get_zumi_face_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_zumi_face_center</span></code></a>()</p></td>
+<td><p>주미의 내장 얼굴 감지 기능을 통해 감지된 얼굴의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.is_zumi_cat_detected.html#zumi_AI.ZumiAI.is_zumi_cat_detected" title="zumi_AI.ZumiAI.is_zumi_cat_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_zumi_cat_detected</span></code></a>()</p></td>
+<td><p>주미의 내장 고양이 감지 기능을 통해 고양이가 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_cat_center.html#zumi_AI.ZumiAI.get_zumi_cat_center" title="zumi_AI.ZumiAI.get_zumi_cat_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_zumi_cat_center</span></code></a>()</p></td>
+<td><p>주미의 내장 고양이 감지 기능을 통해 감지된 고양이의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_color_id.html#zumi_AI.ZumiAI.get_zumi_color_id" title="zumi_AI.ZumiAI.get_zumi_color_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_zumi_color_id</span></code></a>()</p></td>
+<td><p>주미의 내장 색상 감지 기능을 통해 현재 감지된 색상의 ID를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_color_center.html#zumi_AI.ZumiAI.get_zumi_color_center" title="zumi_AI.ZumiAI.get_zumi_color_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_zumi_color_center</span></code></a>()</p></td>
+<td><p>주미의 내장 색상 감지 기능을 통해 감지된 색상 영역의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_marker_id.html#zumi_AI.ZumiAI.get_zumi_marker_id" title="zumi_AI.ZumiAI.get_zumi_marker_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_zumi_marker_id</span></code></a>()</p></td>
+<td><p>주미의 내장 마커 감지 기능을 통해 현재 감지된 마커의 ID를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/basic_camera/zumi_AI.ZumiAI.get_zumi_marker_center.html#zumi_AI.ZumiAI.get_zumi_marker_center" title="zumi_AI.ZumiAI.get_zumi_marker_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_zumi_marker_center</span></code></a>()</p></td>
+<td><p>주미의 내장 마커 감지 기능을 통해 감지된 마커의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+8) 카메라 스트리밍
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.camera_stream_start.html#zumi_AI.ZumiAI.camera_stream_start" title="zumi_AI.ZumiAI.camera_stream_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_stream_start</span></code></a>()</p></td>
+<td><p>주미가 카메라 영상 스트리밍을 시작합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.camera_LR_Flip.html#zumi_AI.ZumiAI.camera_LR_Flip" title="zumi_AI.ZumiAI.camera_LR_Flip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera_LR_Flip</span></code></a>(flag)</p></td>
+<td><p>주미의 카메라 영상 스트리밍 화면을 좌우로 뒤집습니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.sensor_start.html#zumi_AI.ZumiAI.sensor_start" title="zumi_AI.ZumiAI.sensor_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sensor_start</span></code></a>()</p></td>
+<td><p>주미의 다양한 센서에서 데이터를 읽는 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.sensor_visible.html#zumi_AI.ZumiAI.sensor_visible" title="zumi_AI.ZumiAI.sensor_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sensor_visible</span></code></a>(flag)</p></td>
+<td><p>스트리밍 카메라 영상에서 주미의 센서 값들을 실시간으로 표시합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/camera_streaming/zumi_AI.ZumiAI.frame_rate_visible.html#zumi_AI.ZumiAI.frame_rate_visible" title="zumi_AI.ZumiAI.frame_rate_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frame_rate_visible</span></code></a>(flag)</p></td>
+<td><p>스트리밍 카메라 영상의 프레임 속도(FPS) 정보를 표시합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+9) 얼굴 인식
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_detector_init.html#zumi_AI.ZumiAI.face_detector_init" title="zumi_AI.ZumiAI.face_detector_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_detector_init</span></code></a>([face_recognize_threshold])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 얼굴 인식 기능을 초기화합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_detector_start.html#zumi_AI.ZumiAI.face_detector_start" title="zumi_AI.ZumiAI.face_detector_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_detector_start</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 얼굴 인식 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_detector_stop.html#zumi_AI.ZumiAI.face_detector_stop" title="zumi_AI.ZumiAI.face_detector_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_detector_stop</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상의 얼굴 인식 기능을 중지합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_landmark_visible.html#zumi_AI.ZumiAI.face_landmark_visible" title="zumi_AI.ZumiAI.face_landmark_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_landmark_visible</span></code></a>(flag)</p></td>
+<td><p>스트리밍되는 카메라 영상에 인식된 얼굴의 주요 랜드마크(특징점)를 표시합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_contours_visible.html#zumi_AI.ZumiAI.face_contours_visible" title="zumi_AI.ZumiAI.face_contours_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_contours_visible</span></code></a>(flag)</p></td>
+<td><p>스트리밍되는 카메라 영상에 인식된 얼굴의 윤곽선을 표시합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.is_face_detected.html#zumi_AI.ZumiAI.is_face_detected" title="zumi_AI.ZumiAI.is_face_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_face_detected</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 이름의 얼굴이 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_face_center.html#zumi_AI.ZumiAI.get_face_center" title="zumi_AI.ZumiAI.get_face_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_face_center</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_face_size.html#zumi_AI.ZumiAI.get_face_size" title="zumi_AI.ZumiAI.get_face_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_face_size</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 크기를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_face_landmark.html#zumi_AI.ZumiAI.get_face_landmark" title="zumi_AI.ZumiAI.get_face_landmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_face_landmark</span></code></a>([landmark])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 얼굴의 특정 랜드마크(특징점) 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.face_train.html#zumi_AI.ZumiAI.face_train" title="zumi_AI.ZumiAI.face_train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_train</span></code></a>(name)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 새로운 얼굴을 학습시키고 등록합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.delete_face_data.html#zumi_AI.ZumiAI.delete_face_data" title="zumi_AI.ZumiAI.delete_face_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_face_data</span></code></a>(name)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 학습된 특정 이름의 얼굴 데이터를 삭제합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.delete_all_Face_data.html#zumi_AI.ZumiAI.delete_all_Face_data" title="zumi_AI.ZumiAI.delete_all_Face_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_all_Face_data</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 학습된 모든 얼굴 데이터를 삭제합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_detected_face_result.html#zumi_AI.ZumiAI.get_detected_face_result" title="zumi_AI.ZumiAI.get_detected_face_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_detected_face_result</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 얼굴의 이름과 신뢰도 점수를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_detected_face_name.html#zumi_AI.ZumiAI.get_detected_face_name" title="zumi_AI.ZumiAI.get_detected_face_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_detected_face_name</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 이름을 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/face_recognition/zumi_AI.ZumiAI.get_detected_face_confidence_score.html#zumi_AI.ZumiAI.get_detected_face_confidence_score" title="zumi_AI.ZumiAI.get_detected_face_confidence_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_detected_face_confidence_score</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 얼굴의 신뢰도 점수를 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+10) 마커 인식
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.marker_detector_init.html#zumi_AI.ZumiAI.marker_detector_init" title="zumi_AI.ZumiAI.marker_detector_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">marker_detector_init</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 마커 인식 기능을 초기화합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.marker_detector_start.html#zumi_AI.ZumiAI.marker_detector_start" title="zumi_AI.ZumiAI.marker_detector_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">marker_detector_start</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 마커 인식 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.marker_detector_stop.html#zumi_AI.ZumiAI.marker_detector_stop" title="zumi_AI.ZumiAI.marker_detector_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">marker_detector_stop</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상의 마커 인식 기능을 중지합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.is_marker_detected.html#zumi_AI.ZumiAI.is_marker_detected" title="zumi_AI.ZumiAI.is_marker_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_marker_detected</span></code></a>(id)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 ID의 마커가 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.get_marker_id.html#zumi_AI.ZumiAI.get_marker_id" title="zumi_AI.ZumiAI.get_marker_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_marker_id</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 마커의 ID를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.get_marker_center.html#zumi_AI.ZumiAI.get_marker_center" title="zumi_AI.ZumiAI.get_marker_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_marker_center</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 마커의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/marker_recognition/zumi_AI.ZumiAI.get_marker_size.html#zumi_AI.ZumiAI.get_marker_size" title="zumi_AI.ZumiAI.get_marker_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_marker_size</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 첫 번째 마커의 크기를 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+12) 제스처 인식
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.gesture_detector_init.html#zumi_AI.ZumiAI.gesture_detector_init" title="zumi_AI.ZumiAI.gesture_detector_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gesture_detector_init</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 손 제스처 인식 기능을 초기화합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.gesture_detector_start.html#zumi_AI.ZumiAI.gesture_detector_start" title="zumi_AI.ZumiAI.gesture_detector_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gesture_detector_start</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 손 제스처 인식 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.gesture_detector_stop.html#zumi_AI.ZumiAI.gesture_detector_stop" title="zumi_AI.ZumiAI.gesture_detector_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gesture_detector_stop</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상의 손 제스처 인식 기능을 중지합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.is_gesture_detected.html#zumi_AI.ZumiAI.is_gesture_detected" title="zumi_AI.ZumiAI.is_gesture_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_gesture_detected</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에 손이 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_center.html#zumi_AI.ZumiAI.get_gesture_center" title="zumi_AI.ZumiAI.get_gesture_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gesture_center</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 손의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_size.html#zumi_AI.ZumiAI.get_gesture_size" title="zumi_AI.ZumiAI.get_gesture_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gesture_size</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 손의 크기를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_finger.html#zumi_AI.ZumiAI.get_gesture_finger" title="zumi_AI.ZumiAI.get_gesture_finger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gesture_finger</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 손의 각 손가락이 펴져 있는지 접혀 있는지 확인합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/gesture_recognition/zumi_AI.ZumiAI.get_gesture_recognize.html#zumi_AI.ZumiAI.get_gesture_recognize" title="zumi_AI.ZumiAI.get_gesture_recognize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gesture_recognize</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 손의 제스처 이름을 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+11) 스케치 인식
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_detector_init.html#zumi_AI.ZumiAI.sketch_detector_init" title="zumi_AI.ZumiAI.sketch_detector_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sketch_detector_init</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 스케치 인식 기능을 초기화합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_detector_start.html#zumi_AI.ZumiAI.sketch_detector_start" title="zumi_AI.ZumiAI.sketch_detector_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sketch_detector_start</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 스케치 인식 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_detector_stop.html#zumi_AI.ZumiAI.sketch_detector_stop" title="zumi_AI.ZumiAI.sketch_detector_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sketch_detector_stop</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상의 스케치 인식 기능을 중지합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.is_sketch_detected.html#zumi_AI.ZumiAI.is_sketch_detected" title="zumi_AI.ZumiAI.is_sketch_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sketch_detected</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 이름의 스케치가 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_center.html#zumi_AI.ZumiAI.get_sketch_center" title="zumi_AI.ZumiAI.get_sketch_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sketch_center</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 스케치의 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_size.html#zumi_AI.ZumiAI.get_sketch_size" title="zumi_AI.ZumiAI.get_sketch_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sketch_size</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 스케치의 크기를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.sketch_train.html#zumi_AI.ZumiAI.sketch_train" title="zumi_AI.ZumiAI.sketch_train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sketch_train</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 새로운 스케치를 학습시키고 등록합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.delete_sketch_data.html#zumi_AI.ZumiAI.delete_sketch_data" title="zumi_AI.ZumiAI.delete_sketch_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_sketch_data</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 학습된 특정 이름의 스케치 데이터를 삭제합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.delete_all_sketch_data.html#zumi_AI.ZumiAI.delete_all_sketch_data" title="zumi_AI.ZumiAI.delete_all_sketch_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_all_sketch_data</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 학습된 모든 스케치 데이터를 삭제합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_result.html#zumi_AI.ZumiAI.get_sketch_result" title="zumi_AI.ZumiAI.get_sketch_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sketch_result</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 스케치의 결과(이름과 인식률)를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_name.html#zumi_AI.ZumiAI.get_sketch_name" title="zumi_AI.ZumiAI.get_sketch_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sketch_name</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 스케치의 이름을 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/sketch_recognition/zumi_AI.ZumiAI.get_sketch_confidence.html#zumi_AI.ZumiAI.get_sketch_confidence" title="zumi_AI.ZumiAI.get_sketch_confidence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sketch_confidence</span></code></a>([name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 인식된 스케치의 신뢰도 점수를 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+13) 객체 인식(신호등, 정지 표지판)
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_init.html#zumi_AI.ZumiAI.object_detector_init" title="zumi_AI.ZumiAI.object_detector_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_detector_init</span></code></a>([performance_mode])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 물체 인식(Object Detection) 기능을 초기화합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_start.html#zumi_AI.ZumiAI.object_detector_start" title="zumi_AI.ZumiAI.object_detector_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_detector_start</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 물체 인식(Object Detection) 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_stop.html#zumi_AI.ZumiAI.object_detector_stop" title="zumi_AI.ZumiAI.object_detector_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_detector_stop</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상의 물체 인식(Object Detection) 기능을 중지합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.is_obj_detected.html#zumi_AI.ZumiAI.is_obj_detected" title="zumi_AI.ZumiAI.is_obj_detected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_obj_detected</span></code></a>(name)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 이름의 물체가 감지되었는지 확인합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_size.html#zumi_AI.ZumiAI.get_obj_size" title="zumi_AI.ZumiAI.get_obj_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obj_size</span></code></a>(name)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 이름의 물체(객체) 크기를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_center.html#zumi_AI.ZumiAI.get_obj_center" title="zumi_AI.ZumiAI.get_obj_center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obj_center</span></code></a>(name)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 이름의 물체(객체) 중심 좌표를 가져옵니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_confidence.html#zumi_AI.ZumiAI.get_obj_confidence" title="zumi_AI.ZumiAI.get_obj_confidence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obj_confidence</span></code></a>(name)</p></td>
+<td><p>스트리밍되는 카메라 영상에서 특정 이름의 물체(객체)에 대한 신뢰도 점수를 가져옵니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.get_traffic_light_color.html#zumi_AI.ZumiAI.get_traffic_light_color" title="zumi_AI.ZumiAI.get_traffic_light_color"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_traffic_light_color</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 신호등의 현재 색상을 판별하여 반환합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_add_obj.html#zumi_AI.ZumiAI.object_check_add_obj" title="zumi_AI.ZumiAI.object_check_add_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_check_add_obj</span></code></a>([obj_name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 물체 인식 목록에 새로운 물체(객체)를 추가합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_all_add_obj.html#zumi_AI.ZumiAI.object_check_all_add_obj" title="zumi_AI.ZumiAI.object_check_all_add_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_check_all_add_obj</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 물체 인식 목록에 모델이 인식 가능한 모든 물체(객체)를 추가합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_del_obj.html#zumi_AI.ZumiAI.object_check_del_obj" title="zumi_AI.ZumiAI.object_check_del_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_check_del_obj</span></code></a>([obj_name])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 물체 인식 목록에서 특정 물체(객체)를 제거합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/traffic_sign_recognition/zumi_AI.ZumiAI.object_check_all_del_obj.html#zumi_AI.ZumiAI.object_check_all_del_obj" title="zumi_AI.ZumiAI.object_check_all_del_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object_check_all_del_obj</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 물체 인식 목록에 있는 모든 물체(객체)를 제거합니다.</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<div style="font-weight: bold; color: blue; font-size: 16px; margin-top: 10px;">
+14) 사용자 학습 모델 (Teachable Machine)
+</div>
+
+<div style="font-size: 13px; margin-left: 10px;">
+  <span style="color: red; font-weight: bold;">❌ 동글 연결 미지원</span> |
+  <span style="color: green; font-weight: bold;">✅ IP 연결 지원</span>
+</div><br><table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.teachable_detector_init.html#zumi_AI.ZumiAI.teachable_detector_init" title="zumi_AI.ZumiAI.teachable_detector_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teachable_detector_init</span></code></a>([model_path, lable_path])</p></td>
+<td><p>스트리밍되는 카메라 영상에서 티처블 머신 모델 인식 기능을 초기화합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.teachable_detector_start.html#zumi_AI.ZumiAI.teachable_detector_start" title="zumi_AI.ZumiAI.teachable_detector_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teachable_detector_start</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 티처블 머신 모델 인식 기능을 시작합니다.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.teachable_detector_stop.html#zumi_AI.ZumiAI.teachable_detector_stop" title="zumi_AI.ZumiAI.teachable_detector_stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">teachable_detector_stop</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상의 티처블 머신 모델 인식 기능을 중지합니다.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary_generated/teachable_machine/zumi_AI.ZumiAI.get_teachable_result.html#zumi_AI.ZumiAI.get_teachable_result" title="zumi_AI.ZumiAI.get_teachable_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_teachable_result</span></code></a>()</p></td>
+<td><p>스트리밍되는 카메라 영상에서 티처블 머신 모델의 예측 결과를 가져옵니다.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="zumiAI의 파이썬 문서입니다." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="_autosummary_generated/connection/zumi_AI.ZumiAI.connect.html" class="btn btn-neutral float-right" title="connect" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, robolink.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

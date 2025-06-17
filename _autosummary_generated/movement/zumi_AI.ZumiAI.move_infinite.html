@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ko" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>move_infinite &mdash; zumiAI_python 1.0.0 문서</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5a0dd2f0"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/translations.js?v=e33e7ba0"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="색인" href="../../genindex.html" />
+    <link rel="search" title="검색" href="../../search.html" />
+    <link rel="next" title="linefollower_distance" href="zumi_AI.ZumiAI.linefollower_distance.html" />
+    <link rel="prev" title="reverse_infinite" href="zumi_AI.ZumiAI.reverse_infinite.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            zumiAI_python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../api.html">ZumiAI API 개요</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../connection/zumi_AI.ZumiAI.connect.html">connect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../connection/zumi_AI.ZumiAI.disconnect.html">disconnect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.stop.html">stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.control_motor.html">control_motor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.control_motor_time.html">control_motor_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.forward_dist.html">forward_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.reverse_dist.html">reverse_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.send_move_dist.html">send_move_dist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.forward_dist_quick.html">forward_dist_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.reverse_dist_quick.html">reverse_dist_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.send_move_dist_quick.html">send_move_dist_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.left_turn.html">left_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.right_turn.html">right_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.send_turn.html">send_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.left_turn_quick.html">left_turn_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.right_turn_quick.html">right_turn_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.send_turn_quick.html">send_turn_quick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.forward_infinite.html">forward_infinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.reverse_infinite.html">reverse_infinite</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">move_infinite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#zumi_AI.ZumiAI.move_infinite"><code class="docutils literal notranslate"><span class="pre">ZumiAI.move_infinite()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.linefollower_distance.html">linefollower_distance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.linefollower_infinite.html">linefollower_infinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.linefollower.html">linefollower</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.go_sensor.html">go_sensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zumi_AI.ZumiAI.set_calibration_motors.html">set_calibration_motors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emotion_sound/zumi_AI.ZumiAI.change_emotion.html">change_emotion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emotion_sound/zumi_AI.ZumiAI.play_sound.html">play_sound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emotion_sound/zumi_AI.ZumiAI.led_control.html">led_control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emotion_sound/zumi_AI.ZumiAI.led_pattern.html">led_pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.change_screen.html">change_screen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text.html">display_text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_add.html">display_text_add</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_clear.html">display_text_clear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_pos.html">display_text_pos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_display/zumi_AI.ZumiAI.display_text_set.html">display_text_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_all.html">get_IR_sensor_all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_front.html">get_IR_sensor_front</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_IR_sensor_bottom.html">get_IR_sensor_bottom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_battery.html">get_battery</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sensors_system_info/zumi_AI.ZumiAI.get_button.html">get_button</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../keyboard/zumi_AI.ZumiAI.key_press_set.html">key_press_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../keyboard/zumi_AI.ZumiAI.key_press_start.html">key_press_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../keyboard/zumi_AI.ZumiAI.key_press_stop.html">key_press_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_face_detection.html">set_zumi_face_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_cat_detection.html">set_zumi_cat_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_color_detection.html">set_zumi_color_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.set_zumi_marker_detection.html">set_zumi_marker_detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.is_zumi_face_detected.html">is_zumi_face_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_face_center.html">get_zumi_face_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.is_zumi_cat_detected.html">is_zumi_cat_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_cat_center.html">get_zumi_cat_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_color_id.html">get_zumi_color_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_color_center.html">get_zumi_color_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_marker_id.html">get_zumi_marker_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic_camera/zumi_AI.ZumiAI.get_zumi_marker_center.html">get_zumi_marker_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.camera_stream_start.html">camera_stream_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.camera_LR_Flip.html">camera_LR_Flip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.sensor_start.html">sensor_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.sensor_visible.html">sensor_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera_streaming/zumi_AI.ZumiAI.frame_rate_visible.html">frame_rate_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_detector_init.html">face_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_detector_start.html">face_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_detector_stop.html">face_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_landmark_visible.html">face_landmark_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_contours_visible.html">face_contours_visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.is_face_detected.html">is_face_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_center.html">get_face_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_size.html">get_face_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_face_landmark.html">get_face_landmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.face_train.html">face_train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.delete_face_data.html">delete_face_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.delete_all_Face_data.html">delete_all_Face_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_result.html">get_detected_face_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_name.html">get_detected_face_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../face_recognition/zumi_AI.ZumiAI.get_detected_face_confidence_score.html">get_detected_face_confidence_score</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.marker_detector_init.html">marker_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.marker_detector_start.html">marker_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.marker_detector_stop.html">marker_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.is_marker_detected.html">is_marker_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.get_marker_id.html">get_marker_id</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.get_marker_center.html">get_marker_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../marker_recognition/zumi_AI.ZumiAI.get_marker_size.html">get_marker_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.gesture_detector_init.html">gesture_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.gesture_detector_start.html">gesture_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.gesture_detector_stop.html">gesture_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.is_gesture_detected.html">is_gesture_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.get_gesture_center.html">get_gesture_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.get_gesture_size.html">get_gesture_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.get_gesture_finger.html">get_gesture_finger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gesture_recognition/zumi_AI.ZumiAI.get_gesture_recognize.html">get_gesture_recognize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.sketch_detector_init.html">sketch_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.sketch_detector_start.html">sketch_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.sketch_detector_stop.html">sketch_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.is_sketch_detected.html">is_sketch_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_center.html">get_sketch_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_size.html">get_sketch_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.sketch_train.html">sketch_train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.delete_sketch_data.html">delete_sketch_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.delete_all_sketch_data.html">delete_all_sketch_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_result.html">get_sketch_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_name.html">get_sketch_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sketch_recognition/zumi_AI.ZumiAI.get_sketch_confidence.html">get_sketch_confidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_init.html">object_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_start.html">object_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_detector_stop.html">object_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.is_obj_detected.html">is_obj_detected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_size.html">get_obj_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_center.html">get_obj_center</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.get_obj_confidence.html">get_obj_confidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.get_traffic_light_color.html">get_traffic_light_color</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_check_add_obj.html">object_check_add_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_check_all_add_obj.html">object_check_all_add_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_check_del_obj.html">object_check_del_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../traffic_sign_recognition/zumi_AI.ZumiAI.object_check_all_del_obj.html">object_check_all_del_obj</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.teachable_detector_init.html">teachable_detector_init</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.teachable_detector_start.html">teachable_detector_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.teachable_detector_stop.html">teachable_detector_stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../teachable_machine/zumi_AI.ZumiAI.get_teachable_result.html">get_teachable_result</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">zumiAI_python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../api.html">ZumiAI API 개요</a></li>
+      <li class="breadcrumb-item active">move_infinite</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_autosummary_generated/movement/zumi_AI.ZumiAI.move_infinite.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="move-infinite">
+<h1>move_infinite<a class="headerlink" href="#move-infinite" title="Link to this heading"></a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="zumi_AI.ZumiAI.move_infinite">
+<span class="sig-prename descclassname"><span class="pre">ZumiAI.</span></span><span class="sig-name descname"><span class="pre">move_infinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zumi_AI.ZumiAI.move_infinite" title="Link to this definition"></a></dt>
+<dd><p>지정된 속도와 방향으로 주미가 계속 이동하도록 명령합니다.</p>
+<p>이 함수는 <code class="docutils literal notranslate"><span class="pre">forward_infinite()</span></code>, <code class="docutils literal notranslate"><span class="pre">reverse_infinite()</span></code> 대신에 방향을 변수로 입력받아야 하는 경우에 사용됩니다.</p>
+<dl class="field-list simple">
+<dt class="field-odd">매개변수<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>speed</strong> (<em>int</em>) – 이동 속도 (가능한 값: 1, 2, 3)</p></li>
+<li><p><strong>dir</strong> (<em>int</em>) – 이동 방향 (0: 전진, 1: 후진)</p></li>
+</ul>
+</dd>
+<dt class="field-even">반환<span class="colon">:</span></dt>
+<dd class="field-even"><p>이 함수는 값을 반환하지 않습니다.</p>
+</dd>
+</dl>
+<p class="rubric">예제</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">move_infinite</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">주미를 속도 1로 계속 전진시킵니다. (정지하려면 다른 이동 함수를 호출하거나 stop() 함수를 사용하세요.)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="zumi_AI.ZumiAI.reverse_infinite.html" class="btn btn-neutral float-left" title="reverse_infinite" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zumi_AI.ZumiAI.linefollower_distance.html" class="btn btn-neutral float-right" title="linefollower_distance" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, robolink.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
