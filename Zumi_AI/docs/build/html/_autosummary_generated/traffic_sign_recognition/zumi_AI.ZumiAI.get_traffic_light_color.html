@@ -229,28 +229,28 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">light_color</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_traffic_light_color</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">light_color</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_traffic_light_color</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">light_color</span> <span class="o">==</span> <span class="s2">&quot;RED&quot;</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;신호등이 빨간색입니다! 정지하세요.&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="n">zumi</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">zumiAI</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">elif</span> <span class="n">light_color</span> <span class="o">==</span> <span class="s2">&quot;GREEN&quot;</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;신호등이 초록색입니다! 출발하세요.&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="n">zumi</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">zumiAI</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">elif</span> <span class="n">light_color</span> <span class="o">==</span> <span class="s2">&quot;YELLOW&quot;</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;신호등이 노란색입니다! 주의하세요.&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="n">zumi</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">zumiAI</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">else</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;신호등 인식 대기 중...&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># 1초 대기</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

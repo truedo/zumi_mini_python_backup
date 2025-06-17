@@ -4,10 +4,54 @@ ZumiAI API 개요
 이 문서는 ZumiAI 라이브러리의 모든 주요 메서드를 요약하여 보여줍니다.
 ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악할 수 있도록 분류되어 있습니다.
 
+
+------------------------------------------------------
+
+.. raw:: html
+
+   <strong>주미 AI 설치 방법</strong><br>
+   <p>주미 AI를 사용하기 위한 설치는 두 가지 방식으로 나뉩니다. 사용 목적에 맞게 선택하여 설치해 주세요.</p>
+
+   <div style="background-color: #f0fff7; padding: 15px; border-left: 5px solid #00cc52; margin-bottom: 20px; font-size: 16px; line-height: 1.6;">
+
+   <h5>1. 🔌 기본 설치 (동글 버전)</h5>
+   <p>이 방법은 주미와 함께 제공되는 <strong>USB 동글을 사용</strong>하는 가장 기본적인 설치 방식입니다.</p>
+   <ul>
+   <li><strong>권장 파이썬 버전:</strong> 3.9 이상</li>
+   <li><strong>장점:</strong> 설치와 연결이 매우 <strong>빠르고 간편</strong>합니다. 코딩에 집중하고 싶을 때 적합합니다.</li>
+   <li><strong>단점:</strong> 카메라 스트리밍을 통한 <strong>고급 기능은 사용할 수 없습니다.</strong></li>
+   </ul>
+   <pre><code>pip install zumi-ai</code></pre>
+
+   <hr style="border-top: 1px dashed #ccc; margin: 20px 0;">
+
+   <h5>2. 🌐 고급 설치 (스트리밍 및 비전 기능 지원)</h5>
+   <p>이 방법은 주미와 <strong>IP 주소를 직접 입력하여 연결</strong>하며, 카메라 스트리밍을 통한 <strong>AI 비전 기능</strong>을 사용할 수 있는 고급 설치 방식입니다.</p>
+   <ul>
+   <li><strong>권장 파이썬 버전:</strong> 3.12.3 이상의 3.12.x 모든 버전 (3.13은 현재 지원되지 않습니다)</li>
+   <li><strong>장점:</strong> 주미의 카메라 영상을 실시간 스트리밍하여 강력한 AI 기능을 활용할 수 있습니다.</li>
+   <li><strong>단점:</strong> 설치해야 할 추가 라이브러리가 많아 <strong>설치 시간이 오래 걸릴 수 있습니다.</strong></li>
+   </ul>
+   <pre><code>pip install zumi-ai[pro]</code></pre>
+
+   <br>
+   <p>🌐 카메라 스트리밍 버전을 위한 준비물</p>
+   <ul>
+      <li><strong>무선 공유기 (2.4GHz 필수):</strong> Zumi와 PC가 같은 네트워크에 연결되도록 하는 필수 장비입니다.</li>
+      <li><strong>안정적인 Wi-Fi 연결:</strong> Zumi와 PC 모두 공유기에 안정적으로 연결되어야 스트리밍이 끊기지 않습니다.</li>
+   </ul>
+   <p>⚠️ **참고:** 주변에 무선 장비가 많거나 신호가 복잡한 환경에서는 간섭으로 인해 연결이 불안정해지거나 스트리밍 품질이 떨어질 수 있습니다.</p>
+
+
+
+   </div>
+
+------------------------------------------------------
+
 .. raw:: html
 
    <div style="background-color: #f0f8ff; padding: 10px; border-left: 4px solid #007acc; margin-bottom: 15px; font-size: 14px;">
-     <strong>※ 지원 여부 안내</strong><br>
+     <h5>※ 지원 여부 안내</h5>
      함수별 <strong>지원 여부</strong>는 <u>연결 방식</u>에 따른 동작 가능 여부를 나타냅니다.<br>
      🔌 <strong>동글 연결</strong> : USB 동글을 사용하여 Zumi AI에 연결한 경우<br>
      🌐 <strong>IP 연결</strong> : 사용자가 IP 주소를 직접 입력하여 Zumi AI에 연결한 경우<br><br>

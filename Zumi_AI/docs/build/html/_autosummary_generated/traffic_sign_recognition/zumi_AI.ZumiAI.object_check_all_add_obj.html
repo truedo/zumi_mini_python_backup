@@ -216,13 +216,13 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작 (기본 물체만 인식)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작 (기본 물체만 인식)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 이제 모든 종류의 물체를 인식하도록 변경</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_all_add_obj</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_check_all_add_obj</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;이제 모든 종류의 물체 인식을 시작합니다.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -233,7 +233,7 @@
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

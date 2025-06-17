@@ -219,33 +219,33 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작 (기본 물체 인식 시작)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작 (기본 물체 인식 시작)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># &#39;keyboard&#39;와 &#39;mouse&#39;를 추가로 인식하도록 설정</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;keyboard&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;keyboard&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;인식 목록에 &#39;keyboard&#39;와 &#39;mouse&#39;가 추가되었습니다.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 한글 이름으로 &#39;컵&#39;과 &#39;의자&#39;를 추가 (한글-영어 매핑 사전이 구현되어 있다고 가정)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;컵&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;의자&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;컵&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_check_add_obj</span><span class="p">(</span><span class="n">obj_name</span><span class="o">=</span><span class="s2">&quot;의자&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;인식 목록에 &#39;컵&#39;과 &#39;의자&#39;가 추가되었습니다.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 이제 &#39;keyboard&#39;, &#39;mouse&#39;, &#39;컵&#39;, &#39;의자&#39; 등도 화면에서 인식될 수 있습니다.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">zumi</span><span class="o">.</span><span class="n">is_obj_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;keyboard&quot;</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">is_obj_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;keyboard&quot;</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;키보드 감지!&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="k">elif</span> <span class="n">zumi</span><span class="o">.</span><span class="n">is_obj_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;컵&quot;</span><span class="p">):</span> <span class="c1"># 한글 이름으로도 인식 여부 확인 가능</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">elif</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">is_obj_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;컵&quot;</span><span class="p">):</span> <span class="c1"># 한글 이름으로도 인식 여부 확인 가능</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;컵 감지!&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

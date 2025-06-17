@@ -228,18 +228,18 @@ True 또는 False로 반환합니다.</p>
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">sketch_detector_init</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">sketch_detector_start</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">sketch_detector_init</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">sketch_detector_start</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># &#39;my_drawing_1&#39;이라는 이름의 스케치가 감지되었는지 확인</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">detected_my_sketch</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">is_sketch_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_drawing_1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detected_my_sketch</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">is_sketch_detected</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_drawing_1&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;my_drawing_1&#39; 스케치 감지 여부: </span><span class="si">{</span><span class="n">detected_my_sketch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="go"># &#39;my_drawing_1&#39; 스케치 감지 여부: True (예시 출력: &#39;my_drawing_1&#39; 스케치가 감지됨)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># &#39;Sketch&#39;라는 기본 이름의 스케치가 감지되었는지 확인</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">detected_default_sketch</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">is_sketch_detected</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">detected_default_sketch</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">is_sketch_detected</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;기본 스케치 감지 여부: </span><span class="si">{</span><span class="n">detected_default_sketch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="go"># 기본 스케치 감지 여부: False (예시 출력: 기본 스케치가 감지되지 않음)</span>
 </pre></div>

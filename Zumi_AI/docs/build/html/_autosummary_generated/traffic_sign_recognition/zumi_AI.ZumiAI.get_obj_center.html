@@ -231,12 +231,12 @@
 </dd>
 </dl>
 <p>Examples:
-&gt;&gt;&gt; zumi.camera_stream_start()  # 카메라 스트리밍 시작
-&gt;&gt;&gt; zumi.object_detector_init() # 물체 인식 초기화
-&gt;&gt;&gt; zumi.object_detector_start() # 물체 인식 시작</p>
+&gt;&gt;&gt; zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+&gt;&gt;&gt; zumiAI.object_detector_init() # 물체 인식 초기화
+&gt;&gt;&gt; zumiAI.object_detector_start() # 물체 인식 시작</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- 영어 이름으로 &#39;person&#39; 감지 예시 ---&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">person_center</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_obj_center</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;person&quot;</span><span class="p">)</span> <span class="c1"># 영어 이름 사용</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">person_center</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_obj_center</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;person&quot;</span><span class="p">)</span> <span class="c1"># 영어 이름 사용</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">person_center</span><span class="p">:</span> <span class="c1"># 사람이 감지되어 좌표가 반환된 경우</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="n">center_x</span><span class="p">,</span> <span class="n">center_y</span> <span class="o">=</span> <span class="n">person_center</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;사람(person)의 중심 좌표: X=</span><span class="si">{</span><span class="n">center_x</span><span class="si">}</span><span class="s2">, Y=</span><span class="si">{</span><span class="n">center_y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -249,7 +249,7 @@
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- 한글 이름으로 &#39;자동차&#39; 감지 예시 ---&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># KOREAN_TO_ENGLISH_OBJ_MAP이 미리 정의되어 있다고 가정합니다.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">car_center</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_obj_center</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;자동차&quot;</span><span class="p">)</span> <span class="c1"># 한글 이름 사용</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">car_center</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_obj_center</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;자동차&quot;</span><span class="p">)</span> <span class="c1"># 한글 이름 사용</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">car_center</span><span class="p">:</span> <span class="c1"># 자동차가 감지되어 좌표가 반환된 경우</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="n">center_x</span><span class="p">,</span> <span class="n">center_y</span> <span class="o">=</span> <span class="n">car_center</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;자동차(car)의 중심 좌표: X=</span><span class="si">{</span><span class="n">center_x</span><span class="si">}</span><span class="s2">, Y=</span><span class="si">{</span><span class="n">center_y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -259,7 +259,7 @@
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># 1초 대기</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

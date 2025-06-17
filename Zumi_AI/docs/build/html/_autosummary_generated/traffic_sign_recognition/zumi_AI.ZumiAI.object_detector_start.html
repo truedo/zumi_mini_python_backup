@@ -227,12 +227,12 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">(</span><span class="n">performance_mode</span><span class="o">=</span><span class="s2">&quot;balance&quot;</span><span class="p">)</span> <span class="c1"># &#39;balance&#39; 모드로 물체 인식 모델 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">(</span><span class="n">performance_mode</span><span class="o">=</span><span class="s2">&quot;balance&quot;</span><span class="p">)</span> <span class="c1"># &#39;balance&#39; 모드로 물체 인식 모델 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작</span>
 <span class="go"># 이제 PC 화면의 스트리밍 영상에서 설정된 물체들이 인식되기 시작합니다.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># ... 인식 결과를 사용하는 로직 ...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

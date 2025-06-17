@@ -212,14 +212,14 @@
 <ul>
 <li><p>0: LED가 켜진 상태를 유지합니다.</p></li>
 <li><p>1: LED가 깜박입니다.</p></li>
-<li><p>2: LED가 두 번 깜박입니다.</p></li>
+<li><p>2: LED가 두 번 깜박입니다. (0.1 ~ 0.3초의 값을 사용)</p></li>
 <li><p>3: LED가 점점 밝아졌다가 어두워집니다.</p></li>
 <li><p>4: LED가 점점 어두워집니다.</p></li>
 <li><p>5: LED가 점점 밝아집니다.</p></li>
 <li><p>6: LED 색상이 무지개색으로 변합니다.</p></li>
 </ul>
 </p></li>
-<li><p><strong>time</strong> (<em>int</em>) – 패턴이 지속될 시간 (단위: 초)</p></li>
+<li><p><strong>time</strong> (<em>int</em>) – 패턴의 간격 시간 (단위: 초)</p></li>
 </ul>
 </dd>
 <dt class="field-even">반환<span class="colon">:</span></dt>
@@ -228,9 +228,9 @@
 </dl>
 <p class="rubric">예제</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">led_pattern</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="go">주미의 LED를 1초 동안 깜박이게 합니다.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">led_pattern</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-<span class="go">주미의 LED 색상을 5초 동안 무지개색으로 변화시킵니다.</span>
+<span class="go">주미의 LED를 1초 마다 깜박이게 합니다.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">led_pattern</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="go">주미의 LED 색상을 0.5초 마다 무지개색으로 변화시킵니다.</span>
 </pre></div>
 </div>
 </dd></dl>

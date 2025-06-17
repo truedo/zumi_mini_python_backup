@@ -229,13 +229,13 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_init</span><span class="p">()</span> <span class="c1"># 티처블 머신 모델 초기화 (기본 모델 사용)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_start</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 시작</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_init</span><span class="p">()</span> <span class="c1"># 티처블 머신 모델 초기화 (기본 모델 사용)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_start</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 시작</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">class_name</span><span class="p">,</span> <span class="n">confidence</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_teachable_result</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">class_name</span><span class="p">,</span> <span class="n">confidence</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_teachable_result</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">class_name</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span> <span class="c1"># 무언가 인식된 경우</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;인식 결과: </span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">, 신뢰도: </span><span class="si">{</span><span class="n">confidence</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="n">confidence</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">:</span>
@@ -245,7 +245,7 @@
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># 1초 대기</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_stop</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_stop</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

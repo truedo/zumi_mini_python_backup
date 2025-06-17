@@ -224,20 +224,20 @@
 </dl>
 <p class="rubric">예제</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 기본 모델과 라벨 파일로 티처블 머신 인식 기능 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_init</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_init</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;티처블 머신 인식 기능이 기본 설정으로 초기화되었습니다.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># &#39;my_custom_model&#39; 폴더에 있는 모델과 라벨 파일로 초기화하는 경우</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_init</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;my_custom_model/model.tflite&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_init</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;my_custom_model/model.tflite&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>                              <span class="n">label_path</span><span class="o">=</span><span class="s1">&#39;my_custom_model/labels.txt&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;사용자 정의 티처블 머신 모델로 초기화되었습니다.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span> <span class="c1"># 카메라 스트리밍 시작 (필수)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_start</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 시작</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span> <span class="c1"># 카메라 스트리밍 시작 (필수)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_start</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 시작</span>
 <span class="go"># ... 티처블 머신 인식 로직 ...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">teachable_detector_stop</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 중지</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">teachable_detector_stop</span><span class="p">()</span> <span class="c1"># 티처블 머신 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

@@ -225,13 +225,13 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">gesture_detector_init</span><span class="p">()</span> <span class="c1"># 손 제스처 인식 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">gesture_detector_start</span><span class="p">()</span> <span class="c1"># 손 제스처 인식 시작</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">gesture_detector_init</span><span class="p">()</span> <span class="c1"># 손 제스처 인식 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">gesture_detector_start</span><span class="p">()</span> <span class="c1"># 손 제스처 인식 시작</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">hand_size</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_gesture_size</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">hand_size</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_gesture_size</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">hand_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># 손이 감지되어 유효한 크기 값이 반환된 경우</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;인식된 손 크기: </span><span class="si">{</span><span class="n">hand_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="n">hand_size</span> <span class="o">&gt;</span> <span class="mi">150</span><span class="p">:</span>
@@ -243,7 +243,7 @@
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># 1초 대기</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">gesture_detector_stop</span><span class="p">()</span> <span class="c1"># 손 제스처 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">gesture_detector_stop</span><span class="p">()</span> <span class="c1"># 손 제스처 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">

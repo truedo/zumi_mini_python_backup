@@ -229,14 +229,14 @@
 </dd>
 </dl>
 <p class="rubric">예제</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">camera_stream_start</span><span class="p">()</span>  <span class="c1"># 카메라 스트리밍 시작</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_init</span><span class="p">()</span> <span class="c1"># 물체 인식 초기화</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_start</span><span class="p">()</span> <span class="c1"># 물체 인식 시작</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- 영어 이름으로 &#39;person&#39; 신뢰도 감지 예시 ---&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">person_confidence</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_obj_confidence</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;person&quot;</span><span class="p">)</span> <span class="c1"># 영어 이름 사용</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">person_confidence</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_obj_confidence</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;person&quot;</span><span class="p">)</span> <span class="c1"># 영어 이름 사용</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">person_confidence</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span> <span class="c1"># 사람이 감지되어 유효한 신뢰도 값이 반환된 경우</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;사람(person) 인식 신뢰도: </span><span class="si">{</span><span class="n">person_confidence</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="n">person_confidence</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">:</span>
@@ -250,7 +250,7 @@
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- 한글 이름으로 &#39;고양이&#39; 신뢰도 감지 예시 ---&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># KOREAN_TO_ENGLISH_OBJ_MAP이 미리 정의되어 있다고 가정합니다.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">cat_confidence</span> <span class="o">=</span> <span class="n">zumi</span><span class="o">.</span><span class="n">get_obj_confidence</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;고양이&quot;</span><span class="p">)</span> <span class="c1"># 한글 이름 사용</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">cat_confidence</span> <span class="o">=</span> <span class="n">zumiAI</span><span class="o">.</span><span class="n">get_obj_confidence</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;고양이&quot;</span><span class="p">)</span> <span class="c1"># 한글 이름 사용</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="n">cat_confidence</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span> <span class="c1"># 고양이가 감지되어 유효한 신뢰도 값이 반환된 경우</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;고양이(cat) 인식 신뢰도: </span><span class="si">{</span><span class="n">cat_confidence</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="n">cat_confidence</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">:</span>
@@ -261,7 +261,7 @@
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># 1초 대기</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumi</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zumiAI</span><span class="o">.</span><span class="n">object_detector_stop</span><span class="p">()</span> <span class="c1"># 물체 인식 중지</span>
 </pre></div>
 </div>
 <div class="admonition note">
