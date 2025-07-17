@@ -174,7 +174,7 @@ class SketchProcessor:
                 # 변경된 부분: 이름별 추가된 스케치 수 출력
                 name_counts = Counter(self.captured_names)
                 print(f"'{name}' 스케치 데이터 {name_counts[name]}개 학습 완료.")
-                #print(f"✔️ '{name}' 스케치 추가됨.")
+                #print(f"'{name}' 스케치 추가됨.")
                 #print(f"   - 현재 '{name}' 스케치 개수: {name_counts[name]}개")
 
 
@@ -336,13 +336,13 @@ class SketchProcessor:
 
                     # -------------------------------------------------------------------
                     # 변경: 로드된 학습 데이터에 대한 정보 출력
-                    #print(f"✔️ '{file_path}'에서 학습된 스케치 데이터 불러오기 완료.")
+                    #print(f"'{file_path}'에서 학습된 스케치 데이터 불러오기 완료.")
                     #print(f"   - 총 학습된 스케치 개수: {len(self.orbDescriptors)}개")
 
                     # 각 스케치 이름별 개수를 세어 출력
                     if self.nameIndexList:
                         name_counts = Counter(self.nameIndexList)
-                        print(f"✔️ '{file_path}'에서 학습된 스케치 데이터 {len(name_counts.items())}개 불러오기 완료.")
+                        print(f"'{file_path}'에서 학습된 스케치 데이터 {len(name_counts.items())}개 불러오기 완료.")
                         #print(f"   - 학습된 스케치 개수:")
                         for name, count in sorted(name_counts.items()): # 이름 순으로 정렬하여 출력
                             print(f"     - {name}: {count}개")
@@ -350,10 +350,10 @@ class SketchProcessor:
                         print(f"   - 학습된 스케치 종류: 없음")
                     # -------------------------------------------------------------------
                 else:
-                    print("⚠️ 로드된 학습 데이터가 없거나 비어 있습니다. 매칭기를 학습하지 않았습니다.")
+                    print("로드된 학습 데이터가 없거나 비어 있습니다. 매칭기를 학습하지 않았습니다.")
 
             except Exception as e:
-                print(f"❌ 학습 데이터 로드 중 오류 발생: {e}")
+                print(f"학습 데이터 로드 중 오류 발생: {e}")
                 self.orbDescriptors = []
                 self.nameIndexList = []
                 self.nameIntList = []
@@ -362,7 +362,7 @@ class SketchProcessor:
                 self.unique_names_map = {}
                 self.current_unique_idx = 0
         else:
-            print(f"ℹ️ 저장된 학습 데이터 파일 '{file_path}'을 찾을 수 없습니다. 새로운 학습을 시작합니다.")
+            print(f"저장된 학습 데이터 파일 '{file_path}'을 찾을 수 없습니다. 새로운 학습을 시작합니다.")
 
     ## New Deletion Functions
 
@@ -372,7 +372,7 @@ class SketchProcessor:
         삭제 후 매칭기를 재학습하고 변경사항을 저장합니다.
         """
         if not name:
-            print("🚫 삭제할 모델의 이름을 입력해주세요.")
+            print("삭제할 모델의 이름을 입력해주세요.")
             return
 
         initial_total_descriptors = len(self.orbDescriptors) + len(self.captured_descriptors)
@@ -420,7 +420,7 @@ class SketchProcessor:
         total_deleted = deleted_from_captured + deleted_from_trained
 
         if total_deleted > 0:
-            print(f"🗑️ 모델 '{name}'에 대한 학습 데이터 {total_deleted}개를 삭제했습니다.")
+            print(f"모델 '{name}'에 대한 학습 데이터 {total_deleted}개를 삭제했습니다.")
             if deleted_from_captured > 0:
                 print(f"   - 학습 대기 중인 데이터 {deleted_from_captured}개 삭제됨.")
             if deleted_from_trained > 0:
@@ -430,16 +430,16 @@ class SketchProcessor:
             print("매칭기를 재학습합니다...")
             self.TrainModel(self.nameIndexList, self.nameIntList, self.orbDescriptors)
             self.save_training_data()
-            print("✅ 모델 삭제 및 재학습, 데이터 저장이 완료되었습니다.")
+            print("모델 삭제 및 재학습, 데이터 저장이 완료되었습니다.")
         else:
-            print(f"ℹ️ 모델 '{name}'을(를) 찾을 수 없거나 삭제할 데이터가 없습니다.")
+            print(f"모델 '{name}'을(를) 찾을 수 없거나 삭제할 데이터가 없습니다.")
 
     def clear_all_models(self):
         """
         모든 학습된 스케치 모델과 캡처된 스케치 데이터를 완전히 초기화합니다.
         초기화 후 변경사항을 저장합니다.
         """
-        print("🚨 모든 스케치 모델 및 학습 데이터 초기화를 시작합니다...")
+        print("모든 스케치 모델 및 학습 데이터 초기화를 시작합니다...")
         self.orbDescriptors = []
         self.nameIndexList = []
         self.nameIntList = []
@@ -451,5 +451,5 @@ class SketchProcessor:
         self.matcherHamming.clear() # 매칭기 데이터도 클리어
 
         self.save_training_data()
-        print("✨ 모든 스케치 모델과 학습 데이터가 성공적으로 초기화되고 저장되었습니다.")
+        print("모든 스케치 모델과 학습 데이터가 성공적으로 초기화되고 저장되었습니다.")
 

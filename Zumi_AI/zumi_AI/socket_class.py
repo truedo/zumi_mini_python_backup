@@ -1307,11 +1307,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             selected_model = model_map.get(performance_mode, "yolov8n.pt")
 
             if selected_model == "yolov8n.pt":
-                print("🔧 mode set : speed")
+                print("mode set : speed")
             elif selected_model == "yolov8s.pt":
-                print("🔧 mode set : balance")
+                print("mode set : balance")
             elif selected_model == "yolov8m.pt":
-                print("🔧 mode set : power")
+                print("mode set : power")
 
             self.__yoloModel = YOLO(selected_model)
 
@@ -1778,7 +1778,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     # 감지 대상에 객체 추가
     def _yoloCheckAddObj(self, obj_name=""):
         if not self.__yoloModel:
-            print("❌ 모델이 로드되지 않았습니다. 객체를 추가할 수 없습니다.")
+            print("모델이 로드되지 않았습니다. 객체를 추가할 수 없습니다.")
             return
 
         obj_name = KOREAN_TO_ENGLISH_OBJ_MAP.get(obj_name, obj_name)
@@ -1795,17 +1795,17 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 if obj_name not in self.__yoloTarget_classes:
                     self.__yoloTarget_classes.add(obj_name)
                     self.__target_class_ids.append(found_id)
-                    print(f"✅ '{obj_name}' (ID: {found_id}) 추가됨")
+                    print(f"'{obj_name}' (ID: {found_id}) 추가됨")
                 else:
-                    print(f"ℹ️ '{obj_name}' 이미 감지 대상에 있습니다.")
+                    print(f"'{obj_name}' 이미 감지 대상에 있습니다.")
             else:
-                print(f"❌ '{obj_name}' 모델의 클래스 목록에 없습니다.")
+                print(f"'{obj_name}' 모델의 클래스 목록에 없습니다.")
 
 
     # 감지 대상에서 객체 제거
     def _yoloCheckDelObj(self, obj_name=""):
         if not self.__yoloModel:
-            print("❌ 모델이 로드되지 않았습니다. 객체를 제거할 수 없습니다.")
+            print("모델이 로드되지 않았습니다. 객체를 제거할 수 없습니다.")
             return
 
         obj_name = KOREAN_TO_ENGLISH_OBJ_MAP.get(obj_name, obj_name)
@@ -1822,14 +1822,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                         break
                 if found_id is not None and found_id in self.__target_class_ids:
                     self.__target_class_ids.remove(found_id)
-                print(f"🗑️ '{obj_name}' 제거됨")
+                print(f"'{obj_name}' 제거됨")
             else:
-                print(f"ℹ️ '{obj_name}' 감지 대상에 없습니다.")
+                print(f"'{obj_name}' 감지 대상에 없습니다.")
 
     # 전체 클래스 추가
     def _yoloCheckAllAddObj(self):
         if not self.__yoloModel:
-            print("❌ 모델이 로드되지 않았습니다. 전체 클래스를 추가할 수 없습니다.")
+            print("모델이 로드되지 않았습니다. 전체 클래스를 추가할 수 없습니다.")
             return
 
         self.__yoloTarget_classes.clear() # 기존 대상 초기화
@@ -1838,13 +1838,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         for class_id, class_name in self.__coco_class_names.items():
             self.__yoloTarget_classes.add(class_name)
             self.__target_class_ids.append(class_id)
-        print(f"➕ 모든 {len(self.__coco_class_names)}개 클래스가 감지 대상에 추가됨.")
+        print(f"모든 {len(self.__coco_class_names)}개 클래스가 감지 대상에 추가됨.")
 
     # 감지 대상 전체 제거
     def _yoloCheckAllDelObj(self):
         self.__yoloTarget_classes.clear()
         self.__target_class_ids.clear()
-        print("➖ 모든 감지 대상이 제거됨.")
+        print("모든 감지 대상이 제거됨.")
 
 
 

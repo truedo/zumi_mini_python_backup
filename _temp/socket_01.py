@@ -10,7 +10,7 @@ zumi = ZumiAI()
 #zumi.connect("COM84")
 
 # web socket
-zumi.connect('192.168.0.59')
+zumi.connect('192.168.0.88')
 
 
 zumi.camera_stream_start()
@@ -37,9 +37,9 @@ zumi.frame_rate_visible(True)
 
 ##zumi.face_landmark_visible(True)
 ##zumi.face_contours_visible(True)
-
-zumi.face_detector_init()
-zumi.face_detector_start()
+##
+##zumi.face_detector_init()
+##zumi.face_detector_start()
 ######zumi.face_detector_stop()
 ####
 #zumi.face_train("dr")
@@ -48,33 +48,33 @@ zumi.face_detector_start()
 
 
 
-##
-zumi.marker_detector_init()
-zumi.marker_detector_start()
+####
+##zumi.marker_detector_init()
+##zumi.marker_detector_start()
 ##zumi.marker_detector_stop()
 
 
-##
-zumi.gesture_detector_init()
-zumi.gesture_detector_start()
+####
+##zumi.gesture_detector_init()
+##zumi.gesture_detector_start()
 #zumi.gesture_detector_stop()
 
 
+##
+####
+##zumi.sketch_detector_init()
+##zumi.sketch_detector_start()
+###zumi.sketch_train("school")
 
 ##
-zumi.sketch_detector_init()
-zumi.sketch_detector_start()
-#zumi.sketch_train("school")
-
-
+####
+##zumi.object_detector_init() #speed
+####zumi.object_detector_init("balance")
+####zumi.object_detector_init("power")
+##zumi.object_detector_start()
+####zumi.object_detector_stop()
 ##
-zumi.object_detector_init() #speed
-##zumi.object_detector_init("balance")
-##zumi.object_detector_init("power")
-zumi.object_detector_start()
-##zumi.object_detector_stop()
-
-##zumi.object_check_add_obj("사람")
+####zumi.object_check_add_obj("사람")
 
 
 

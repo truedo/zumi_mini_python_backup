@@ -73,7 +73,7 @@ class FaceRecognizer:
                     registered_info.append(f"{name} ({count}개)")
 
                 if registered_info:
-                    print(f"✔️ '{self.registered_data_file}'에서 학습된 얼굴 데이터 {len(self.registerd)}명 불러오기 완료.")
+                    print(f"'{self.registered_data_file}'에서 학습된 얼굴 데이터 {len(self.registerd)}명 불러오기 완료.")
                     #print(f"  - 상세: {', '.join(registered_info)}")
                     for item in registered_info:
                         # Split the string to separate the name from the parenthesized count
@@ -86,7 +86,7 @@ class FaceRecognizer:
                         print(f"    - {name}: {count}")
 
                 else:
-                    print(f"✔️ '{self.registered_data_file}'에서 학습된 얼굴 데이터 {len(self.registerd)}개 불러오기 완료. (학습된 이름 없음)")
+                    print(f"'{self.registered_data_file}'에서 학습된 얼굴 데이터 {len(self.registerd)}개 불러오기 완료. (학습된 이름 없음)")
             except Exception as e:
                 print(f"오류: 학습된 얼굴 데이터 불러오기 실패: {e}")
                 print(f"  - 오류 내용: {e}") # 상세 오류 내용 추가
