@@ -2,7 +2,7 @@
 from datetime import datetime
 
 from zumi_AI.zumi_AI import *
-
+import tensorflow as tf
 
 zumi = ZumiAI()
 # serial
@@ -10,7 +10,7 @@ zumi = ZumiAI()
 #zumi.connect("COM84")
 
 # web socket
-zumi.connect('192.168.0.88')
+zumi.connect('192.168.0.59')
 
 
 zumi.camera_stream_start()
@@ -79,11 +79,14 @@ zumi.frame_rate_visible(True)
 
 
 ##
-##zumi.teachable_detector_init(model_path = 'model_unquant.tflite', lable_path = 'labels.txt')
-##zumi.teachable_detector_start()
+#zumi.teachable_detector_init(model_path = 'model_unquant.tflite', lable_path = 'labels.txt')
+zumi.teachable_detector_init(model_path='model_unquant.tflite',lable_path='labels.txt')
+
+#zumiAI.teachable_detector_init(model_path='model.tflite',lable_path='labels.txt')
+
+
+zumi.teachable_detector_start()
 #zumi.teachable_detector_stop()
-
-
 
 
 
@@ -165,6 +168,16 @@ count1 = 0
 
 try:
     while True:
+##        class_name, confidence = zumiAI.get_teachable_result()
+##        if class_name != "None": # 무언가 인식된 경우
+##            print(f"인식 결과: {class_name}, 신뢰도: {confidence:.2f}")
+##            if confidence > 0.9:
+##                print("아주 정확하게 인식되었네요!")
+##        else:
+##            print("인식 대기 중...")
+
+            
+        #time.sleep(1) # 1초 대기
 
 ##        current_timestamp = time.time()
 ##

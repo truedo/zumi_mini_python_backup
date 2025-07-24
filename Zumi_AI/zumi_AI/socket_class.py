@@ -2008,7 +2008,6 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
     # teachable machine
     def _teachableInit(self, ModelPath = 'model_unquant.tflite', LabelPath = 'labels.txt'):
-        import tensorflow as tf
 
         if self.__teachableInitFlag is False:
             self.__teachableInitFlag = True
@@ -2018,6 +2017,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             print(self.teachableLabelPath)
 
     def _teachableStart(self):
+        import tensorflow as tf
+
         if self.__teachableInitFlag is False:
             print("Facedetector is not initialized")
             return
