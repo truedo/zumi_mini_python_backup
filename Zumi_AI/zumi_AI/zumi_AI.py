@@ -635,7 +635,7 @@ class ZumiAI:
         final_bytes = prefix + encoded_bytes + null_terminator
 
         #print(final_bytes)
-        print(len(final_bytes))
+        # print(len(final_bytes))
         # for value in data:
         #     # "<h"는 little-endian ( < ) 방식의 short ( h, 2바이트 부호 있는 정수)를 의미합니다.
         #     packed_bytes = pack("<h", value)
@@ -795,7 +795,7 @@ class ZumiAI:
             deg_high = deg // 256  # 상위 바이트 (몫)
             deg_low = deg % 256   # 하위 바이트 (나머지)
 
-        print(dir)
+        # print(dir)
 
         return self.sendCommand(CommandType.COMMAND_FREE_TURN_PYTHON, speed, deg_low, deg_high, dir)
 
@@ -1045,7 +1045,7 @@ class ZumiAI:
             time_high = time // 256  # 상위 바이트 (몫)
             time_low = time % 256   # 하위 바이트 (나머지)
 
-        print(pattern)
+        # print(pattern)
 
         return self.sendCommand(CommandType.COMMAND_PATTERN_LED, pattern.value, time_high, time_low)
 
@@ -1668,7 +1668,7 @@ class ZumiAI:
             encoded_bytes = encoded_bytes[:27]  # 처음부터 27바이트까지만 슬라이싱
 
 
-        print(len(encoded_bytes))
+        # print(len(encoded_bytes))
 
         # 첫 번째 바이트로 CommandType을 갖는 bytearray 생성
         preCommandType = bytearray([CommandType])
@@ -1684,7 +1684,7 @@ class ZumiAI:
         else:
             final_bytes = preCommandType + encoded_bytes + null_terminator
 
-        print(len(final_bytes))
+        # print(len(final_bytes))
         return self.transfer(final_bytes)
 
     def display_text(self, text:str, newline:int = 0):
