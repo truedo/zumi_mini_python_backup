@@ -11,7 +11,7 @@ from collections import Counter # Counter 모듈 임포트
 class SketchProcessor:
 
     # 학습 데이터 저장 파일 이름
-    # 이 파일은 self.sketchPath 내부에 저장됩니다.
+    # self.sketchPath 내부에 저장
     TRAINING_DATA_FILE = "sketch_training_data.pkl"
 
     def __init__(self) -> None:
@@ -422,9 +422,9 @@ class SketchProcessor:
         if total_deleted > 0:
             print(f"모델 '{name}'에 대한 학습 데이터 {total_deleted}개를 삭제했습니다.")
             if deleted_from_captured > 0:
-                print(f"   - 학습 대기 중인 데이터 {deleted_from_captured}개 삭제됨.")
+                print(f" - 학습 대기 중인 데이터 {deleted_from_captured}개 삭제됨.")
             if deleted_from_trained > 0:
-                print(f"   - 이미 학습된 데이터 {deleted_from_trained}개 삭제됨.")
+                print(f" - 이미 학습된 데이터 {deleted_from_trained}개 삭제됨.")
 
             # 삭제 후 매칭기 재학습
             print("매칭기를 재학습합니다...")

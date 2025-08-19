@@ -8,9 +8,6 @@ import tensorflow as tf # TensorFlow Lite Interpreter를 위해 필요
 import pickle # 객체 직렬화를 위해 pickle 모듈 추가
 
 # --- 기존 FaceRecognizer 클래스 정의 시작 ---
-# 이 부분은 사용자님의 FaceRecognizer.py 파일 내용이라고 가정합니다.
-# 실제 프로젝트에서는 이 클래스를 별도의 파일로 분리하고 import하여 사용하세요.
-
 class RecognitionData:
     def __init__(self, name) -> None:
         self.name = name

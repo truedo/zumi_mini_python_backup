@@ -2017,6 +2017,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             print(self.teachableLabelPath)
 
     def _teachableStart(self):
+        os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
         import tensorflow as tf
 
         if self.__teachableInitFlag is False:

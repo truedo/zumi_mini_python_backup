@@ -20,9 +20,9 @@ zumi.camera_stream_start()
 
 ##
 ##
-zumi.sensor_start()
+#zumi.sensor_start()
 #zumi.sensor_visible(True)
-zumi.frame_rate_visible(True)
+#zumi.frame_rate_visible(True)
 
 ##zumi.display_text_set(5,5)
 ##zumi.display_text("Motor",1)
@@ -62,9 +62,13 @@ zumi.frame_rate_visible(True)
 
 ##
 ####
-##zumi.sketch_detector_init()
-##zumi.sketch_detector_start()
-###zumi.sketch_train("school")
+zumi.sketch_detector_init()
+zumi.sketch_detector_start()
+
+#zumi.sketch_train("tower")
+
+zumi.delete_all_sketch_data()
+#zumi.delete_sketch_data("")
 
 ##
 ####
@@ -80,12 +84,12 @@ zumi.frame_rate_visible(True)
 
 ##
 #zumi.teachable_detector_init(model_path = 'model_unquant.tflite', lable_path = 'labels.txt')
-zumi.teachable_detector_init(model_path='model_unquant.tflite',lable_path='labels.txt')
+#zumi.teachable_detector_init(model_path='model_unquant.tflite',lable_path='labels.txt')
 
 #zumiAI.teachable_detector_init(model_path='model.tflite',lable_path='labels.txt')
 
 
-zumi.teachable_detector_start()
+##zumi.teachable_detector_start()
 #zumi.teachable_detector_stop()
 
 

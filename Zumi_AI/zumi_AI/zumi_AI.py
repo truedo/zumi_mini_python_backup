@@ -73,7 +73,6 @@ class DebugOutput:
         # 마지막에 줄바꿈이 필요할 경우를 대비한 상태 플래그 (선택 사항)
         self._receiving_line_in_progress = False
 
-
     def _printLog(self, message):
         # 일반 로그 출력
         if self._usePos_show_log_message and message is not None:
@@ -129,7 +128,15 @@ class DebugOutput:
 
 class ZumiAI:
     def __init__(self, usePosInterruptKey=False, usePosCheckBackground=True, usePosShowErrorMessage=True, usePosShowLogMessage=False,
-                 usePosShowTransferData=True, usePosShowReceiveData=False):
+                 usePosShowTransferData=False, usePosShowReceiveData=False):
+        """
+        usePosInterruptKey (bool): 키 인터럽트
+        usePosCheckBackground (bool): 시리얼 통신시 수신 데이터 처리
+        usePosShowErrorMessage (bool): # 일반 로그
+        usePosShowLogMessage (bool):  # 에러 로그
+        usePosShowTransferData (bool): # 송신 데이터 로그
+        usePosShowReceiveData (bool): # 수신 데이터 로그
+        """
 
         #self.timeStartProgram = time.time()  # Program Start Time Recording
 
@@ -230,7 +237,6 @@ class ZumiAI:
             #from .socket_class import *
             from .socket_class import WebSocketConnectionHandler
 
-
             # 2. portname이 IP 주소 형식인 경우 웹소켓 연결
             self._debugger._printLog(f"'{connection_info}'이(가) IP 주소 형식입니다. 웹소켓 연결을 시도합니다.")
             #return self._connect_websocket(connection_info)
@@ -243,14 +249,15 @@ class ZumiAI:
             )
             self._connection_handler.connect()
 
-
-
         else:
             # 3. 그 외의 경우 (예: "COM84", "/dev/ttyUSB0") 시리얼 포트 연결
             self._debugger._printLog(f"'{connection_info}'이(가) 시리얼 포트 이름 형식입니다. 시리얼 연결을 시도합니다.")
             #return self._connect_serial(connection_info)
             self._connection_handler = SerialConnectionHandler(self._usePosCheckBackground, debugger=self._debugger)
             self._connection_handler.connect(connection_info)
+
+
+        time.sleep(0.5)
 
     def disconnect(self):
         """
@@ -652,9 +659,9 @@ class ZumiAI:
             가변 인자 : args
 
         """
-        print(f"받은 인자의 개수: {len(args)}")
-        for arg in args:
-            print(arg)
+        # print(f"받은 인자의 개수: {len(args)}")
+        # for arg in args:
+        #     print(arg)
 
         # self.set_request(RequestType.REQUEST_ENTRY_COLOR_DETECT)
 
@@ -1586,6 +1593,21 @@ class ZumiAI:
         if(screen_type > 2) : screen_type = 2
 
         return self.sendCommand(CommandType.COMMAND_SCREEN_TOGGLE, screen_type)
+
+
+    def show_camera(self):
+        """
+        주미의 디스플레이에 카메라 피드를 표시합니다.
+        """
+        return self.sendCommand(CommandType.COMMAND_SCREEN_TOGGLE, 1)
+
+
+    def show_emotions(self):
+        """
+        주미의 디스플레이에 표정을 표시합니다.
+        """
+        return self.sendCommand(CommandType.COMMAND_SCREEN_TOGGLE, 2)
+
 
     def change_emotion(self, set:int = 1):
         """
