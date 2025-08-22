@@ -159,7 +159,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         self.__flipLRFlag = False
         self.__raw_img = None
+        self.__processed_frame = None
         self.__cameraStreamFlag = False
+
+        self.__windowVisible = True
+
+        self.__windowClose = False
+
 
 
         self.__text_offset = 18 #putText
@@ -243,6 +249,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         self.__palm_center = [0, 0]
         self.__gestureCenter = [0, 0]
         self.__gestureSize = 0
+
 
 
 
@@ -2301,8 +2308,16 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _cameraLeftRightFlip(self, flag:bool):
         self.__flipLRFlag = flag
 
+    def _cameraWindowVisible(self, flag:bool):
+        self.__windowVisible = flag
+
     def _getCameraFrame(self):
         return self.__raw_img
+
+    def _getProcessedFrame(self):
+        return self.__processed_frame
+
+
 
     def _cameraStream(self):
 
@@ -2314,6 +2329,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         self._ws.send("stream")
 
+        self.__windowClose = False
         self._display_thread = threading.Thread(target=self.__camera_display)
         # 스레드를 데몬 스레드로 설정하면 메인 프로그램 종료 시 함께 종료됩니다. 필요에 따라 설정하세요.
         # self._display_thread.daemon = True
@@ -2366,61 +2382,73 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
             try:
                 frame = self._frame_queue.get(timeout=2.0)
                 self.__raw_img = frame.copy()
+                self.__processed_frame = frame.copy()
 
                 # 얼굴 인식 화면 오버레이
                 if self.__faceDetectFlag == True:
-                    self.__overlay_face_boxes(frame)
+                    self.__overlay_face_boxes(self.__processed_frame)
 
                 # 제스처 인식 화면 오버레이
                 if self.__gestureDetectFlag == True:
                     if self.__drawGestureAreaFlag == True:
-                        self.__overlay_gesture_boxes(frame)
+                        self.__overlay_gesture_boxes(self.__processed_frame)
 
                 # yolo 인식 화면 오버레이
                 if self.__yoloDetectFlag == True:
                     if self.__drawYoloAreaFlag == True:
-                        self.__overlay_yolo_boxes(frame)
+                        self.__overlay_yolo_boxes(self.__processed_frame)
 
                 # apriltag 인식 화면 오버레이
                 if self.__aprilDetectFlag == True:
                     if self.__drawAprilAreaFlag == True:
-                        self.__overlay_april_boxes(frame)
+                        self.__overlay_april_boxes(self.__processed_frame)
 
                 # 센서 값 화면 오버레이
                 if self.__sensorFlag == True:
                     sensors = self._get_latest_sensors()
                     if self.__drawSensorAreaFlag == True:
-                        self._sensor_overlay(frame, sensors)
+                        self._sensor_overlay(self.__processed_frame, sensors)
 
                 # 센서 값 화면 오버레이
                 if self.__drawFPSFlag == True:
-                    self._FPS_overlay(frame)
+                    self._FPS_overlay(self.__processed_frame)
 
                 # 스케치 인식 화면 오버레이
                 if self.__sketchDetectFlag == True:
                     if self.__drawSketchAreaFlag == True:
-                        self.__overlay_sketch_boxes(frame)
+                        self.__overlay_sketch_boxes(self.__processed_frame)
 
                 # teachable machine
                 if self.__teachableInitFlag == True:
                     if self.__drawTeachablAreaFlag == True:
-                        self.__overlay_teachable(frame)
+                        self.__overlay_teachable(self.__processed_frame)
 
                 # # 숫자 인식 화면 오버레이
                 # if self.__numberDetectFlag == True:
                 #     if self.__drawNumberAreaFlag == True:
-                #         self.__overlay_number_boxes(frame)
+                #         self.__overlay_number_boxes(self.__processed_frame)
 
                 # if self.__signDetectFlag == True:
                 #    for (x, y, w, h) in self.__signDetectedRegions:
-                #        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # 초록색 사각형
+                #        cv2.rectangle(self.__processed_frame, (x, y), (x + w, y + h), (0, 255, 0), 2) # 초록색 사각형
 
                 if self.__faceTrainFlag == True or self.__sketchTrainFlag == True:
                     #r키를 눌러 연속 캡쳐, e키를 눌러 종료
-                    self._drawPutTextBox(frame, "-press r : capture", 0, 202, 0,(50,50,250))
-                    self._drawPutTextBox(frame, "-press e : end", 0, 220, 0,(50,50,250))
+                    self._drawPutTextBox(self.__processed_frame, "-press r : capture", 0, 202, 0,(50,50,250))
+                    self._drawPutTextBox(self.__processed_frame, "-press e : end", 0, 220, 0,(50,50,250))
 
-                cv2.imshow("ZumiAI Stream", frame)
+                if self.__windowVisible == True:
+                    cv2.imshow("ZumiAI Stream", self.__processed_frame)
+
+                # if self.__windowClose == True:
+                #     #print("__windowClose")
+                #     self.__faceDetectFlag = False
+                #     self.__aprilDetectFlag = False
+                #     self.__sketchDetectFlag = False
+                #     self.__gestureDetectFlag = False
+                #     self.__teachableDetectFlag = False
+                #     break
+
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
                     self.__faceDetectFlag = False
@@ -2430,12 +2458,12 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     self.__teachableDetectFlag = False
                     break
 
-                elif key == ord('s') and frame is not None:
-                    # 's' 키를 누르면 현재 프레임 저장 (frame)
-                    cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", frame)
+                elif key == ord('s') and self.__processed_frame is not None:
+                    # 's' 키를 누르면 현재 프레임 저장 (self.__processed_frame)
+                    cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", self.__processed_frame)
                     print("img save")
 
-                elif key == ord('d') and frame is not None:
+                elif key == ord('d') and self.__raw_img is not None:
                     # 's' 키를 누르면 현재 프레임 저장 (self.__raw_img)
                     cv2.imwrite(f"capture_{time.strftime('%Y%m%d_%H%M%S')}.jpg", self.__raw_img)
                     print("img save")
@@ -2457,7 +2485,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 if self.__faceTrainFlag == True:
                     if key == ord('r'): # 'r' 키를 누르면 현재 얼굴 학습
                         if self.__facecurrentResults == True and self.__faceResults != None:
-                            self.__face_recognizer.TrainModel(frame, self.__current_face_bbox, self.__faceTrainName)
+                            self.__face_recognizer.TrainModel(self.__raw_img, self.__current_face_bbox, self.__faceTrainName)
                         else:
                             print("얼굴이 감지되지 않아 등록할 수 없습니다.")
 
@@ -2487,11 +2515,15 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         print("stop")
         print(time.ctime())
         self.running = False
+
+        self.__windowClose = True
+
         if self._ws:
             self._ws.close()
         # ws 스레드가 있다면 join 시도 (데몬 스레드이므로 프로그램 종료시 함께 종료됨)
         if self._ws_thread and self._ws_thread.is_alive():
             self._ws_thread.join(timeout=1)
+
         cv2.destroyAllWindows()
 
 

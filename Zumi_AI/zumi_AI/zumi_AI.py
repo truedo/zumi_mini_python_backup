@@ -2254,6 +2254,25 @@ class ZumiAI:
 
         self._connection_handler._cameraLeftRightFlip(flag)
 
+
+
+
+
+    def camera_window_visible(self, flag: bool):
+        self._connection_handler._cameraWindowVisible(flag)
+
+
+    def get_camera_frame(self):
+        return self._connection_handler._getCameraFrame()
+
+    def get_processed_frame(self):
+        return self._connection_handler._getProcessedFrame()
+
+
+
+
+
+
     ##--------------------------------------------------------------------#]
     # sensor
     # def sensor_init(self):
