@@ -22,6 +22,10 @@ def handle_esc_key():
 zumi = ZumiAI()
 zumi.connect()
 
+zumi.change_screen(2)
+time.sleep(1)
+zumi.change_emotion(7)
+time.sleep(1)
  #zumi.set_calibration_motors()
 #zumi.forward_dist()
 #zumi.control_motor(2,40,1,40)
@@ -57,7 +61,8 @@ zumi.stop()
 ##time.sleep(1)
 ##
 ##
-##zumi.led_control(10,10,10)
+print("led 10,10,10")
+zumi.led_control(10,10,10)
 ##time.sleep(1)
 ##
 ##zumi.led_pattern(2, 0.1)

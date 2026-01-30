@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zumi-ai"
-version = "0.1.23"
+version = "0.1.24"
 authors = [
   { name="dr", email="drlee@robolink.co.kr" },
 ]

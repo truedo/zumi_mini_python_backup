@@ -304,7 +304,13 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
 
    sensor_start
    sensor_visible
+
    frame_rate_visible
+   get_fps
+
+   camera_window_visible
+   get_camera_frame
+   get_processed_frame
 
 ------------------------------------------------------
 
@@ -373,6 +379,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    get_marker_id
    get_marker_center
    get_marker_size
+   get_marker_corner
 
 ------------------------------------------------------
 
@@ -465,6 +472,7 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    get_obj_size
    get_obj_center
    get_obj_confidence
+   get_obj_corner
 
    get_traffic_light_color
 
@@ -472,6 +480,8 @@ ZumiAI와 상호작용하는 데 필요한 핵심 기능들을 한눈에 파악�
    object_check_all_add_obj
    object_check_del_obj
    object_check_all_del_obj
+
+
 
 ------------------------------------------------------
 

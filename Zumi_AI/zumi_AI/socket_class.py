@@ -177,6 +177,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         # FPS frame rate
         self.__drawFPSFlag = True
+        self.fps = 0
 
         # sensor
         self.__sensorInitFlag = False
@@ -224,7 +225,7 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
         self.__aprilTags =[] # info, id, center
         self.__aprilSize = 0
-
+        self.__aprilCorner =[]
 
 
 
@@ -892,6 +893,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
                     self.__aprilSize = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
 
+                    x1 = int(np.min(x))
+                    y1 = int(np.min(y))
+                    x2 = int(np.max(x))
+                    y2 = int(np.max(y))
+                    self.__aprilCorner = (x1, y1, x2, y2)
 
                 #print(self.__aprilTags)
 
@@ -1054,11 +1060,13 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
         if self.__aprilTags is None or len(self.__aprilTags) == 0:
             return 0
         else:
-            # x = self.__aprilTags[0].corners[:, 0]
-            # y = self.__aprilTags[0].corners[:, 1]
-
-            # self.__aprilSize = 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
             return self.__aprilSize
+
+    def _getAprilCorner(self) -> list:
+        if self.__aprilTags is None or len(self.__aprilTags) == 0:
+            pass
+        else:
+            return self.__aprilCorner
 
 
     # gesture
@@ -1743,6 +1751,17 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                 return detection["size"]
         return 0
 
+    def _getObjCorner(self, name: str) -> int:
+        """
+        특정 이름의 클래스의 코너(면적)를 반환합니다.
+        """
+        name = KOREAN_TO_ENGLISH_OBJ_MAP.get(name, name)
+
+        for detection in self.__yoloDetections:
+            if detection["name"] == name:
+                return detection["corner"]
+        return ()
+
     def _getObjCenter(self, name: str) -> tuple:
         """
         특정 이름의 클래스의 중심 좌표 (x, y)를 반환합니다.
@@ -2270,11 +2289,14 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
 
 
     # 프레임 표시
+    def _FPS_calculate(self):
+        # FPS 계산
+        elapsed = time.time() - self._start_time
+        self.fps = self._frame_count / elapsed if elapsed > 0 else 0
+
     def _FPS_overlay(self, frame):
         # FPS 표시 (기존 코드 유지)
-        elapsed = time.time() - self._start_time
-        fps = self._frame_count / elapsed if elapsed > 0 else 0
-        cv2.putText(frame, f"FPS: {fps:.1f}", (10, frame.shape[0]-10),
+        cv2.putText(frame, f"FPS: {self.fps:.1f}", (10, frame.shape[0]-10),
                    cv2.FONT_ITALIC, 0.5, (255, 255, 0), 2)
 
     def send(self, data):
@@ -2317,6 +2339,8 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
     def _getProcessedFrame(self):
         return self.__processed_frame
 
+    def _getFPS(self):
+        return self.fps
 
 
     def _cameraStream(self):
@@ -2409,9 +2433,11 @@ class WebSocketConnectionHandler(): # BaseConnectionHandler 상속 가능
                     if self.__drawSensorAreaFlag == True:
                         self._sensor_overlay(self.__processed_frame, sensors)
 
-                # 센서 값 화면 오버레이
+                # FPS 값 화면 오버레이
+                self._FPS_calculate() # FPS 계산
                 if self.__drawFPSFlag == True:
                     self._FPS_overlay(self.__processed_frame)
+
 
                 # 스케치 인식 화면 오버레이
                 if self.__sketchDetectFlag == True:

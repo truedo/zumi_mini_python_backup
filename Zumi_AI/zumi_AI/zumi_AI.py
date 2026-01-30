@@ -2259,17 +2259,86 @@ class ZumiAI:
 
 
     def camera_window_visible(self, flag: bool):
+        """
+        카메라 영상을 표시하는 창을 띄울지를 결정합니다.
+
+        camera_stream_start()를 호출하면 기본적으로 창이 나타나도록 되어있습니다.
+        카메라 영상이 필요 없거나, OpenCV 등을 이용해 다른 창으로 직접 띄워야 하는 경우 사용합니다.
+        get_camera_frame() 또는 get_processed_frame() 함수를 통해 반환된 영상 데이터를 활용할 수 있습니다.
+
+        Args:
+            flag (bool): 카메라 영상 창 표시 여부.
+
+                - **True**: 카메라 영상 창을 표시합니다.
+
+                - **False**: 카메라 영상 창을 표시하지 않습니다.
+
+        Returns:
+            없음
+
+        Examples:
+            >>> zumiAI.camera_stream_start() # 카메라 스트리밍 시작
+            >>> zumiAI.camera_window_visible(False) # 기본 창은 띄우지 않음
+        """
+
         self._connection_handler._cameraWindowVisible(flag)
 
+    def get_camera_frame(self) -> any:
+        """
+        카메라의 원본 영상 프레임을 반환합니다.
 
-    def get_camera_frame(self):
+        Args:
+            없음
+
+        Returns:
+            any: 카메라 원본 영상 데이터.
+
+        Examples:
+            >>> zumiAI.camera_stream_start() # 카메라 스트리밍 시작 (필수)
+            >>> zumiAI.camera_window_visible(False) # 카메라 영상 창 띄우지 않음
+            >>> camera_frame = zumiAI.get_camera_frame() # 원본 영상 프레임 가져오기
+            >>> cv2.imshow("ZumiAI Stream", camera_frame) # OpenCV를 사용하여 창에 표시
+        """
+
         return self._connection_handler._getCameraFrame()
 
-    def get_processed_frame(self):
+    def get_processed_frame(self) -> any:
+        """
+        카메라의 처리된 영상 프레임을 반환합니다.
+
+        Args:
+            없음
+
+        Returns:
+            any: 처리된 카메라 영상 데이터.
+
+        Examples:
+            >>> zumiAI.camera_stream_start() # 카메라 스트리밍 시작 (필수)
+            >>> zumiAI.camera_window_visible(False) # 카메라 영상 창 띄우지 않음
+            >>> processed_frame = zumiAI.get_processed_frame() # 알고리즘이 처리된 영상 가져오기
+            >>> cv2.imshow("ZumiAI Stream", processed_frame) # 처리된 영상을 화면에 표시
+        """
+
         return self._connection_handler._getProcessedFrame()
 
 
+    def get_fps(self) -> int:
+        """
+        스트리밍 카메라 영상의 프레임 속도(FPS) 를 가져옵니다.
 
+        Args:
+            없음
+
+        Returns:
+            int: 카메라 영상의 프레임 속도(FPS).
+
+        Examples:
+            >>> fps = zumiAI.get_fps() # 영상의 프레임 속도(FPS) 가져오기
+            >>> print(fps) #  프레임 속도(FPS) 화면에 출력
+        """
+
+        #return self._connection_handler._getFPS() #float 형식
+        return int(self._connection_handler._getFPS())
 
 
 
@@ -3239,6 +3308,55 @@ class ZumiAI:
             """
         return self._connection_handler._getAprilSize()
 
+    def get_marker_corner(self) -> tuple:
+        """
+        스트리밍되는 카메라 영상에서 인식된 첫 번째 마커의 영역 좌표(Corner)를 가져옵니다.
+
+        이 함수는 ``marker_detector_start()`` 로 마커 인식이 활성화된 상태에서 사용하며,
+        현재 영상에서 감지된 마커의 테두리 좌표(Bounding Box)를 반환합니다.
+        이 좌표를 활용하여 새로운 창에 사각 테두리를 그리거나 마커의 정확한 중심점 위치를 계산할 수 있습니다.
+
+        Args:
+            없음
+
+        Returns:
+            tuple: 마커의 좌표 데이터 (x1, y1, x2, y2).
+                - **(x1, y1)**: 감지된 마커 영역의 왼쪽 상단 좌표.
+                - **(x2, y2)**: 감지된 마커 영역의 오른쪽 하단 좌표.
+                - 마커가 인식되지 않은 경우 빈 튜플 또는 기본값이 반환됩니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.marker_detector_init() # 마커 인식 초기화
+            >>> zumiAI.marker_detector_start() # 마커 인식 시작
+            >>> zumiAI.camera_window_visible(False) # 기본 창을 숨기고 직접 창을 관리
+            >>>
+            >>> while True:
+            >>>     frame = zumiAI.get_camera_frame() # 영상 프레임 가져오기
+            >>>     box = zumiAI.get_marker_corner() # 마커 좌표 가져오기
+            >>>
+            >>>     if box: # 마커가 감지되어 좌표 데이터가 있다면
+            >>>         x1, y1, x2, y2 = box
+            >>>         # 가져온 좌표로 영상에 빨간색 사각 테두리 그리기
+            >>>         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            >>>
+            >>>         # 마커의 가로 너비와 중심점 계산 예시
+            >>>         width = x2 - x1
+            >>>         center_x = (x1 + x2) / 2
+            >>>         print(f"마커 너비: {width}, 중심 X좌표: {center_x}")
+            >>>
+            >>>     cv2.imshow("ZumiAI Marker Tracking", frame) # 직접 만든 창에 영상 표시
+            >>>     if cv2.waitKey(1) & 0xFF == ord('q'): break # 'q' 누르면 종료
+            >>>
+            >>> zumiAI.marker_detector_stop() # 마커 인식 중지
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()`` 로 영상 스트리밍을 시작하고, ``marker_detector_init()`` 로 마커 인식 기능을 초기화한 후, ``marker_detector_start()`` 를 호출하여 마커 인식을 활성화해야 합니다.
+            - 반환된 좌표는 ``cv2.rectangle()`` 등 OpenCV 함수에서 사각형을 그릴 때 바로 사용할 수 있는 형태입니다.
+            - 이 함수는 영상 내에서 가장 먼저 혹은 가장 크게 인식된 하나의 마커에 대한 좌표 정보만 반환합니다.
+        """
+        return self._connection_handler._getAprilCorner()
+
     ##--------------------------------------------------------------------#]
     # gesture
 
@@ -4122,6 +4240,51 @@ class ZumiAI:
             - 이 기능은 주미 자체의 하드웨어 기능이 아니라, PC 기반 소프트웨어로 처리됩니다.
         """
         return self._connection_handler._getObjConfidence(name)
+
+    def get_obj_corner(self, name: str) -> tuple:
+        """
+        카메라 영상에서 특정 이름의 물체(객체)가 감지된 영역의 좌표(Corner)를 가져옵니다.
+
+        이 함수는 ``object_detector_start()`` 로 물체 인식이 활성화된 상태에서 사용하며,
+        지정된 name을 가진 물체의 테두리 좌표(Bounding Box)를 반환합니다.
+        이 좌표를 활용하여 새로운 창에 사각 테두리를 그리거나 물체의 크기 및 중심점을 계산할 수 있습니다.
+
+        Args:
+            name (str): 좌표를 가져올 물체의 이름.
+                        (예: "person", "stop sign", "traffic light", "car" 등)
+                        만약 한글 이름으로 입력할 경우, 내부적으로 정의된 매핑 사전을 통해 자동으로 영어 이름으로 변환됩니다.
+                        (예: "사람" 입력 시 "person"으로 변환)
+
+        Returns:
+            tuple: 물체의 좌표 데이터 (x1, y1, x2, y2).
+                - **(x1, y1)**: 감지된 영역의 왼쪽 상단 좌표.
+                - **(x2, y2)**: 감지된 영역의 오른쪽 하단 좌표.
+                - 물체가 감지되지 않은 경우 빈 튜플이나 기본값이 반환됩니다.
+
+        Examples:
+            >>> zumiAI.camera_stream_start()  # 카메라 스트리밍 시작
+            >>> zumiAI.object_detector_init() # 물체 인식 초기화
+            >>> zumiAI.object_detector_start() # 물체 인식 시작
+            >>> zumiAI.camera_window_visible(False) # 기본 창을 숨기고 직접 창을 관리
+            >>>
+            >>> while True:
+            >>>     frame = zumiAI.get_camera_frame() # 영상 프레임 가져오기
+            >>>     box = zumiAI.get_obj_corner(name="사람") # 한글 이름으로 좌표 가져오기
+            >>>
+            >>>     if box: # 물체가 감지되어 좌표가 존재한다면
+            >>>         x1, y1, x2, y2 = box
+            >>>         # 가져온 좌표로 영상에 파란색 사각 테두리 그리기 (OpenCV 활용)
+            >>>         cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+            >>>
+            >>>     cv2.imshow("ZumiAI Object Tracking", frame) # 직접 만든 창에 영상 표시
+            >>>     if cv2.waitKey(1) & 0xFF == ord('q'): break # 'q' 누르면 종료
+
+        Note:
+            - 이 함수를 사용하기 전에 ``camera_stream_start()``, ``object_detector_init()``, ``object_detector_start()`` 가 순서대로 호출되어야 합니다.
+            - 반환된 좌표는 ``cv2.rectangle()`` 등의 함수에서 직접 사용할 수 있는 정수 또는 실수 형태의 묶음(tuple)입니다.
+            - 감지하려는 물체가 화면에 없을 경우를 대비하여 항상 ``if box:`` 와 같은 조건문으로 확인 후 사용하는 것이 권장됩니다.
+        """
+        return self._connection_handler._getObjCorner(name)
 
     def get_traffic_light_color(self) -> str:
         """

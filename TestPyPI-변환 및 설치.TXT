@@ -1,4 +1,4 @@
-doc
+-sphinx doc
 make html
 
 PyPI
